@@ -1,0 +1,22 @@
+name: wedding-website
+services:
+  - type: web
+    name: wedding-website
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: MONGODB_URI
+        value: mongodb+srv://wedding_admin:jyoti50admin@cluster0.mongodb.net/wedding_website?retryWrites=true&w=majority
+      - key: JWT_SECRET
+        value: jyoti50thbirthdaycelebration
+      - key: GOOGLE_SHEETS_ID
+        value: 1i3CI6gj54e63kR-fLza-2ncqzAof6H76iJj7pOzVP0I
+      - key: AWS_ACCESS_KEY_ID
+        value: AKIAXXXXXXXXXXXXXXXX
+      - key: AWS_SECRET_ACCESS_KEY
+        value: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      - key: AWS_REGION
+        value: us-east-1
+      - key: S3_BUCKET_NAME
+        value: jyoti50-wedding-website

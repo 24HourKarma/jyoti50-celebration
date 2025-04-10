@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <meta name="apple-mobile-web-app-title" content="Jyoti's 50th">
+    <link rel="apple-touch-icon" href="/images/icon-192x192.png">
+    <link rel="manifest" href="/manifest.json">
+    <title>Jyoti's 50th Birthday Celebration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/gallery.css">
+</head>
+<body>
+    <div class="add-to-home-screen" id="addToHomeScreen">
+        <div class="add-to-home-content">
+            <p>Add this website to your home screen for easy access</p>
+            <div class="add-to-home-buttons">
+                <button id="addToHomeBtn">Add to Home Screen</button>
+                <button id="dismissBtn">Dismiss</button>
+            </div>
+        </div>
+    </div>
+
+    <header>
+        <div class="header-content">
+            <h1>Jyoti's 50th Birthday Celebration</h1>
+            <nav>
+                <ul>
+                    <li><a href="#" class="active" data-page="home">Home</a></li>
+                    <li><a href="#" data-page="schedule">Schedule</a></li>
+                    <li><a href="#" data-page="gallery">Gallery</a></li>
+                    <li><a href="#" data-page="reminders">Reminders</a></li>
+                    <li><a href="#" data-page="contacts">Contacts</a></li>
+                    <li><a href="#" data-page="notes">Notes</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Home Page -->
+        <section id="home" class="page active">
+            <div class="hero">
+                <img src="/images/jyoti.jpg" alt="Jyoti" class="hero-image">
+                <div class="countdown-container">
+                    <h2>Celebration Begins In</h2>
+                    <div class="countdown">
+                        <div class="countdown-item">
+                            <span id="days">14</span>
+                            <p>Days</p>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="hours">23</span>
+                            <p>Hours</p>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="minutes">14</span>
+                            <p>Minutes</p>
+                        </div>
+                        <div class="countdown-item">
+                            <span id="seconds">19</span>
+                            <p>Seconds</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="event-info">
+                <h2>April 24-27, 2025 • Kraków, Poland</h2>
+                <p>Join us for a memorable celebration in the beautiful city of Kraków!</p>
+            </div>
+
+            <div class="important-info">
+                <h2>Important Information</h2>
+                <div class="info-cards">
+                    <div class="info-card">
+                        <h3>Accommodations</h3>
+                        <p>Grand Hotel Kraków has special rates for our guests. Mention "Jyoti50" when booking.</p>
+                        <p>Contact: +48 12 345 6789</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Weather</h3>
+                        <p>April in Kraków typically has temperatures between 5°C and 15°C. Pack layers and a light jacket.</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Local Currency</h3>
+                        <p>Polish Złoty (PLN). Current exchange rate: 1 USD ≈ 3.8 PLN, 1 EUR ≈ 4.3 PLN</p>
+                    </div>
+                    <div class="info-card">
+                        <h3>Transportation</h3>
+                        <p>Transportation will be provided for all scheduled activities. Meeting point is the hotel lobby.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Schedule Page -->
+        <section id="schedule" class="page">
+            <h2>Event Schedule</h2>
+            <div class="schedule-container">
+                <!-- Day 1: Thursday, April 24 -->
+                <div class="schedule-day">
+                    <h3>Thursday, April 24, 2025</h3>
+                    <div class="schedule-events">
+                        <div class="event-card">
+                            <div class="event-time">9:00 PM - 10:30 PM</div>
+                            <div class="event-details">
+                                <h4>Welcome Dinner</h4>
+                                <p class="event-location">Nova Resto Bar & Nova Klubova</p>
+                                <p class="event-dress-code"><i class="fas fa-tshirt"></i> Sexy Clevage and Chest Night</p>
+                                <p class="event-notes">Please arrive on time as we have a reservation for the group.</p>
+                                <div class="event-buttons">
+                                    <a href="#" class="btn btn-map"><i class="fas fa-map-marker-alt"></i> View Map</a>
+                                    <a href="#" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="event-card">
+                            <div class="event-time">10:30 PM - 12:00 AM</div>
+                            <div class="event-details">
+                                <h4>Club Night</h4>
+                                <p class="event-location">Nova Klubova</p>
+                                <p class="event-notes">Entry is included with your dinner reservation.</p>
+                                <div class="event-buttons">
+                                    <a href="#" class="btn btn-map"><i class="fas fa-map-marker-alt"></i> View Map</a>
+                                    <a href="#" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 2: Friday, April 25 -->
+                <div class="schedule-day">
+                    <h3>Friday, April 25, 2025</h3>
+                    <div class="schedule-events">
+                        <div class="event-card">
+                            <div class="event-time">6:00 AM - 9:00 AM</div>
+                            <div class="event-details">
+                                <h4>Breakfast</h4>
+                                <p class="event-location">Hotel</p>
+                                <p class="event-notes">Need to check if breakfast is included at hotel.</p>
+                            </div>
+                        </div>
+                        <div class="event-card">
+                            <div class="event-time">10:00 AM - 12:30 PM</div>
+                            <div class="event-details">
+                                <h4>Zorbing</h4>
+                                <p class="event-location">TBD</p>
+                                <p class="event-dress-code"><i class="fas fa-tshirt"></i> Casual for activity</p>
+                                <p class="event-notes">Bus transportation from hotel and back.</p>
+                            </div>
+                        </div>
+                        <div class="event-card">
+                            <div class="event-time">1:30 PM - 3:00 PM</div>
+                            <div class="event-details">
+                                <h4>Traditional Polish Feast</h4>
+                                <p class="event-location">Morskie Oko restaurant</p>
+                                <p class="event-dress-code"><i class="fas fa-tshirt"></i> Casual Elegant</p>
+                                <div class="event-buttons">
+                                    <a href="#" class="btn btn-map"><i class="fas fa-map-marker-alt"></i> View Map</a>
+                                    <a href="#" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="event-card">
+                            <div class="event-time">3:30 PM - 8:00 PM</div>
+                            <div class="event-details">
+                                <h4>Free Time</h4>
+                                <p class="event-location">N/A</p>
+                                <p class="event-notes">Free time to rest, sleep, and get ready for the evening party.</p>
+                            </div>
+                        </div>
+                        <div class="event-card">
+                            <div class="event-time">8:30 PM - 12:00 AM</div>
+                            <div class="event-details">
+                                <h4>Fort Kleparz Dinner & Party</h4>
+                                <p class="event-location">Forty Kleparz - Restobar, Music Club, Lounge bar</p>
+                                <p class="event-dress-code"><i class="fas fa-tshirt"></i> All White shade of black</p>
+                                <p class="event-notes">8:30 PM welcome drink outside and 9:00 PM inside dinner.</p>
+                                <div class="event-buttons">
+                                    <a href="#" class="btn btn-map"><i class="fas fa-map-marker-alt"></i> View Map</a>
+                                    <a href="#" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 3: Saturday, April 26 -->
+                <div class="schedule-day">
+                    <h3>Saturday, April 26, 2025</h3>
+                    <div class="schedule-events">
+                        <div class="event-card">
+                            <div class="event-time">6:00 AM - 10:00 AM</div>
+                            <div class="event-details">
+                                <h4>Breakfast</h4>
+                                <p class="event-location">Hotel</p>
+                                <p class="event-notes">Need to check if breakfast is included at hotel.</p>
+                            </div>
+                        </div>
+                        <div class="event-card">
+                            <div class="event-time">11:00 AM - 3:00 PM</div>
+                            <div class="event-details">
+                                <h4>Salt Mines</h4>
+                                <p class="event-location">Wieliczka Salt Mine</p>
+                                <p class="event-dress-code"><i class="fas fa-tshirt"></i> Casual Comfortable</p>
+                                <p class="event-notes">Visit the famous Wieliczka Salt Mine with lunch included.</p>
+                                <div class="event-buttons">
+                                    <a href="#" class="btn btn-map"><i class="fas fa-map-marker-alt"></i> View Map</a>
+                                    <a href="#" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Day 4: Sunday, April 27 -->
+                <div class="schedule-day">
+                    <h3>Sunday, April 27, 2025</h3>
+                    <div class="schedule-events">
+                        <div class="event-card">
+                            <div class="event-time">6:00 AM - 10:00 AM</div>
+                            <div class="event-details">
+                                <h4>Breakfast & Departure</h4>
+                                <p class="event-location">Hotel</p>
+                                <p class="event-notes">Check-out time is 11:00 AM. Transportation to the airport can be arranged upon request.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Gallery Page -->
+        <section id="gallery" class="page">
+            <h2>Photo Gallery</h2>
+            <div class="gallery-upload">
+                <h3>Share Your Photos</h3>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <input type="file" id="imageUpload" name="image" accept="image/*">
+                    <button type="submit" class="btn btn-upload">Upload Photo</button>
+                </form>
+            </div>
+            <div class="gallery-container" id="galleryContainer">
+                <!-- Gallery images will be loaded here dynamically -->
+            </div>
+        </section>
+
+        <!-- Reminders Page -->
+        <section id="reminders" class="page">
+            <h2>Important Reminders</h2>
+            <div class="reminders-container" id="remindersContainer">
+                <!-- Reminders will be loaded here dynamically -->
+                <div class="reminder-card">
+                    <div class="reminder-icon"><i class="fas fa-bell"></i></div>
+                    <div class="reminder-content">
+                        <p>Don't forget to bring your passport for the trip</p>
+                        <span class="reminder-date">April 20, 2025</span>
+                    </div>
+                </div>
+                <div class="reminder-card">
+                    <div class="reminder-icon"><i class="fas fa-info-circle"></i></div>
+                    <div class="reminder-content">
+                        <p>Exchange some money to Polish Zloty before the trip</p>
+                        <span class="reminder-date">April 22, 2025</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contacts Page -->
+        <section id="contacts" class="page">
+            <h2>Contacts</h2>
+            <div class="contacts-container" id="contactsContainer">
+                <!-- Contacts will be loaded here dynamically -->
+                <div class="contact-card">
+                    <h3>Shubham Pandey</h3>
+                    <p class="contact-type">Host</p>
+                    <p class="contact-info"><i class="fas fa-envelope"></i> shubham.pandey@gmail.com</p>
+                    <p class="contact-info"><i class="fas fa-phone"></i> +1 123-456-7890</p>
+                    <p class="contact-description">Main host and organizer for the celebration.</p>
+                </div>
+                <div class="contact-card">
+                    <h3>Jyoti Pandey</h3>
+                    <p class="contact-type">Birthday Person</p>
+                    <p class="contact-info"><i class="fas fa-envelope"></i> jyoti.pandey@gmail.com</p>
+                    <p class="contact-info"><i class="fas fa-phone"></i> +1 123-456-7891</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes Page -->
+        <section id="notes" class="page">
+            <h2>Notes</h2>
+            <div class="notes-container" id="notesContainer">
+                <!-- Notes will be loaded here dynamically -->
+                <div class="note-card">
+                    <h3>Information about dress codes for each event</h3>
+                    <p>Please check the schedule page for specific dress code requirements for each event.</p>
+                </div>
+                <div class="note-card">
+                    <h3
+(Content truncated due to size limit. Use line ranges to read in chunks)
