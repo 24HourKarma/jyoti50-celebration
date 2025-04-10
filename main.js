@@ -1,434 +1,461 @@
-// Main JavaScript file with real API integration
+// Main JavaScript for the website
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize navigation
-    initNavigation();
+    // Initialize the application
+    initApp();
     
-    // Load data from API
-    loadEvents();
-    loadContacts();
-    loadReminders();
-    loadNotes();
-    loadGallery();
-    loadFooter();
+    // Set up navigation
+    setupNavigation();
     
     // Initialize countdown timer
-    initCountdownTimer();
-    
-    // Setup gallery upload form
-    setupGalleryUpload();
+    initCountdown();
 });
 
-// Initialize navigation
-function initNavigation() {
+// Initialize the application
+async function initApp() {
+    try {
+        // Fetch all data in parallel
+        const [events, contacts, reminders, notes, footer, settings, gallery] = await Promise.all([
+            fetchData('/api/events'),
+            fetchData('/api/contacts'),
+            fetchData('/api/reminders'),
+            fetchData('/api/notes'),
+            fetchData('/api/footer'),
+            fetchData('/api/settings'),
+            fetchData('/api/gallery')
+        ]);
+        
+        // Initialize each section
+        initSchedule(events);
+        initContacts(contacts);
+        initReminders(reminders);
+        initNotes(notes);
+        initFooter(footer);
+        updateSettings(settings);
+        
+        // Initialize gallery if on gallery page
+        if (document.getElementById('gallery-container')) {
+            initGallery(gallery);
+        }
+        
+        console.log('Application initialized successfully');
+    } catch (error) {
+        console.error('Error initializing application:', error);
+        showError('Failed to load data. Please refresh the page or try again later.');
+    }
+}
+
+// Fetch data from API
+async function fetchData(endpoint) {
+    try {
+        console.log(`Fetching data from ${endpoint}...`);
+        const response = await fetch(endpoint);
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log(`Data from ${endpoint}:`, data);
+        return data;
+    } catch (error) {
+        console.error(`Error fetching data from ${endpoint}:`, error);
+        throw error;
+    }
+}
+
+// Set up navigation
+function setupNavigation() {
     const navLinks = document.querySelectorAll('nav a');
     const sections = document.querySelectorAll('section');
     
+    // Hide all sections initially
+    sections.forEach(section => {
+        section.style.display = 'none';
+    });
+    
+    // Show home section by default
+    const homeSection = document.getElementById('home');
+    if (homeSection) {
+        homeSection.style.display = 'block';
+    }
+    
+    // Add click event listeners to navigation links
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             
+            // Get the target section ID from the link's href
             const targetId = this.getAttribute('href').substring(1);
             
             // Hide all sections
             sections.forEach(section => {
-                section.classList.remove('active');
+                section.style.display = 'none';
             });
             
-            // Show target section
-            document.getElementById(targetId).classList.add('active');
-            
-            // Update active nav link
-            navLinks.forEach(navLink => {
-                navLink.classList.remove('active');
-            });
-            
-            this.classList.add('active');
-            
-            // Close mobile menu if open
-            const mobileMenu = document.querySelector('.mobile-menu');
-            if (mobileMenu && mobileMenu.classList.contains('open')) {
-                mobileMenu.classList.remove('open');
+            // Show the target section
+            const targetSection = document.getElementById(targetId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
             }
+            
+            // Update active link
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            this.classList.add('active');
         });
     });
-    
-    // Show home section by default
-    document.getElementById('home').classList.add('active');
-    document.querySelector('nav a[href="#home"]').classList.add('active');
-    
-    // Mobile menu toggle
-    const menuToggle = document.querySelector('.menu-toggle');
-    const mobileMenu = document.querySelector('.mobile-menu');
-    
-    if (menuToggle && mobileMenu) {
-        menuToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('open');
-        });
-    }
 }
 
 // Initialize countdown timer
-function initCountdownTimer() {
+function initCountdown() {
     const countdownElement = document.getElementById('countdown');
     if (!countdownElement) return;
     
-    // Fetch settings to get event date
-    fetch('/api/settings')
-        .then(response => response.json())
-        .then(settings => {
-            const eventDateString = settings.eventDate;
-            
-            // Parse event date
-            let eventDate;
-            if (eventDateString.includes('-')) {
-                // If date range (e.g., "April 24-27, 2025"), use first date
-                const dateParts = eventDateString.split('-')[0].trim().split(' ');
-                const month = getMonthNumber(dateParts[0]);
-                const day = parseInt(dateParts[1]);
-                const year = parseInt(dateParts[2]) || new Date().getFullYear();
-                eventDate = new Date(year, month, day);
-            } else {
-                // Try to parse the date string
-                eventDate = new Date(eventDateString);
-            }
-            
-            // If date is invalid, use a default date
-            if (isNaN(eventDate.getTime())) {
-                eventDate = new Date(2025, 3, 24); // April 24, 2025
-            }
-            
-            // Update countdown every second
-            updateCountdown(eventDate);
-            setInterval(() => updateCountdown(eventDate), 1000);
-        })
-        .catch(error => {
-            console.error('Error loading settings:', error);
-            
-            // Use default date if settings can't be loaded
-            const eventDate = new Date(2025, 3, 24); // April 24, 2025
-            
-            // Update countdown every second
-            updateCountdown(eventDate);
-            setInterval(() => updateCountdown(eventDate), 1000);
-        });
-}
-
-// Update countdown timer
-function updateCountdown(eventDate) {
-    const countdownElement = document.getElementById('countdown');
-    if (!countdownElement) return;
+    // Set the date we're counting down to (April 24, 2025 at 19:00)
+    const countdownDate = new Date('April 24, 2025 19:00:00').getTime();
     
-    const now = new Date();
-    const difference = eventDate - now;
-    
-    if (difference <= 0) {
-        // Event has already happened
+    // Update the countdown every 1 second
+    const countdownInterval = setInterval(function() {
+        // Get current date and time
+        const now = new Date().getTime();
+        
+        // Calculate the time remaining
+        const distance = countdownDate - now;
+        
+        // Calculate days, hours, minutes, and seconds
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        // Display the countdown
         countdownElement.innerHTML = `
             <div class="countdown-item">
-                <span class="countdown-value">0</span>
+                <span class="countdown-number">${days}</span>
                 <span class="countdown-label">Days</span>
             </div>
             <div class="countdown-item">
-                <span class="countdown-value">0</span>
+                <span class="countdown-number">${hours}</span>
                 <span class="countdown-label">Hours</span>
             </div>
             <div class="countdown-item">
-                <span class="countdown-value">0</span>
+                <span class="countdown-number">${minutes}</span>
                 <span class="countdown-label">Minutes</span>
             </div>
             <div class="countdown-item">
-                <span class="countdown-value">0</span>
+                <span class="countdown-number">${seconds}</span>
                 <span class="countdown-label">Seconds</span>
             </div>
         `;
+        
+        // If the countdown is over, display a message
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            countdownElement.innerHTML = '<div class="countdown-complete">The celebration has begun!</div>';
+        }
+    }, 1000);
+}
+
+// Initialize schedule section
+function initSchedule(events) {
+    const scheduleContainer = document.getElementById('schedule-container');
+    if (!scheduleContainer) return;
+    
+    // Clear existing content
+    scheduleContainer.innerHTML = '';
+    
+    if (!events || events.length === 0) {
+        scheduleContainer.innerHTML = '<p class="no-data">No events scheduled yet.</p>';
         return;
     }
     
-    // Calculate days, hours, minutes, seconds
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    // Group events by day
+    const eventsByDay = {};
+    events.forEach(event => {
+        if (!eventsByDay[event.day]) {
+            eventsByDay[event.day] = [];
+        }
+        eventsByDay[event.day].push(event);
+    });
     
-    // Update countdown display
-    countdownElement.innerHTML = `
-        <div class="countdown-item">
-            <span class="countdown-value">${days}</span>
-            <span class="countdown-label">Days</span>
-        </div>
-        <div class="countdown-item">
-            <span class="countdown-value">${hours}</span>
-            <span class="countdown-label">Hours</span>
-        </div>
-        <div class="countdown-item">
-            <span class="countdown-value">${minutes}</span>
-            <span class="countdown-label">Minutes</span>
-        </div>
-        <div class="countdown-item">
-            <span class="countdown-value">${seconds}</span>
-            <span class="countdown-label">Seconds</span>
+    // Create HTML for each day
+    Object.keys(eventsByDay).forEach(day => {
+        const dayEvents = eventsByDay[day];
+        
+        // Create day container
+        const dayContainer = document.createElement('div');
+        dayContainer.className = 'day-container';
+        
+        // Add day header
+        const dayHeader = document.createElement('h2');
+        dayHeader.className = 'day-header';
+        dayHeader.textContent = day;
+        dayContainer.appendChild(dayHeader);
+        
+        // Add events for this day
+        dayEvents.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event-card';
+            
+            eventElement.innerHTML = `
+                <h3 class="event-title">${event.title}</h3>
+                <div class="event-details">
+                    <div class="event-detail">
+                        <i class="fas fa-clock"></i>
+                        <span>${event.startTime} - ${event.endTime}</span>
+                    </div>
+                    <div class="event-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${event.location}</span>
+                    </div>
+                    <div class="event-detail">
+                        <i class="fas fa-tshirt"></i>
+                        <span>${event.dressCode}</span>
+                    </div>
+                </div>
+                <p class="event-description">${event.description}</p>
+                <div class="event-notes">${event.notes}</div>
+                <div class="event-actions">
+                    ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-map"></i> View Map</a>` : ''}
+                    ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-globe"></i> View Website</a>` : ''}
+                </div>
+            `;
+            
+            dayContainer.appendChild(eventElement);
+        });
+        
+        scheduleContainer.appendChild(dayContainer);
+    });
+}
+
+// Initialize contacts section
+function initContacts(contacts) {
+    const contactsContainer = document.getElementById('contacts-container');
+    if (!contactsContainer) return;
+    
+    // Clear existing content
+    contactsContainer.innerHTML = '';
+    
+    if (!contacts || contacts.length === 0) {
+        contactsContainer.innerHTML = '<p class="no-data">No contacts available yet.</p>';
+        return;
+    }
+    
+    // Group contacts by type
+    const contactsByType = {};
+    contacts.forEach(contact => {
+        if (!contactsByType[contact.type]) {
+            contactsByType[contact.type] = [];
+        }
+        contactsByType[contact.type].push(contact);
+    });
+    
+    // Create HTML for each contact type
+    Object.keys(contactsByType).forEach(type => {
+        const typeContacts = contactsByType[type];
+        
+        // Create type container
+        const typeContainer = document.createElement('div');
+        typeContainer.className = 'contact-type-container';
+        
+        // Add type header
+        const typeHeader = document.createElement('h2');
+        typeHeader.className = 'contact-type-header';
+        typeHeader.textContent = type;
+        typeContainer.appendChild(typeHeader);
+        
+        // Add contacts for this type
+        typeContacts.forEach(contact => {
+            const contactElement = document.createElement('div');
+            contactElement.className = 'contact-card';
+            
+            contactElement.innerHTML = `
+                <h3 class="contact-name">${contact.name}</h3>
+                <div class="contact-details">
+                    <div class="contact-detail">
+                        <i class="fas fa-envelope"></i>
+                        <a href="mailto:${contact.email}">${contact.email}</a>
+                    </div>
+                    <div class="contact-detail">
+                        <i class="fas fa-phone"></i>
+                        <a href="tel:${contact.phone}">${contact.phone}</a>
+                    </div>
+                </div>
+                <p class="contact-description">${contact.description}</p>
+            `;
+            
+            typeContainer.appendChild(contactElement);
+        });
+        
+        contactsContainer.appendChild(typeContainer);
+    });
+}
+
+// Initialize reminders section
+function initReminders(reminders) {
+    const remindersContainer = document.getElementById('reminders-container');
+    if (!remindersContainer) return;
+    
+    // Clear existing content
+    remindersContainer.innerHTML = '';
+    
+    if (!reminders || reminders.length === 0) {
+        remindersContainer.innerHTML = '<p class="no-data">No reminders available yet.</p>';
+        return;
+    }
+    
+    // Sort reminders by date
+    reminders.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Create HTML for each reminder
+    reminders.forEach(reminder => {
+        const reminderElement = document.createElement('div');
+        reminderElement.className = 'reminder-card';
+        
+        // Determine icon class
+        let iconClass = 'fas fa-bell';
+        if (reminder.icon === 'Calendar') iconClass = 'fas fa-calendar-alt';
+        if (reminder.icon === 'Info') iconClass = 'fas fa-info-circle';
+        if (reminder.icon === 'Warning') iconClass = 'fas fa-exclamation-triangle';
+        
+        reminderElement.innerHTML = `
+            <div class="reminder-icon">
+                <i class="${iconClass}"></i>
+            </div>
+            <div class="reminder-content">
+                <h3 class="reminder-title">${reminder.title}</h3>
+                <p class="reminder-description">${reminder.description}</p>
+                <div class="reminder-date">${formatDate(reminder.date)}</div>
+            </div>
+        `;
+        
+        remindersContainer.appendChild(reminderElement);
+    });
+}
+
+// Initialize notes section
+function initNotes(notes) {
+    const notesContainer = document.getElementById('notes-container');
+    if (!notesContainer) return;
+    
+    // Clear existing content
+    notesContainer.innerHTML = '';
+    
+    if (!notes || notes.length === 0) {
+        notesContainer.innerHTML = '<p class="no-data">No notes available yet.</p>';
+        return;
+    }
+    
+    // Create HTML for each note
+    notes.forEach(note => {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note-card';
+        
+        noteElement.innerHTML = `
+            <h3 class="note-title">${note.title}</h3>
+            <div class="note-content">${note.content}</div>
+        `;
+        
+        notesContainer.appendChild(noteElement);
+    });
+}
+
+// Initialize footer
+function initFooter(footer) {
+    const footerContainer = document.querySelector('footer');
+    if (!footerContainer) return;
+    
+    if (!footer) {
+        return;
+    }
+    
+    // Update footer content
+    footerContainer.innerHTML = `
+        <div class="footer-content">
+            <div class="footer-title">${footer.title}</div>
+            <div class="footer-text">${footer.text}</div>
+            <div class="footer-copyright">${footer.copyright}</div>
         </div>
     `;
 }
 
-// Helper function to get month number from name
-function getMonthNumber(monthName) {
-    const months = {
-        'january': 0,
-        'february': 1,
-        'march': 2,
-        'april': 3,
-        'may': 4,
-        'june': 5,
-        'july': 6,
-        'august': 7,
-        'september': 8,
-        'october': 9,
-        'november': 10,
-        'december': 11
-    };
+// Update settings
+function updateSettings(settings) {
+    if (!settings) return;
     
-    return months[monthName.toLowerCase()] || 0;
+    // Update page title
+    document.title = settings.siteTitle;
+    
+    // Update site header
+    const siteHeader = document.querySelector('.site-header h1');
+    if (siteHeader) {
+        siteHeader.textContent = settings.siteTitle;
+    }
+    
+    // Update event info
+    const eventInfo = document.querySelector('.event-info');
+    if (eventInfo) {
+        eventInfo.innerHTML = `
+            <div class="event-date">${settings.eventDate}</div>
+            <div class="event-location">${settings.eventLocation}</div>
+        `;
+    }
+    
+    // Update colors
+    document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
+    document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor);
 }
 
-// Load events from API
-function loadEvents() {
-    const scheduleSection = document.getElementById('schedule');
-    if (!scheduleSection) return;
-    
-    const scheduleContent = scheduleSection.querySelector('.schedule-content');
-    if (!scheduleContent) return;
-    
-    scheduleContent.innerHTML = '<div class="loading">Loading schedule...</div>';
-    
-    fetch('/api/events')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load events');
-            }
-            return response.json();
-        })
-        .then(events => {
-            if (events.length === 0) {
-                scheduleContent.innerHTML = '<p class="empty-message">No events scheduled yet.</p>';
-                return;
-            }
-            
-            // Group events by day
-            const eventsByDay = {};
-            
-            events.forEach(event => {
-                const day = event.day || formatDay(event.date);
-                
-                if (!eventsByDay[day]) {
-                    eventsByDay[day] = [];
-                }
-                
-                eventsByDay[day].push(event);
-            });
-            
-            // Sort events by start time within each day
-            for (const day in eventsByDay) {
-                eventsByDay[day].sort((a, b) => {
-                    return a.startTime.localeCompare(b.startTime);
-                });
-            }
-            
-            // Clear schedule content
-            scheduleContent.innerHTML = '';
-            
-            // Create schedule for each day
-            for (const day in eventsByDay) {
-                const daySection = document.createElement('div');
-                daySection.className = 'day-section';
-                
-                daySection.innerHTML = `
-                    <h3 class="day-title">${day}</h3>
-                    <div class="day-events"></div>
-                `;
-                
-                const dayEvents = daySection.querySelector('.day-events');
-                
-                eventsByDay[day].forEach(event => {
-                    const eventElement = document.createElement('div');
-                    eventElement.className = 'event-card';
-                    
-                    // Create buttons HTML if URLs are provided
-                    let buttonsHtml = '';
-                    
-                    if (event.mapUrl) {
-                        buttonsHtml += `<a href="${event.mapUrl}" target="_blank" class="btn btn-map">Map</a>`;
-                    }
-                    
-                    if (event.websiteUrl) {
-                        buttonsHtml += `<a href="${event.websiteUrl}" target="_blank" class="btn btn-website">Website</a>`;
-                    }
-                    
-                    // Create dress code HTML if provided
-                    let dressCodeHtml = '';
-                    
-                    if (event.dressCode) {
-                        dressCodeHtml = `<p class="event-dress-code"><strong>Dress Code:</strong> ${event.dressCode}</p>`;
-                    }
-                    
-                    // Create notes HTML if provided
-                    let notesHtml = '';
-                    
-                    if (event.notes) {
-                        notesHtml = `<p class="event-notes">${event.notes}</p>`;
-                    }
-                    
-                    eventElement.innerHTML = `
-                        <div class="event-time">${event.startTime} - ${event.endTime}</div>
-                        <div class="event-details">
-                            <h4 class="event-title">${event.title}</h4>
-                            <p class="event-location">${event.location}</p>
-                            ${dressCodeHtml}
-                            <p class="event-description">${event.description || ''}</p>
-                            ${notesHtml}
-                            <div class="event-buttons">
-                                ${buttonsHtml}
-                            </div>
-                        </div>
-                    `;
-                    
-                    dayEvents.appendChild(eventElement);
-                });
-                
-                scheduleContent.appendChild(daySection);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading events:', error);
-            scheduleContent.innerHTML = '<div class="error-message">Failed to load schedule. Please refresh the page to try again.</div>';
-        });
+// Format date
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
 }
 
-// Load contacts from API
-function loadContacts() {
-    const contactsSection = document.getElementById('contacts');
-    if (!contactsSection) return;
+// Show error message
+function showError(message) {
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.textContent = message;
     
-    const contactsContent = contactsSection.querySelector('.contacts-content');
-    if (!contactsContent) return;
+    document.body.appendChild(errorElement);
     
-    contactsContent.innerHTML = '<div class="loading">Loading contacts...</div>';
-    
-    fetch('/api/contacts')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load contacts');
-            }
-            return response.json();
-        })
-        .then(contacts => {
-            if (contacts.length === 0) {
-                contactsContent.innerHTML = '<p class="empty-message">No contacts available yet.</p>';
-                return;
-            }
-            
-            // Group contacts by type
-            const contactsByType = {};
-            
-            contacts.forEach(contact => {
-                const type = contact.type || 'General';
-                
-                if (!contactsByType[type]) {
-                    contactsByType[type] = [];
-                }
-                
-                contactsByType[type].push(contact);
-            });
-            
-            // Clear contacts content
-            contactsContent.innerHTML = '';
-            
-            // Create contacts for each type
-            for (const type in contactsByType) {
-                const typeSection = document.createElement('div');
-                typeSection.className = 'contact-type-section';
-                
-                typeSection.innerHTML = `
-                    <h3 class="contact-type-title">${type}</h3>
-                    <div class="contact-type-items"></div>
-                `;
-                
-                const typeItems = typeSection.querySelector('.contact-type-items');
-                
-                contactsByType[type].forEach(contact => {
-                    const contactElement = document.createElement('div');
-                    contactElement.className = 'contact-card';
-                    
-                    contactElement.innerHTML = `
-                        <h4 class="contact-name">${contact.name}</h4>
-                        <p class="contact-email"><a href="mailto:${contact.email}">${contact.email}</a></p>
-                        <p class="contact-phone"><a href="tel:${contact.phone}">${contact.phone}</a></p>
-                        <p class="contact-description">${contact.description || ''}</p>
-                    `;
-                    
-                    typeItems.appendChild(contactElement);
-                });
-                
-                contactsContent.appendChild(typeSection);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading contacts:', error);
-            contactsContent.innerHTML = '<div class="error-message">Failed to load contacts. Please refresh the page to try again.</div>';
-        });
+    // Remove after 5 seconds
+    setTimeout(() => {
+        errorElement.remove();
+    }, 5000);
 }
 
-// Load reminders from API
-function loadReminders() {
-    const remindersSection = document.getElementById('reminders');
-    if (!remindersSection) return;
-    
-    const remindersContent = remindersSection.querySelector('.reminders-content');
-    if (!remindersContent) return;
-    
-    remindersContent.innerHTML = '<div class="loading">Loading reminders...</div>';
-    
-    fetch('/api/reminders')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load reminders');
-            }
-            return response.json();
-        })
-        .then(reminders => {
-            if (reminders.length === 0) {
-                remindersContent.innerHTML = '<p class="empty-message">No reminders available yet.</p>';
-                return;
-            }
-            
-            // Sort reminders by date
-            reminders.sort((a, b) => {
-                return new Date(a.date) - new Date(b.date);
-            });
-            
-            // Clear reminders content
-            remindersContent.innerHTML = '';
-            
-            // Create reminder cards
-            reminders.forEach(reminder => {
-                const reminderElement = document.createElement('div');
-                reminderElement.className = 'reminder-card';
-                
-                // Get icon class based on icon name
-                let iconClass = 'fa-bell';
-                
-                if (reminder.icon === 'Info') {
-                    iconClass = 'fa-info-circle';
-                } else if (reminder.icon === 'Warning') {
-                    iconClass = 'fa-exclamation-triangle';
-                } else if (reminder.icon === 'Calendar') {
-                    iconClass = 'fa-calendar';
-                }
-                
-                reminderElement.innerHTML = `
-                    <div class="reminder-icon">
-                        <i class="fas ${iconClass}"></i>
-                    </div>
-                    <div class="reminder-details">
-                        <h4 c
-(Content truncated due to size limit. Use line ranges to read in chunks)
+// Refresh data periodically (every 30 seconds)
+setInterval(async function() {
+    try {
+        // Fetch all data in parallel
+        const [events, contacts, reminders, notes, footer, settings, gallery] = await Promise.all([
+            fetchData('/api/events'),
+            fetchData('/api/contacts'),
+            fetchData('/api/reminders'),
+            fetchData('/api/notes'),
+            fetchData('/api/footer'),
+            fetchData('/api/settings'),
+            fetchData('/api/gallery')
+        ]);
+        
+        // Update each section
+        initSchedule(events);
+        initContacts(contacts);
+        initReminders(reminders);
+        initNotes(notes);
+        initFooter(footer);
+        updateSettings(settings);
+        
+        // Update gallery if on gallery page
+        if (document.getElementById('gallery-container')) {
+            initGallery(gallery);
+        }
+        
+        console.log('Data refreshed successfully');
+    } catch (error) {
+        console.error('Error refreshing data:', error);
+    }
+}, 30000); // 30 seconds
