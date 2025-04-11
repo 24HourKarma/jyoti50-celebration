@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jyoti's 50th Birthday Celebration</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/gallery.css">
+    <link rel="stylesheet" href="css/mobile-optimization.css">
+    <link rel="stylesheet" href="css/schedule.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#121212">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="site-header">
+                <h1>Jyoti's 50th Birthday Celebration</h1>
+                <div class="event-info">
+                    <div class="event-date">April 24-27, 2025</div>
+                    <div class="event-location">Kraków, Poland</div>
+                </div>
+            </div>
+        </div>
+    </header>
+    
+    <nav class="main-nav">
+        <div class="container">
+            <ul>
+                <li><a href="#home" class="active">Home</a></li>
+                <li><a href="#schedule">Schedule</a></li>
+                <li><a href="#gallery">Gallery</a></li>
+                <li><a href="#reminders">Reminders</a></li>
+                <li><a href="#contacts">Contacts</a></li>
+                <li><a href="#notes">Notes</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="container">
+        <!-- Home Section -->
+        <section id="home" class="section">
+            <div class="hero-section">
+                <img src="/images/jyoti.jpg" alt="Jyoti" class="hero-image">
+                
+                <div class="countdown-container">
+                    <h2 class="countdown-title">Celebration Begins In</h2>
+                    <div id="countdown" class="countdown">
+                        <!-- Countdown will be inserted by JavaScript -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section-content">
+                <h2 class="section-title">April 24-27, 2025 • Kraków, Poland</h2>
+                <p class="section-description">Join us for a memorable celebration in the beautiful city of Kraków!</p>
+            </div>
+            
+            <div class="important-info">
+                <h2 class="section-title">Important Information</h2>
+                <div class="info-content">
+                    <h3>Accommodations</h3>
+                    <p>Grand Hotel Kraków has special rates for our guests. Mention "Jyoti50" when booking.</p>
+                    <p>Contact: +48 12 345 6789</p>
+                    
+                    <h3>Weather</h3>
+                    <p>April in Kraków typically has temperatures between 5°C and 15°C. Pack layers and a light jacket.</p>
+                    
+                    <h3>Local Currency</h3>
+                    <p>Polish Złoty (PLN). Current exchange rate: 1 USD ≈ 3.8 PLN, 1 EUR ≈ 4.3 PLN</p>
+                    
+                    <h3>Transportation</h3>
+                    <p>Transportation will be provided for all scheduled activities. Meeting point is the hotel lobby.</p>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Schedule Section -->
+        <section id="schedule" class="section" style="display: none;">
+            <h2 class="section-title">Schedule</h2>
+            <div id="schedule-container">
+                <!-- Schedule content will be loaded dynamically by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Gallery Section -->
+        <section id="gallery" class="section" style="display: none;">
+            <h2 class="section-title">Gallery</h2>
+            
+            <div class="gallery-upload">
+                <h3>Share Your Photos</h3>
+                <p>Help us capture memories from this special celebration! Upload your photos to share with everyone.</p>
+                <form id="upload-form">
+                    <input type="file" id="image-upload" accept="image/*" style="display: none;">
+                    <label for="image-upload" class="btn btn-primary">Select Photo</label>
+                    <input type="text" id="image-description" placeholder="Enter image description" class="image-description-input">
+                    <button type="submit" class="btn btn-secondary" style="margin-left: 10px;">Upload Photo</button>
+                </form>
+                <p id="upload-status" style="margin-top: 10px;"></p>
+            </div>
+            
+            <div id="gallery-container">
+                <!-- Gallery content will be loaded dynamically by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Reminders Section -->
+        <section id="reminders" class="section" style="display: none;">
+            <h2 class="section-title">Reminders</h2>
+            <div id="reminders-container">
+                <!-- Reminders content will be loaded dynamically by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Contacts Section -->
+        <section id="contacts" class="section" style="display: none;">
+            <h2 class="section-title">Contacts</h2>
+            <div id="contacts-container">
+                <!-- Contacts content will be loaded dynamically by JavaScript -->
+            </div>
+        </section>
+        
+        <!-- Notes Section -->
+        <section id="notes" class="section" style="display: none;">
+            <h2 class="section-title">Notes</h2>
+            <div id="notes-container">
+                <!-- Notes content will be loaded dynamically by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-title">Jyoti's 50th Birthday Celebration</div>
+                <div class="footer-text">April 24-27, 2025 | Kraków, Poland</div>
+                <div class="footer-contact">Contact: shubham.pandey@gmail.com</div>
+            </div>
+            <div class="footer-copyright">© 2025 Jyoti's 50th Birthday Celebration</div>
+        </div>
+    </footer>
+    
+    <script src="js/main.js"></script>
+    <script src="js/gallery.js"></script>
+    <script src="js/pwa.js"></script>
+    <script src="js/schedule-fixed.js"></script>
+</body>
+</html>

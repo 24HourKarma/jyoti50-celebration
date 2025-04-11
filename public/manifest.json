@@ -1,0 +1,24 @@
+{
+  "name": "Jyoti's 50th Birthday Celebration",
+  "short_name": "Jyoti50",
+  "description": "Jyoti's 50th Birthday Celebration in Kraków, Poland",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#121212",
+  "theme_color": "#d4af37",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/images/icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
