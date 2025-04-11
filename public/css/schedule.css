@@ -1,0 +1,196 @@
+/* Enhanced Schedule Styling */
+.schedule-section {
+    padding: 2rem 0;
+}
+
+.day-container {
+    margin-bottom: 2.5rem;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+    background-color: var(--card-background);
+}
+
+.day-header {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 1.2rem;
+    margin: 0;
+    font-size: 1.5rem;
+    text-align: center;
+    position: relative;
+}
+
+.day-header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 3px;
+    background-color: var(--secondary-color);
+}
+
+.event-card {
+    padding: 1.5rem;
+    margin: 1rem;
+    border-radius: 8px;
+    background-color: rgba(30, 30, 30, 0.6);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-left: 4px solid var(--primary-color);
+}
+
+.event-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.event-title {
+    font-size: 1.4rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+}
+
+.event-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.2rem;
+}
+
+.event-detail {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.8rem;
+}
+
+.event-detail i {
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    margin-right: 0.8rem;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(212, 175, 55, 0.1);
+    border-radius: 50%;
+    padding: 1rem;
+}
+
+.event-detail span {
+    font-size: 1rem;
+}
+
+.event-time-badge {
+    display: inline-block;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-weight: bold;
+    margin-bottom: 0.8rem;
+}
+
+.event-description {
+    margin-bottom: 1.2rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1rem;
+    padding: 0.8rem;
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+}
+
+.event-notes {
+    font-style: italic;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 1.2rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--primary-color);
+}
+
+.event-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+}
+
+.btn-secondary {
+    background-color: rgba(212, 175, 55, 0.2);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    padding: 0.6rem 1.2rem;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.btn-secondary i {
+    margin-right: 0.5rem;
+}
+
+.dress-code-badge {
+    display: inline-block;
+    background-color: rgba(212, 175, 55, 0.2);
+    color: var(--primary-color);
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    border: 1px dashed var(--primary-color);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .event-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .event-actions {
+        flex-direction: column;
+    }
+    
+    .btn-secondary {
+        width: 100%;
+    }
+    
+    .event-card {
+        padding: 1.2rem;
+        margin: 0.8rem;
+    }
+}
+
+/* Animation for schedule items */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.event-card {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.event-card:nth-child(1) { animation-delay: 0.1s; }
+.event-card:nth-child(2) { animation-delay: 0.2s; }
+.event-card:nth-child(3) { animation-delay: 0.3s; }
+.event-card:nth-child(4) { animation-delay: 0.4s; }
+.event-card:nth-child(5) { animation-delay: 0.5s; }

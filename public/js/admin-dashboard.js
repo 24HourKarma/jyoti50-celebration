@@ -301,9 +301,11 @@ function handleEventFormSubmit(e) {
     const token = localStorage.getItem('adminToken');
     
     // Get form data
+    const eventDate = document.getElementById('eventDate').value;
+    
     const eventData = {
         title: document.getElementById('eventTitle').value,
-        date: document.getElementById('eventDate').value,
+        date: eventDate, // Keep the original date format (YYYY-MM-DD)
         startTime: document.getElementById('eventStartTime').value,
         endTime: document.getElementById('eventEndTime').value,
         location: document.getElementById('eventLocation').value,
@@ -311,9 +313,26 @@ function handleEventFormSubmit(e) {
         dressCode: document.getElementById('eventDressCode').value,
         mapUrl: document.getElementById('eventMapUrl').value,
         websiteUrl: document.getElementById('eventWebsiteUrl').value,
-        notes: document.getElementById('eventNotes').value,
-        day: formatDay(document.getElementById('eventDate').value)
+        notes: document.getElementById('eventNotes').value
     };
+    
+    // Add day property using the date to determine which day it belongs to
+    // Extract just the day part (e.g., "2025-04-24" -> "24")
+    const dayNumber = new Date(eventDate).getDate();
+    
+    // Map day numbers to specific event days
+    if (dayNumber === 24) {
+        eventData.day = "April 24, 2025";
+    } else if (dayNumber === 25) {
+        eventData.day = "April 25, 2025";
+    } else if (dayNumber === 26) {
+        eventData.day = "April 26, 2025";
+    } else if (dayNumber === 27) {
+        eventData.day = "April 27, 2025";
+    } else {
+        // Fallback for any other dates
+        eventData.day = formatDateForDisplay(eventDate);
+    }
     
     // Disable form submission
     const submitButton = form.querySelector('button[type="submit"]');
@@ -393,9 +412,9 @@ function loadContacts() {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${contact.name}</td>
-                    <td>${contact.type || ''}</td>
                     <td>${contact.email}</td>
                     <td>${contact.phone}</td>
+                    <td>${contact.type || ''}</td>
                     <td>
                         <button class="btn btn-sm btn-primary edit-contact" data-id="${contact._id}">Edit</button>
                         <button class="btn btn-sm btn-danger delete-contact" data-id="${contact._id}">Delete</button>
@@ -610,7 +629,7 @@ function loadReminders() {
     if (!remindersTable) return;
     
     const remindersTableBody = remindersTable.querySelector('tbody');
-    remindersTableBody.innerHTML = '<tr><td colspan="5" class="loading-message">Loading reminders...</td></tr>';
+    remindersTableBody.innerHTML = '<tr><td colspan="4" class="loading-message">Loading reminders...</td></tr>';
     
     fetch('/api/reminders')
         .then(response => {
@@ -623,7 +642,7 @@ function loadReminders() {
             remindersTableBody.innerHTML = '';
             
             if (reminders.length === 0) {
-                remindersTableBody.innerHTML = '<tr><td colspan="5" class="empty-message">No reminders found. Add your first reminder!</td></tr>';
+                remindersTableBody.innerHTML = '<tr><td colspan="4" class="empty-message">No reminders found. Add your first reminder!</td></tr>';
                 return;
             }
             
@@ -631,9 +650,8 @@ function loadReminders() {
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${reminder.title}</td>
-                    <td>${reminder.description || ''}</td>
                     <td>${reminder.date}</td>
-                    <td>${reminder.icon || ''}</td>
+                    <td>${reminder.description}</td>
                     <td>
                         <button class="btn btn-sm btn-primary edit-reminder" data-id="${reminder._id}">Edit</button>
                         <button class="btn btn-sm btn-danger delete-reminder" data-id="${reminder._id}">Delete</button>
@@ -676,20 +694,24 @@ function loadReminders() {
                                         <input type="text" id="reminderTitle" class="form-control" value="${reminder.title}" required>
                                     </div>
                                     <div class="form-group">
-                                        <label for="reminderDescription">Description</label>
-                                        <textarea id="reminderDescription" class="form-control" rows="3">${reminder.description || ''}</textarea>
-                                    </div>
-                                    <div class="form-group">
                                         <label for="reminderDate">Date</label>
                                         <input type="date" id="reminderDate" class="form-control" value="${reminder.date}" required>
                                     </div>
                                     <div class="form-group">
+                                        <label for="reminderDescription">Description</label>
+                                        <textarea id="reminderDescription" class="form-control" rows="3">${reminder.description}</textarea>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="reminderIcon">Icon</label>
                                         <select id="reminderIcon" class="form-control">
-                                            <option value="Bell" ${reminder.icon === 'Bell' ? 'selected' : ''}>Bell</option>
-                                            <option value="Info" ${reminder.icon === 'Info' ? 'selected' : ''}>Info</option>
-                                            <option value="Warning" ${reminder.icon === 'Warning' ? 'selected' : ''}>Warning</option>
-                                            <option value="Calendar" ${reminder.icon === 'Calendar' ? 'selected' : ''}>Calendar</option>
+                                            <option value="fa-calendar" ${reminder.icon === 'fa-calendar' ? 'selected' : ''}>Calendar</option>
+                                            <option value="fa-clock" ${reminder.icon === 'fa-clock' ? 'selected' : ''}>Clock</option>
+                                            <option value="fa-exclamation-circle" ${reminder.icon === 'fa-exclamation-circle' ? 'selected' : ''}>Alert</option>
+                                            <option value="fa-info-circle" ${reminder.icon === 'fa-info-circle' ? 'selected' : ''}>Info</option>
+                                            <option value="fa-map-marker-alt" ${reminder.icon === 'fa-map-marker-alt' ? 'selected' : ''}>Location</option>
+                                            <option value="fa-plane" ${reminder.icon === 'fa-plane' ? 'selected' : ''}>Travel</option>
+                                            <option value="fa-utensils" ${reminder.icon === 'fa-utensils' ? 'selected' : ''}>Food</option>
+                                            <option value="fa-hotel" ${reminder.icon === 'fa-hotel' ? 'selected' : ''}>Hotel</option>
                                         </select>
                                     </div>
                                     <div class="form-actions">
@@ -770,7 +792,7 @@ function loadReminders() {
         })
         .catch(error => {
             console.error('Error loading reminders:', error);
-            remindersTableBody.innerHTML = '<tr><td colspan="5" class="error-message">Failed to load reminders. Please refresh the page to try again.</td></tr>';
+            remindersTableBody.innerHTML = '<tr><td colspan="4" class="error-message">Failed to load reminders. Please refresh the page to try again.</td></tr>';
         });
 }
 
@@ -786,8 +808,8 @@ function handleReminderFormSubmit(e) {
     // Get form data
     const reminderData = {
         title: document.getElementById('reminderTitle').value,
-        description: document.getElementById('reminderDescription').value,
         date: document.getElementById('reminderDate').value,
+        description: document.getElementById('reminderDescription').value,
         icon: document.getElementById('reminderIcon').value
     };
     
@@ -1497,12 +1519,12 @@ function setupFormSubmissions() {
     // Other form submissions are handled in their respective handler functions
 }
 
-// Helper function to format date as day string
-function formatDay(dateString) {
+// Helper function to format date for display (used for UI display only, not for data storage)
+function formatDateForDisplay(dateString) {
     if (!dateString) return '';
     
     const date = new Date(dateString);
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
     return date.toLocaleDateString('en-US', options);
 }
 
