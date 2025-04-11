@@ -1,4 +1,4 @@
-// Modified server.js to handle missing Google Sheets dependency
+// server.js with preloaded data
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -298,41 +298,25 @@ async function initializeDefaults() {
         // Check if admin user exists
         const adminCount = await User.countDocuments({ isAdmin: true });
         if (adminCount === 0) {
-            // Create Shubham as admin with the correct credentials
-            const shubhamPassword = await bcrypt.hash('jyoti50admin', 10);
+            // Create default admin user
+            const hashedPassword = await bcrypt.hash('admin123', 10);
+            await User.create({
+                username: 'admin',
+                email: 'admin@jyoti50celebration.com',
+                password: hashedPassword,
+                isAdmin: true
+            });
+            console.log('Default admin user created');
+            
+            // Create Shubham as admin
+            const shubhamPassword = await bcrypt.hash('admin123', 10);
             await User.create({
                 username: 'shubham',
                 email: 'shubham.pandey@gmail.com',
                 password: shubhamPassword,
                 isAdmin: true
             });
-            console.log('Shubham admin user created with correct credentials');
-            
-            // Create admin user as backup
-            const adminPassword = await bcrypt.hash('jyoti50admin', 10);
-            await User.create({
-                username: 'admin',
-                email: 'admin@jyoti50celebration.com',
-                password: adminPassword,
-                isAdmin: true
-            });
-            console.log('Admin user created with correct credentials');
-        } else {
-            // Update existing admin users with correct credentials
-            const shubhamPassword = await bcrypt.hash('jyoti50admin', 10);
-            await User.findOneAndUpdate(
-                { email: 'shubham.pandey@gmail.com' },
-                { password: shubhamPassword },
-                { upsert: true }
-            );
-            
-            const adminPassword = await bcrypt.hash('jyoti50admin', 10);
-            await User.findOneAndUpdate(
-                { email: 'admin@jyoti50celebration.com' },
-                { password: adminPassword },
-                { upsert: true }
-            );
-            console.log('Admin credentials updated');
+            console.log('Shubham admin user created');
         }
         
         // Check if settings exist
@@ -419,16 +403,10 @@ const upload = multer({
     }
 });
 
-// Authentication middleware with hardcoded fallback
+// Authentication middleware
 function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
-    
-    // Hardcoded token for guaranteed access
-    if (token === 'hardcoded_admin_token_for_guaranteed_access') {
-        req.user = { id: 'hardcoded_admin', isAdmin: true };
-        return next();
-    }
     
     if (!token) return res.status(401).json({ message: 'Unauthorized' });
     
@@ -441,26 +419,10 @@ function authenticateToken(req, res, next) {
 
 // API Routes
 
-// Authentication routes with hardcoded credentials
+// Authentication routes
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password, email } = req.body;
-        
-        // Hardcoded credentials check
-        if ((email === 'shubham.pandey@gmail.com' && password === 'jyoti50admin') || 
-            (email === 'admin@jyoti50celebration.com' && password === 'jyoti50admin') ||
-            (username === 'shubham' && password === 'jyoti50admin') ||
-            (username === 'admin' && password === 'jyoti50admin')) {
-            
-            // Generate token
-            const token = jwt.sign(
-                { id: 'hardcoded_admin', isAdmin: true }, 
-                process.env.JWT_SECRET || 'jyoti50secretkey', 
-                { expiresIn: '24h' }
-            );
-            
-            return res.json({ token });
-        }
         
         // Find user by username or email
         let user;
@@ -486,16 +448,11 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Event routes with fallback to preloaded data
+// Event routes
 app.get('/api/events', async (req, res) => {
     try {
         const events = await Event.find().sort({ day: 1 });
-        if (events && events.length > 0) {
-            res.json(events);
-        } else {
-            // Return preloaded events if no events in database
-            res.json(preloadedEvents);
-        }
+        res.json(events);
     } catch (err) {
         console.error('Error fetching events:', err);
         // Return preloaded events as fallback
@@ -540,16 +497,11 @@ app.delete('/api/events/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Contact routes with fallback to preloaded data
+// Contact routes
 app.get('/api/contacts', async (req, res) => {
     try {
         const contacts = await Contact.find().sort({ name: 1 });
-        if (contacts && contacts.length > 0) {
-            res.json(contacts);
-        } else {
-            // Return preloaded contacts if no contacts in database
-            res.json(preloadedContacts);
-        }
+        res.json(contacts);
     } catch (err) {
         console.error('Error fetching contacts:', err);
         // Return preloaded contacts as fallback
@@ -594,16 +546,11 @@ app.delete('/api/contacts/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Reminder routes with fallback to preloaded data
+// Reminder routes
 app.get('/api/reminders', async (req, res) => {
     try {
         const reminders = await Reminder.find().sort({ date: 1 });
-        if (reminders && reminders.length > 0) {
-            res.json(reminders);
-        } else {
-            // Return preloaded reminders if no reminders in database
-            res.json(preloadedReminders);
-        }
+        res.json(reminders);
     } catch (err) {
         console.error('Error fetching reminders:', err);
         // Return preloaded reminders as fallback
@@ -648,16 +595,11 @@ app.delete('/api/reminders/:id', authenticateToken, async (req, res) => {
     }
 });
 
-// Note routes with fallback to preloaded data
+// Note routes
 app.get('/api/notes', async (req, res) => {
     try {
         const notes = await Note.find().sort({ title: 1 });
-        if (notes && notes.length > 0) {
-            res.json(notes);
-        } else {
-            // Return preloaded notes if no notes in database
-            res.json(preloadedNotes);
-        }
+        res.json(notes);
     } catch (err) {
         console.error('Error fetching notes:', err);
         // Return preloaded notes as fallback
@@ -788,34 +730,6 @@ app.put('/api/settings', authenticateToken, async (req, res) => {
     } catch (err) {
         console.error('Error updating settings:', err);
         res.status(500).json({ message: 'Server error' });
-    }
-});
-
-// Google Sheets sync endpoint (simplified to avoid dependency issues)
-app.post('/api/sync/google-sheets', authenticateToken, async (req, res) => {
-    try {
-        // This is a simplified version that doesn't actually sync with Google Sheets
-        // but pretends to do so successfully to avoid dependency issues
-        console.log('Google Sheets sync requested (simulated)');
-        
-        // Return success message
-        res.json({ 
-            success: true, 
-            message: 'Data synchronized with Google Sheets (simulated)',
-            syncedItems: {
-                events: preloadedEvents.length,
-                contacts: preloadedContacts.length,
-                reminders: preloadedReminders.length,
-                notes: preloadedNotes.length
-            }
-        });
-    } catch (err) {
-        console.error('Error syncing with Google Sheets:', err);
-        res.status(500).json({ 
-            success: false,
-            message: 'Error syncing with Google Sheets',
-            error: err.message
-        });
     }
 });
 

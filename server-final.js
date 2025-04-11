@@ -1,4 +1,4 @@
-// Modified server.js to handle missing Google Sheets dependency
+// server.js with correct credentials and preloaded data
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -791,34 +791,6 @@ app.put('/api/settings', authenticateToken, async (req, res) => {
     }
 });
 
-// Google Sheets sync endpoint (simplified to avoid dependency issues)
-app.post('/api/sync/google-sheets', authenticateToken, async (req, res) => {
-    try {
-        // This is a simplified version that doesn't actually sync with Google Sheets
-        // but pretends to do so successfully to avoid dependency issues
-        console.log('Google Sheets sync requested (simulated)');
-        
-        // Return success message
-        res.json({ 
-            success: true, 
-            message: 'Data synchronized with Google Sheets (simulated)',
-            syncedItems: {
-                events: preloadedEvents.length,
-                contacts: preloadedContacts.length,
-                reminders: preloadedReminders.length,
-                notes: preloadedNotes.length
-            }
-        });
-    } catch (err) {
-        console.error('Error syncing with Google Sheets:', err);
-        res.status(500).json({ 
-            success: false,
-            message: 'Error syncing with Google Sheets',
-            error: err.message
-        });
-    }
-});
-
 // Serve the admin dashboard
 app.get('/admin-dashboard', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'admin-dashboard.html'));
@@ -826,7 +798,7 @@ app.get('/admin-dashboard', (req, res) => {
 
 // Serve the admin login page
 app.get('/admin-login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'admin-login.html'));
+    res.sendFile(path.join(__dirname, 'public', 'admin-login-fixed.html'));
 });
 
 // Serve the main index.html for all other routes
