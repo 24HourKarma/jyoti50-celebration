@@ -1,5 +1,7 @@
 // Main JavaScript for the website
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('DOM fully loaded and parsed');
+    
     // Initialize the application
     initApp();
     
@@ -13,6 +15,8 @@ document.addEventListener('DOMContentLoaded', function() {
 // Initialize the application
 async function initApp() {
     try {
+        console.log('Initializing application...');
+        
         // Fetch all data in parallel
         const [events, contacts, reminders, notes, footer, settings, gallery] = await Promise.all([
             fetchData('/api/events'),
@@ -24,6 +28,8 @@ async function initApp() {
             fetchData('/api/gallery')
         ]);
         
+        console.log('All data fetched successfully');
+        
         // Initialize each section
         initSchedule(events);
         initContacts(contacts);
@@ -31,11 +37,7 @@ async function initApp() {
         initNotes(notes);
         initFooter(footer);
         updateSettings(settings);
-        
-        // Initialize gallery if on gallery page
-        if (document.getElementById('gallery-container')) {
-            initGallery(gallery);
-        }
+        initGallery(gallery);
         
         console.log('Application initialized successfully');
     } catch (error) {
@@ -65,19 +67,19 @@ async function fetchData(endpoint) {
 
 // Set up navigation
 function setupNavigation() {
+    console.log('Setting up navigation...');
     const navLinks = document.querySelectorAll('nav a');
     const sections = document.querySelectorAll('section');
     
-    // Hide all sections initially
+    // Log all sections for debugging
+    console.log('Available sections:');
     sections.forEach(section => {
-        section.style.display = 'none';
+        console.log(`- ${section.id}`);
     });
     
     // Show home section by default
-    const homeSection = document.getElementById('home');
-    if (homeSection) {
-        homeSection.style.display = 'block';
-    }
+    hideAllSections();
+    showSection('home');
     
     // Add click event listeners to navigation links
     navLinks.forEach(link => {
@@ -86,17 +88,13 @@ function setupNavigation() {
             
             // Get the target section ID from the link's href
             const targetId = this.getAttribute('href').substring(1);
+            console.log(`Navigation clicked: ${targetId}`);
             
             // Hide all sections
-            sections.forEach(section => {
-                section.style.display = 'none';
-            });
+            hideAllSections();
             
             // Show the target section
-            const targetSection = document.getElementById(targetId);
-            if (targetSection) {
-                targetSection.style.display = 'block';
-            }
+            showSection(targetId);
             
             // Update active link
             navLinks.forEach(link => {
@@ -107,10 +105,33 @@ function setupNavigation() {
     });
 }
 
+// Hide all sections
+function hideAllSections() {
+    const sections = document.querySelectorAll('section');
+    sections.forEach(section => {
+        section.style.display = 'none';
+    });
+}
+
+// Show a specific section
+function showSection(sectionId) {
+    console.log(`Showing section: ${sectionId}`);
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.style.display = 'block';
+    } else {
+        console.error(`Section not found: ${sectionId}`);
+    }
+}
+
 // Initialize countdown timer
 function initCountdown() {
+    console.log('Initializing countdown timer...');
     const countdownElement = document.getElementById('countdown');
-    if (!countdownElement) return;
+    if (!countdownElement) {
+        console.warn('Countdown element not found');
+        return;
+    }
     
     // Set the date we're counting down to (April 24, 2025 at 19:00)
     const countdownDate = new Date('April 24, 2025 19:00:00').getTime();
@@ -159,8 +180,12 @@ function initCountdown() {
 
 // Initialize schedule section
 function initSchedule(events) {
+    console.log('Initializing schedule section...');
     const scheduleContainer = document.getElementById('schedule-container');
-    if (!scheduleContainer) return;
+    if (!scheduleContainer) {
+        console.warn('Schedule container not found');
+        return;
+    }
     
     // Clear existing content
     scheduleContainer.innerHTML = '';
@@ -169,6 +194,8 @@ function initSchedule(events) {
         scheduleContainer.innerHTML = '<p class="no-data">No events scheduled yet.</p>';
         return;
     }
+    
+    console.log(`Displaying ${events.length} events`);
     
     // Group events by day
     const eventsByDay = {};
@@ -211,11 +238,11 @@ function initSchedule(events) {
                     </div>
                     <div class="event-detail">
                         <i class="fas fa-tshirt"></i>
-                        <span>${event.dressCode}</span>
+                        <span>${event.dressCode || 'No dress code specified'}</span>
                     </div>
                 </div>
-                <p class="event-description">${event.description}</p>
-                <div class="event-notes">${event.notes}</div>
+                <p class="event-description">${event.description || ''}</p>
+                <div class="event-notes">${event.notes || ''}</div>
                 <div class="event-actions">
                     ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-map"></i> View Map</a>` : ''}
                     ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-globe"></i> View Website</a>` : ''}
@@ -231,8 +258,12 @@ function initSchedule(events) {
 
 // Initialize contacts section
 function initContacts(contacts) {
+    console.log('Initializing contacts section...');
     const contactsContainer = document.getElementById('contacts-container');
-    if (!contactsContainer) return;
+    if (!contactsContainer) {
+        console.warn('Contacts container not found');
+        return;
+    }
     
     // Clear existing content
     contactsContainer.innerHTML = '';
@@ -242,13 +273,16 @@ function initContacts(contacts) {
         return;
     }
     
+    console.log(`Displaying ${contacts.length} contacts`);
+    
     // Group contacts by type
     const contactsByType = {};
     contacts.forEach(contact => {
-        if (!contactsByType[contact.type]) {
-            contactsByType[contact.type] = [];
+        const type = contact.type || 'General';
+        if (!contactsByType[type]) {
+            contactsByType[type] = [];
         }
-        contactsByType[contact.type].push(contact);
+        contactsByType[type].push(contact);
     });
     
     // Create HTML for each contact type
@@ -272,17 +306,22 @@ function initContacts(contacts) {
             
             contactElement.innerHTML = `
                 <h3 class="contact-name">${contact.name}</h3>
+                ${contact.title ? `<div class="contact-title">${contact.title}</div>` : ''}
                 <div class="contact-details">
-                    <div class="contact-detail">
-                        <i class="fas fa-envelope"></i>
-                        <a href="mailto:${contact.email}">${contact.email}</a>
-                    </div>
-                    <div class="contact-detail">
-                        <i class="fas fa-phone"></i>
-                        <a href="tel:${contact.phone}">${contact.phone}</a>
-                    </div>
+                    ${contact.email ? `
+                        <div class="contact-detail">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:${contact.email}">${contact.email}</a>
+                        </div>
+                    ` : ''}
+                    ${contact.phone ? `
+                        <div class="contact-detail">
+                            <i class="fas fa-phone"></i>
+                            <a href="tel:${contact.phone}">${contact.phone}</a>
+                        </div>
+                    ` : ''}
                 </div>
-                <p class="contact-description">${contact.description}</p>
+                ${contact.description ? `<p class="contact-description">${contact.description}</p>` : ''}
             `;
             
             typeContainer.appendChild(contactElement);
@@ -294,8 +333,12 @@ function initContacts(contacts) {
 
 // Initialize reminders section
 function initReminders(reminders) {
+    console.log('Initializing reminders section...');
     const remindersContainer = document.getElementById('reminders-container');
-    if (!remindersContainer) return;
+    if (!remindersContainer) {
+        console.warn('Reminders container not found');
+        return;
+    }
     
     // Clear existing content
     remindersContainer.innerHTML = '';
@@ -304,6 +347,8 @@ function initReminders(reminders) {
         remindersContainer.innerHTML = '<p class="no-data">No reminders available yet.</p>';
         return;
     }
+    
+    console.log(`Displaying ${reminders.length} reminders`);
     
     // Sort reminders by date
     reminders.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -325,8 +370,8 @@ function initReminders(reminders) {
             </div>
             <div class="reminder-content">
                 <h3 class="reminder-title">${reminder.title}</h3>
-                <p class="reminder-description">${reminder.description}</p>
-                <div class="reminder-date">${formatDate(reminder.date)}</div>
+                <p class="reminder-description">${reminder.description || ''}</p>
+                ${reminder.date ? `<div class="reminder-date">${formatDate(reminder.date)}</div>` : ''}
             </div>
         `;
         
@@ -336,8 +381,12 @@ function initReminders(reminders) {
 
 // Initialize notes section
 function initNotes(notes) {
+    console.log('Initializing notes section...');
     const notesContainer = document.getElementById('notes-container');
-    if (!notesContainer) return;
+    if (!notesContainer) {
+        console.warn('Notes container not found');
+        return;
+    }
     
     // Clear existing content
     notesContainer.innerHTML = '';
@@ -347,6 +396,8 @@ function initNotes(notes) {
         return;
     }
     
+    console.log(`Displaying ${notes.length} notes`);
+    
     // Create HTML for each note
     notes.forEach(note => {
         const noteElement = document.createElement('div');
@@ -354,67 +405,134 @@ function initNotes(notes) {
         
         noteElement.innerHTML = `
             <h3 class="note-title">${note.title}</h3>
-            <div class="note-content">${note.content}</div>
+            <div class="note-content">${note.content || ''}</div>
         `;
         
         notesContainer.appendChild(noteElement);
     });
 }
 
+// Initialize gallery
+function initGallery(gallery) {
+    console.log('Initializing gallery section...');
+    const galleryContainer = document.getElementById('gallery-container');
+    if (!galleryContainer) {
+        console.warn('Gallery container not found');
+        return;
+    }
+    
+    // Clear existing content
+    galleryContainer.innerHTML = '';
+    
+    if (!gallery || gallery.length === 0) {
+        galleryContainer.innerHTML = `
+            <div class="no-images">
+                <p>No images in the gallery yet.</p>
+                <p>Be the first to share a photo!</p>
+            </div>
+        `;
+        return;
+    }
+    
+    console.log(`Displaying ${gallery.length} gallery images`);
+    
+    // Create gallery grid
+    const galleryGrid = document.createElement('div');
+    galleryGrid.className = 'gallery-grid';
+    
+    // Add each image to the grid
+    gallery.forEach(image => {
+        const imageElement = document.createElement('div');
+        imageElement.className = 'gallery-item';
+        
+        imageElement.innerHTML = `
+            <img src="${image.path}" alt="${image.description || 'Gallery image'}" loading="lazy">
+            ${image.description ? `<div class="image-description">${image.description}</div>` : ''}
+        `;
+        
+        // Add click event for lightbox
+        imageElement.addEventListener('click', function() {
+            openLightbox(image.path, image.description || 'Gallery image');
+        });
+        
+        galleryGrid.appendChild(imageElement);
+    });
+    
+    galleryContainer.appendChild(galleryGrid);
+}
+
 // Initialize footer
 function initFooter(footer) {
+    console.log('Initializing footer...');
     const footerContainer = document.querySelector('footer');
-    if (!footerContainer) return;
+    if (!footerContainer) {
+        console.warn('Footer container not found');
+        return;
+    }
     
     if (!footer) {
+        console.warn('No footer data available');
         return;
     }
     
     // Update footer content
     footerContainer.innerHTML = `
         <div class="footer-content">
-            <div class="footer-title">${footer.title}</div>
-            <div class="footer-text">${footer.text}</div>
-            <div class="footer-copyright">${footer.copyright}</div>
+            <div class="footer-title">${footer.title || 'Jyoti\'s 50th Birthday Celebration'}</div>
+            <div class="footer-text">${footer.text || 'Join us for a memorable celebration in Kraków, Poland!'}</div>
+            <div class="footer-copyright">${footer.copyright || '© 2025 Jyoti\'s 50th Birthday'}</div>
         </div>
     `;
 }
 
 // Update settings
 function updateSettings(settings) {
-    if (!settings) return;
+    console.log('Updating settings...');
+    if (!settings) {
+        console.warn('No settings data available');
+        return;
+    }
     
     // Update page title
-    document.title = settings.siteTitle;
+    document.title = settings.siteTitle || 'Jyoti\'s 50th Birthday Celebration';
     
     // Update site header
     const siteHeader = document.querySelector('.site-header h1');
     if (siteHeader) {
-        siteHeader.textContent = settings.siteTitle;
+        siteHeader.textContent = settings.siteTitle || 'Jyoti\'s 50th Birthday Celebration';
     }
     
     // Update event info
     const eventInfo = document.querySelector('.event-info');
     if (eventInfo) {
         eventInfo.innerHTML = `
-            <div class="event-date">${settings.eventDate}</div>
-            <div class="event-location">${settings.eventLocation}</div>
+            <div class="event-date">${settings.eventDate || 'April 24-27, 2025'}</div>
+            <div class="event-location">${settings.eventLocation || 'Kraków, Poland'}</div>
         `;
     }
     
     // Update colors
-    document.documentElement.style.setProperty('--primary-color', settings.primaryColor);
-    document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor);
+    document.documentElement.style.setProperty('--primary-color', settings.primaryColor || '#d4af37');
+    document.documentElement.style.setProperty('--secondary-color', settings.secondaryColor || '#121212');
 }
 
 // Format date
 function formatDate(dateString) {
-    const options = { year: 'numeric', month: 'long', day: 'numeric' };
-    return new Date(dateString).toLocaleDateString(undefined, options);
+    if (!dateString) return '';
+    
+    try {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString(undefined, options);
+    } catch (error) {
+        console.error('Error formatting date:', error);
+        return dateString;
+    }
 }
 
 // Show error message
 function showError(message) {
+    console.error('Error:', message);
+    
     const errorElement = document.createElement('div');
     errorElement.className = 'error-message';
     errorElement.textContent = message;
@@ -427,9 +545,56 @@ function showError(message) {
     }, 5000);
 }
 
+// Open lightbox
+function openLightbox(imageSrc, description) {
+    // Create lightbox container
+    const lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
+    
+    // Create lightbox content
+    lightbox.innerHTML = `
+        <div class="lightbox-content">
+            <img src="${imageSrc}" alt="${description}">
+            <div class="lightbox-description">${description}</div>
+            <button class="lightbox-close">&times;</button>
+        </div>
+    `;
+    
+    // Add lightbox to body
+    document.body.appendChild(lightbox);
+    
+    // Prevent scrolling on body
+    document.body.style.overflow = 'hidden';
+    
+    // Add close event
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox || e.target.className === 'lightbox-close') {
+            closeLightbox(lightbox);
+        }
+    });
+    
+    // Add keyboard close event
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLightbox(lightbox);
+        }
+    });
+}
+
+// Close lightbox
+function closeLightbox(lightbox) {
+    // Remove lightbox
+    lightbox.remove();
+    
+    // Restore scrolling
+    document.body.style.overflow = '';
+}
+
 // Refresh data periodically (every 30 seconds)
 setInterval(async function() {
     try {
+        console.log('Refreshing data...');
+        
         // Fetch all data in parallel
         const [events, contacts, reminders, notes, footer, settings, gallery] = await Promise.all([
             fetchData('/api/events'),
