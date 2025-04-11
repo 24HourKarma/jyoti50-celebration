@@ -7,6 +7,7 @@
     <title>Admin Dashboard - Jyoti's 50th Birthday</title>
     <link rel="stylesheet" href="/css/styles.css">
     <link rel="stylesheet" href="/css/admin-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="manifest" href="/manifest.json">
     <style>
         /* Additional styles for modals */
@@ -76,8 +77,21 @@
             text-align: right;
         }
         
-        .success-message {
+        .success-message, .error-message {
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 4px;
             display: none;
+        }
+        
+        .success-message {
+            background-color: rgba(0, 128, 0, 0.2);
+            color: #00ff00;
+        }
+        
+        .error-message {
+            background-color: rgba(255, 0, 0, 0.2);
+            color: #ff6666;
         }
     </style>
 </head>
@@ -388,20 +402,30 @@
                     <input type="text" id="contactName" class="form-control" required>
                 </div>
                 <div class="form-group">
+                    <label for="contactType">Type</label>
+                    <select id="contactType" class="form-control">
+                        <option value="Host">Host</option>
+                        <option value="Guest">Guest</option>
+                        <option value="Vendor">Vendor</option>
+                        <option value="Emergency">Emergency</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="contactTitle">Title/Role</label>
+                    <input type="text" id="contactTitle" class="form-control">
+                </div>
+                <div class="form-group">
                     <label for="contactEmail">Email</label>
-                    <input type="email" id="contactEmail" class="form-control" required>
+                    <input type="email" id="contactEmail" class="form-control">
                 </div>
                 <div class="form-group">
                     <label for="contactPhone">Phone</label>
-                    <input type="tel" id="contactPhone" class="form-control" required>
-                </div>
-                <div class="form-group">
-                    <label for="contactType">Type</label>
-                    <input type="text" id="contactType" class="form-control">
+                    <input type="tel" id="contactPhone" class="form-control">
                 </div>
                 <div class="form-group">
                     <label for="contactDescription">Description</label>
-                    <textarea id="contactDescription" class="form-control" rows="3"></textarea>
+                    <textarea id="contactDescription" class="form-control" rows="2"></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn close-modal">Cancel</button>
@@ -429,16 +453,16 @@
                     <textarea id="reminderDescription" class="form-control" rows="3"></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="reminderDate">Date</label>
-                    <input type="date" id="reminderDate" class="form-control" required>
+                    <label for="reminderDate">Date (Optional)</label>
+                    <input type="date" id="reminderDate" class="form-control">
                 </div>
                 <div class="form-group">
                     <label for="reminderIcon">Icon</label>
                     <select id="reminderIcon" class="form-control">
                         <option value="Bell">Bell</option>
+                        <option value="Calendar">Calendar</option>
                         <option value="Info">Info</option>
                         <option value="Warning">Warning</option>
-                        <option value="Calendar">Calendar</option>
                     </select>
                 </div>
                 <div class="form-actions">
@@ -464,16 +488,14 @@
                 </div>
                 <div class="form-group">
                     <label for="noteContent">Content</label>
-                    <textarea id="noteContent" class="form-control" rows="4" required></textarea>
+                    <textarea id="noteContent" class="form-control" rows="5" required></textarea>
                 </div>
                 <div class="form-group">
                     <label for="noteDisplayLocation">Display Location</label>
                     <select id="noteDisplayLocation" class="form-control">
-                        <option value="Home Page">Home Page</option>
-                        <option value="Schedule Page">Schedule Page</option>
-                        <option value="Gallery Page">Gallery Page</option>
-                        <option value="Reminders Page">Reminders Page</option>
-                        <option value="Contacts Page">Contacts Page</option>
+                        <option value="Home">Home</option>
+                        <option value="Schedule">Schedule</option>
+                        <option value="Notes">Notes</option>
                     </select>
                 </div>
                 <div class="form-actions">
@@ -484,6 +506,14 @@
         </div>
     </div>
     
+    <!-- Success Message -->
+    <div id="successMessage" class="success-message"></div>
+    
+    <!-- Error Message -->
+    <div id="errorMessage" class="error-message"></div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
     <script src="/js/admin-dashboard.js"></script>
+    <script src="/js/admin-sync.js"></script>
 </body>
 </html>

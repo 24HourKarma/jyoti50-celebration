@@ -1,803 +1,475 @@
-// Main JavaScript file with real API integration
+// Fixed main.js with improved tab navigation
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize navigation
-    initNavigation();
+    console.log('DOM fully loaded and parsed');
     
-    // Load data from API
-    loadEvents();
-    loadContacts();
-    loadReminders();
-    loadNotes();
-    loadGallery();
-    loadFooter();
+    // Initialize the application
+    initApp();
+    
+    // Set up navigation
+    setupNavigation();
     
     // Initialize countdown timer
-    initCountdownTimer();
-    
-    // Setup gallery upload form
-    setupGalleryUpload();
+    initCountdown();
 });
 
-// Initialize navigation
-function initNavigation() {
-    const navLinks = document.querySelectorAll('nav a');
-    const sections = document.querySelectorAll('section');
+// Initialize the application
+async function initApp() {
+    try {
+        console.log('Initializing application...');
+        
+        // Fetch all data in parallel
+        const [events, contacts, reminders, notes, footer, settings, gallery] = await Promise.all([
+            fetchData('/api/events'),
+            fetchData('/api/contacts'),
+            fetchData('/api/reminders'),
+            fetchData('/api/notes'),
+            fetchData('/api/footer'),
+            fetchData('/api/settings'),
+            fetchData('/api/gallery')
+        ]);
+        
+        console.log('All data fetched successfully');
+        
+        // Initialize each section
+        initSchedule(events);
+        initContacts(contacts);
+        initReminders(reminders);
+        initNotes(notes);
+        initFooter(footer);
+        updateSettings(settings);
+        
+        console.log('Application initialized successfully');
+    } catch (error) {
+        console.error('Error initializing application:', error);
+        showError('Failed to load data. Please refresh the page or try again later.');
+    }
+}
+
+// Fetch data from API
+async function fetchData(endpoint) {
+    try {
+        console.log(`Fetching data from ${endpoint}...`);
+        const response = await fetch(endpoint);
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const data = await response.json();
+        console.log(`Data from ${endpoint}:`, data);
+        return data;
+    } catch (error) {
+        console.error(`Error fetching data from ${endpoint}:`, error);
+        throw error;
+    }
+}
+
+// Set up navigation
+function setupNavigation() {
+    console.log('Setting up navigation...');
+    const navLinks = document.querySelectorAll('.main-nav a');
+    const sections = document.querySelectorAll('section.section');
     
+    // Log all sections for debugging
+    console.log('Available sections:');
+    sections.forEach(section => {
+        console.log(`- ${section.id}`);
+    });
+    
+    // Show home section by default
+    hideAllSections();
+    showSection('home');
+    
+    // Add click event listeners to navigation links
     navLinks.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
             
+            // Get the target section ID from the link's href
             const targetId = this.getAttribute('href').substring(1);
+            console.log(`Navigation clicked: ${targetId}`);
             
             // Hide all sections
-            sections.forEach(section => {
-                section.classList.remove('active');
+            hideAllSections();
+            
+            // Show the target section
+            showSection(targetId);
+            
+            // Update active link
+            navLinks.forEach(link => {
+                link.classList.remove('active');
             });
-            
-            // Show target section
-            document.getElementById(targetId).classList.add('active');
-            
-            // Update active nav link
-            navLinks.forEach(navLink => {
-                navLink.classList.remove('active');
-            });
-            
             this.classList.add('active');
-            
-            // Close mobile menu if open
-            const mobileMenu = document.querySelector('.mobile-menu');
-            if (mobileMenu && mobileMenu.classList.contains('open')) {
-                mobileMenu.classList.remove('open');
-            }
         });
     });
-    
-    // Show home section by default
-    document.getElementById('home').classList.add('active');
-    document.querySelector('nav a[href="#home"]').classList.add('active');
-    
-    // Mobile menu toggle
-    const menuToggle = document.querySelector('.menu-toggle');
-    const mobileMenu = document.querySelector('.mobile-menu');
-    
-    if (menuToggle && mobileMenu) {
-        menuToggle.addEventListener('click', function() {
-            mobileMenu.classList.toggle('open');
-        });
+}
+
+// Hide all sections
+function hideAllSections() {
+    const sections = document.querySelectorAll('section.section');
+    sections.forEach(section => {
+        section.style.display = 'none';
+    });
+}
+
+// Show a specific section
+function showSection(sectionId) {
+    console.log(`Showing section: ${sectionId}`);
+    const section = document.getElementById(sectionId);
+    if (section) {
+        section.style.display = 'block';
+    } else {
+        console.error(`Section not found: ${sectionId}`);
     }
 }
 
 // Initialize countdown timer
-function initCountdownTimer() {
+function initCountdown() {
+    console.log('Initializing countdown timer...');
     const countdownElement = document.getElementById('countdown');
-    if (!countdownElement) return;
-    
-    // Fetch settings to get event date
-    fetch('/api/settings')
-        .then(response => response.json())
-        .then(settings => {
-            const eventDateString = settings.eventDate;
-            
-            // Parse event date
-            let eventDate;
-            if (eventDateString.includes('-')) {
-                // If date range (e.g., "April 24-27, 2025"), use first date
-                const dateParts = eventDateString.split('-')[0].trim().split(' ');
-                const month = getMonthNumber(dateParts[0]);
-                const day = parseInt(dateParts[1]);
-                const year = parseInt(dateParts[2]) || new Date().getFullYear();
-                eventDate = new Date(year, month, day);
-            } else {
-                // Try to parse the date string
-                eventDate = new Date(eventDateString);
-            }
-            
-            // If date is invalid, use a default date
-            if (isNaN(eventDate.getTime())) {
-                eventDate = new Date(2025, 3, 24); // April 24, 2025
-            }
-            
-            // Update countdown every second
-            updateCountdown(eventDate);
-            setInterval(() => updateCountdown(eventDate), 1000);
-        })
-        .catch(error => {
-            console.error('Error loading settings:', error);
-            
-            // Use default date if settings can't be loaded
-            const eventDate = new Date(2025, 3, 24); // April 24, 2025
-            
-            // Update countdown every second
-            updateCountdown(eventDate);
-            setInterval(() => updateCountdown(eventDate), 1000);
-        });
-}
-
-// Update countdown timer
-function updateCountdown(eventDate) {
-    const countdownElement = document.getElementById('countdown');
-    if (!countdownElement) return;
-    
-    const now = new Date();
-    const difference = eventDate - now;
-    
-    if (difference <= 0) {
-        // Event has already happened
-        countdownElement.innerHTML = `
-            <div class="countdown-item">
-                <span class="countdown-value">0</span>
-                <span class="countdown-label">Days</span>
-            </div>
-            <div class="countdown-item">
-                <span class="countdown-value">0</span>
-                <span class="countdown-label">Hours</span>
-            </div>
-            <div class="countdown-item">
-                <span class="countdown-value">0</span>
-                <span class="countdown-label">Minutes</span>
-            </div>
-            <div class="countdown-item">
-                <span class="countdown-value">0</span>
-                <span class="countdown-label">Seconds</span>
-            </div>
-        `;
+    if (!countdownElement) {
+        console.warn('Countdown element not found');
         return;
     }
     
-    // Calculate days, hours, minutes, seconds
-    const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    // Set the date we're counting down to (April 24, 2025 at 19:00)
+    const countdownDate = new Date('April 24, 2025 19:00:00').getTime();
     
-    // Update countdown display
-    countdownElement.innerHTML = `
-        <div class="countdown-item">
-            <span class="countdown-value">${days}</span>
-            <span class="countdown-label">Days</span>
-        </div>
-        <div class="countdown-item">
-            <span class="countdown-value">${hours}</span>
-            <span class="countdown-label">Hours</span>
-        </div>
-        <div class="countdown-item">
-            <span class="countdown-value">${minutes}</span>
-            <span class="countdown-label">Minutes</span>
-        </div>
-        <div class="countdown-item">
-            <span class="countdown-value">${seconds}</span>
-            <span class="countdown-label">Seconds</span>
-        </div>
-    `;
-}
-
-// Helper function to get month number from name
-function getMonthNumber(monthName) {
-    const months = {
-        'january': 0,
-        'february': 1,
-        'march': 2,
-        'april': 3,
-        'may': 4,
-        'june': 5,
-        'july': 6,
-        'august': 7,
-        'september': 8,
-        'october': 9,
-        'november': 10,
-        'december': 11
-    };
-    
-    return months[monthName.toLowerCase()] || 0;
-}
-
-// Load events from API
-function loadEvents() {
-    const scheduleSection = document.getElementById('schedule');
-    if (!scheduleSection) return;
-    
-    const scheduleContent = scheduleSection.querySelector('.schedule-content');
-    if (!scheduleContent) return;
-    
-    scheduleContent.innerHTML = '<div class="loading">Loading schedule...</div>';
-    
-    fetch('/api/events')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load events');
-            }
-            return response.json();
-        })
-        .then(events => {
-            if (events.length === 0) {
-                scheduleContent.innerHTML = '<p class="empty-message">No events scheduled yet.</p>';
-                return;
-            }
-            
-            // Group events by day
-            const eventsByDay = {};
-            
-            events.forEach(event => {
-                const day = event.day || formatDay(event.date);
-                
-                if (!eventsByDay[day]) {
-                    eventsByDay[day] = [];
-                }
-                
-                eventsByDay[day].push(event);
-            });
-            
-            // Sort events by start time within each day
-            for (const day in eventsByDay) {
-                eventsByDay[day].sort((a, b) => {
-                    return a.startTime.localeCompare(b.startTime);
-                });
-            }
-            
-            // Clear schedule content
-            scheduleContent.innerHTML = '';
-            
-            // Create schedule for each day
-            for (const day in eventsByDay) {
-                const daySection = document.createElement('div');
-                daySection.className = 'day-section';
-                
-                daySection.innerHTML = `
-                    <h3 class="day-title">${day}</h3>
-                    <div class="day-events"></div>
-                `;
-                
-                const dayEvents = daySection.querySelector('.day-events');
-                
-                eventsByDay[day].forEach(event => {
-                    const eventElement = document.createElement('div');
-                    eventElement.className = 'event-card';
-                    
-                    // Create buttons HTML if URLs are provided
-                    let buttonsHtml = '';
-                    
-                    if (event.mapUrl) {
-                        buttonsHtml += `<a href="${event.mapUrl}" target="_blank" class="btn btn-map">Map</a>`;
-                    }
-                    
-                    if (event.websiteUrl) {
-                        buttonsHtml += `<a href="${event.websiteUrl}" target="_blank" class="btn btn-website">Website</a>`;
-                    }
-                    
-                    // Create dress code HTML if provided
-                    let dressCodeHtml = '';
-                    
-                    if (event.dressCode) {
-                        dressCodeHtml = `<p class="event-dress-code"><strong>Dress Code:</strong> ${event.dressCode}</p>`;
-                    }
-                    
-                    // Create notes HTML if provided
-                    let notesHtml = '';
-                    
-                    if (event.notes) {
-                        notesHtml = `<p class="event-notes">${event.notes}</p>`;
-                    }
-                    
-                    eventElement.innerHTML = `
-                        <div class="event-time">${event.startTime} - ${event.endTime}</div>
-                        <div class="event-details">
-                            <h4 class="event-title">${event.title}</h4>
-                            <p class="event-location">${event.location}</p>
-                            ${dressCodeHtml}
-                            <p class="event-description">${event.description || ''}</p>
-                            ${notesHtml}
-                            <div class="event-buttons">
-                                ${buttonsHtml}
-                            </div>
-                        </div>
-                    `;
-                    
-                    dayEvents.appendChild(eventElement);
-                });
-                
-                scheduleContent.appendChild(daySection);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading events:', error);
-            scheduleContent.innerHTML = '<div class="error-message">Failed to load schedule. Please refresh the page to try again.</div>';
-        });
-}
-
-// Load contacts from API
-function loadContacts() {
-    const contactsSection = document.getElementById('contacts');
-    if (!contactsSection) return;
-    
-    const contactsContent = contactsSection.querySelector('.contacts-content');
-    if (!contactsContent) return;
-    
-    contactsContent.innerHTML = '<div class="loading">Loading contacts...</div>';
-    
-    fetch('/api/contacts')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load contacts');
-            }
-            return response.json();
-        })
-        .then(contacts => {
-            if (contacts.length === 0) {
-                contactsContent.innerHTML = '<p class="empty-message">No contacts available yet.</p>';
-                return;
-            }
-            
-            // Group contacts by type
-            const contactsByType = {};
-            
-            contacts.forEach(contact => {
-                const type = contact.type || 'General';
-                
-                if (!contactsByType[type]) {
-                    contactsByType[type] = [];
-                }
-                
-                contactsByType[type].push(contact);
-            });
-            
-            // Clear contacts content
-            contactsContent.innerHTML = '';
-            
-            // Create contacts for each type
-            for (const type in contactsByType) {
-                const typeSection = document.createElement('div');
-                typeSection.className = 'contact-type-section';
-                
-                typeSection.innerHTML = `
-                    <h3 class="contact-type-title">${type}</h3>
-                    <div class="contact-type-items"></div>
-                `;
-                
-                const typeItems = typeSection.querySelector('.contact-type-items');
-                
-                contactsByType[type].forEach(contact => {
-                    const contactElement = document.createElement('div');
-                    contactElement.className = 'contact-card';
-                    
-                    contactElement.innerHTML = `
-                        <h4 class="contact-name">${contact.name}</h4>
-                        <p class="contact-email"><a href="mailto:${contact.email}">${contact.email}</a></p>
-                        <p class="contact-phone"><a href="tel:${contact.phone}">${contact.phone}</a></p>
-                        <p class="contact-description">${contact.description || ''}</p>
-                    `;
-                    
-                    typeItems.appendChild(contactElement);
-                });
-                
-                contactsContent.appendChild(typeSection);
-            }
-        })
-        .catch(error => {
-            console.error('Error loading contacts:', error);
-            contactsContent.innerHTML = '<div class="error-message">Failed to load contacts. Please refresh the page to try again.</div>';
-        });
-}
-
-// Load reminders from API
-function loadReminders() {
-    const remindersSection = document.getElementById('reminders');
-    if (!remindersSection) return;
-    
-    const remindersContent = remindersSection.querySelector('.reminders-content');
-    if (!remindersContent) return;
-    
-    remindersContent.innerHTML = '<div class="loading">Loading reminders...</div>';
-    
-    fetch('/api/reminders')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load reminders');
-            }
-            return response.json();
-        })
-        .then(reminders => {
-            if (reminders.length === 0) {
-                remindersContent.innerHTML = '<p class="empty-message">No reminders available yet.</p>';
-                return;
-            }
-            
-            // Sort reminders by date
-            reminders.sort((a, b) => {
-                return new Date(a.date) - new Date(b.date);
-            });
-            
-            // Clear reminders content
-            remindersContent.innerHTML = '';
-            
-            // Create reminder cards
-            reminders.forEach(reminder => {
-                const reminderElement = document.createElement('div');
-                reminderElement.className = 'reminder-card';
-                
-                // Get icon class based on icon name
-                let iconClass = 'fa-bell';
-                
-                if (reminder.icon === 'Info') {
-                    iconClass = 'fa-info-circle';
-                } else if (reminder.icon === 'Warning') {
-                    iconClass = 'fa-exclamation-triangle';
-                } else if (reminder.icon === 'Calendar') {
-                    iconClass = 'fa-calendar';
-                }
-                
-                reminderElement.innerHTML = `
-                    <div class="reminder-icon">
-                        <i class="fas ${iconClass}"></i>
-                    </div>
-                    <div class="reminder-details">
-                        <h4 class="reminder-title">${reminder.title}</h4>
-                        <p class="reminder-date">${formatDateForDisplay(reminder.date)}</p>
-                        <p class="reminder-description">${reminder.description || ''}</p>
-                    </div>
-                `;
-                
-                remindersContent.appendChild(reminderElement);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading reminders:', error);
-            remindersContent.innerHTML = '<div class="error-message">Failed to load reminders. Please refresh the page to try again.</div>';
-        });
-}
-
-// Load notes from API
-function loadNotes() {
-    const notesSection = document.getElementById('notes');
-    if (!notesSection) return;
-    
-    const notesContent = notesSection.querySelector('.notes-content');
-    if (!notesContent) return;
-    
-    notesContent.innerHTML = '<div class="loading">Loading notes...</div>';
-    
-    fetch('/api/notes')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load notes');
-            }
-            return response.json();
-        })
-        .then(notes => {
-            if (notes.length === 0) {
-                notesContent.innerHTML = '<p class="empty-message">No notes available yet.</p>';
-                return;
-            }
-            
-            // Filter notes for this section
-            const sectionNotes = notes.filter(note => note.displayLocation === 'Notes Page');
-            
-            if (sectionNotes.length === 0) {
-                notesContent.innerHTML = '<p class="empty-message">No notes available for this section.</p>';
-                return;
-            }
-            
-            // Clear notes content
-            notesContent.innerHTML = '';
-            
-            // Create note cards
-            sectionNotes.forEach(note => {
-                const noteElement = document.createElement('div');
-                noteElement.className = 'note-card';
-                
-                noteElement.innerHTML = `
-                    <h4 class="note-title">${note.title}</h4>
-                    <div class="note-content">${note.content}</div>
-                `;
-                
-                notesContent.appendChild(noteElement);
-            });
-        })
-        .catch(error => {
-            console.error('Error loading notes:', error);
-            notesContent.innerHTML = '<div class="error-message">Failed to load notes. Please refresh the page to try again.</div>';
-        });
-    
-    // Also load notes for other sections
-    loadSectionNotes('home', 'Home Page');
-    loadSectionNotes('schedule', 'Schedule Page');
-    loadSectionNotes('gallery', 'Gallery Page');
-    loadSectionNotes('reminders', 'Reminders Page');
-    loadSectionNotes('contacts', 'Contacts Page');
-}
-
-// Load notes for a specific section
-function loadSectionNotes(sectionId, displayLocation) {
-    const section = document.getElementById(sectionId);
-    if (!section) return;
-    
-    const notesContainer = section.querySelector('.section-notes');
-    if (!notesContainer) return;
-    
-    fetch('/api/notes')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load notes');
-            }
-            return response.json();
-        })
-        .then(notes => {
-            // Filter notes for this section
-            const sectionNotes = notes.filter(note => note.displayLocation === displayLocation);
-            
-            if (sectionNotes.length === 0) {
-                notesContainer.style.display = 'none';
-                return;
-            }
-            
-            // Clear notes container
-            notesContainer.innerHTML = '';
-            notesContainer.style.display = 'block';
-            
-            // Create note cards
-            sectionNotes.forEach(note => {
-                const noteElement = document.createElement('div');
-                noteElement.className = 'note-card';
-                
-                noteElement.innerHTML = `
-                    <h4 class="note-title">${note.title}</h4>
-                    <div class="note-content">${note.content}</div>
-                `;
-                
-                notesContainer.appendChild(noteElement);
-            });
-        })
-        .catch(error => {
-            console.error(`Error loading notes for ${sectionId}:`, error);
-            notesContainer.style.display = 'none';
-        });
-}
-
-// Load gallery from API
-function loadGallery() {
-    const gallerySection = document.getElementById('gallery');
-    if (!gallerySection) return;
-    
-    const galleryContent = gallerySection.querySelector('.gallery-content');
-    if (!galleryContent) return;
-    
-    galleryContent.innerHTML = '<div class="loading">Loading gallery...</div>';
-    
-    fetch('/api/gallery')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load gallery');
-            }
-            return response.json();
-        })
-        .then(gallery => {
-            if (gallery.length === 0) {
-                galleryContent.innerHTML = '<p class="empty-message">No images in the gallery yet.</p>';
-                return;
-            }
-            
-            // Clear gallery content
-            galleryContent.innerHTML = '';
-            
-            // Create gallery grid
-            const galleryGrid = document.createElement('div');
-            galleryGrid.className = 'gallery-grid';
-            
-            gallery.forEach(image => {
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-                
-                galleryItem.innerHTML = `
-                    <img src="${image.path}" alt="${image.description}" loading="lazy" onerror="this.src='https://via.placeholder.com/300x200?text=Image+Error'">
-                `;
-                
-                // Add click event to open lightbox
-                galleryItem.addEventListener('click', function() {
-                    openLightbox(image.path, image.description);
-                });
-                
-                galleryGrid.appendChild(galleryItem);
-            });
-            
-            galleryContent.appendChild(galleryGrid);
-            
-            // Create lightbox container if it doesn't exist
-            if (!document.getElementById('lightbox')) {
-                const lightbox = document.createElement('div');
-                lightbox.id = 'lightbox';
-                lightbox.className = 'lightbox';
-                
-                lightbox.innerHTML = `
-                    <div class="lightbox-content">
-                        <span class="close-lightbox">&times;</span>
-                        <img id="lightbox-image" src="" alt="">
-                        <div id="lightbox-caption"></div>
-                    </div>
-                `;
-                
-                document.body.appendChild(lightbox);
-                
-                // Add event listener to close lightbox
-                document.querySelector('.close-lightbox').addEventListener('click', function() {
-                    document.getElementById('lightbox').style.display = 'none';
-                });
-                
-                // Close lightbox when clicking outside the image
-                lightbox.addEventListener('click', function(e) {
-                    if (e.target === this) {
-                        this.style.display = 'none';
-                    }
-                });
-            }
-        })
-        .catch(error => {
-            console.error('Error loading gallery:', error);
-            galleryContent.innerHTML = '<div class="error-message">Failed to load gallery. Please refresh the page to try again.</div>';
-        });
-}
-
-// Open lightbox with image
-function openLightbox(imageSrc, caption) {
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImage = document.getElementById('lightbox-image');
-    const lightboxCaption = document.getElementById('lightbox-caption');
-    
-    lightboxImage.src = imageSrc;
-    lightboxCaption.textContent = caption;
-    
-    lightbox.style.display = 'flex';
-}
-
-// Setup gallery upload form
-function setupGalleryUpload() {
-    const galleryUploadForm = document.getElementById('galleryUploadForm');
-    if (!galleryUploadForm) return;
-    
-    galleryUploadForm.addEventListener('submit', function(e) {
-        e.preventDefault();
+    // Update the countdown every 1 second
+    const countdownInterval = setInterval(function() {
+        // Get current date and time
+        const now = new Date().getTime();
         
-        const fileInput = document.getElementById('galleryImage');
-        const description = document.getElementById('imageDescription').value || 'Gallery Image';
+        // Calculate the time remaining
+        const distance = countdownDate - now;
         
-        if (!fileInput.files || fileInput.files.length === 0) {
-            showMessage('Please select an image to upload.', 'error');
-            return;
+        // Calculate days, hours, minutes, and seconds
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        
+        // Display the countdown
+        countdownElement.innerHTML = `
+            <div class="countdown-item">
+                <span class="countdown-number">${days}</span>
+                <span class="countdown-label">Days</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number">${hours}</span>
+                <span class="countdown-label">Hours</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number">${minutes}</span>
+                <span class="countdown-label">Minutes</span>
+            </div>
+            <div class="countdown-item">
+                <span class="countdown-number">${seconds}</span>
+                <span class="countdown-label">Seconds</span>
+            </div>
+        `;
+        
+        // If the countdown is over, display a message
+        if (distance < 0) {
+            clearInterval(countdownInterval);
+            countdownElement.innerHTML = '<div class="countdown-complete">The celebration has begun!</div>';
         }
+    }, 1000);
+}
+
+// Initialize schedule section
+function initSchedule(events) {
+    console.log('Initializing schedule section...');
+    const scheduleContainer = document.getElementById('schedule-container');
+    if (!scheduleContainer) {
+        console.warn('Schedule container not found');
+        return;
+    }
+    
+    // Clear existing content
+    scheduleContainer.innerHTML = '';
+    
+    if (!events || events.length === 0) {
+        scheduleContainer.innerHTML = '<p class="no-data">No events scheduled yet.</p>';
+        return;
+    }
+    
+    console.log(`Displaying ${events.length} events`);
+    
+    // Group events by day
+    const eventsByDay = {};
+    events.forEach(event => {
+        if (!eventsByDay[event.day]) {
+            eventsByDay[event.day] = [];
+        }
+        eventsByDay[event.day].push(event);
+    });
+    
+    // Create HTML for each day
+    Object.keys(eventsByDay).forEach(day => {
+        const dayEvents = eventsByDay[day];
         
-        const file = fileInput.files[0];
+        // Create day container
+        const dayContainer = document.createElement('div');
+        dayContainer.className = 'day-container';
         
-        // Create form data
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('description', description);
+        // Add day header
+        const dayHeader = document.createElement('h2');
+        dayHeader.className = 'day-header';
+        dayHeader.textContent = day;
+        dayContainer.appendChild(dayHeader);
         
-        // Disable form submission
-        const submitButton = galleryUploadForm.querySelector('button[type="submit"]');
-        const originalButtonText = submitButton.textContent;
-        submitButton.textContent = 'Uploading...';
-        submitButton.disabled = true;
-        
-        fetch('/api/gallery/upload', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to upload image');
-            }
-            return response.json();
-        })
-        .then(data => {
-            // Reset form
-            galleryUploadForm.reset();
+        // Add events for this day
+        dayEvents.forEach(event => {
+            const eventElement = document.createElement('div');
+            eventElement.className = 'event-card';
             
-            // Reload gallery
-            loadGallery();
+            eventElement.innerHTML = `
+                <h3 class="event-title">${event.title}</h3>
+                <div class="event-details">
+                    <div class="event-detail">
+                        <i class="fas fa-clock"></i>
+                        <span>${event.startTime} - ${event.endTime}</span>
+                    </div>
+                    <div class="event-detail">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <span>${event.location}</span>
+                    </div>
+                    <div class="event-detail">
+                        <i class="fas fa-tshirt"></i>
+                        <span>${event.dressCode || 'No dress code specified'}</span>
+                    </div>
+                </div>
+                <p class="event-description">${event.description || ''}</p>
+                <div class="event-notes">${event.notes || ''}</div>
+                <div class="event-actions">
+                    ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-map"></i> View Map</a>` : ''}
+                    ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-globe"></i> View Website</a>` : ''}
+                </div>
+            `;
             
-            // Show success message
-            showMessage('Image uploaded successfully!', 'success');
-            
-            // Reset button
-            submitButton.textContent = originalButtonText;
-            submitButton.disabled = false;
-        })
-        .catch(error => {
-            console.error('Error uploading image:', error);
-            showMessage('Failed to upload image. Please try again.', 'error');
-            
-            // Reset button
-            submitButton.textContent = originalButtonText;
-            submitButton.disabled = false;
+            dayContainer.appendChild(eventElement);
         });
+        
+        scheduleContainer.appendChild(dayContainer);
     });
 }
 
-// Load footer from API
-function loadFooter() {
-    const footerElement = document.querySelector('footer');
-    if (!footerElement) return;
+// Initialize contacts section
+function initContacts(contacts) {
+    console.log('Initializing contacts section...');
+    const contactsContainer = document.getElementById('contacts-container');
+    if (!contactsContainer) {
+        console.warn('Contacts container not found');
+        return;
+    }
     
-    fetch('/api/footer')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to load footer');
-            }
-            return response.json();
-        })
-        .then(footer => {
-            footerElement.innerHTML = `
-                <div class="footer-content">
-                    <h3>${footer.title}</h3>
-                    <p>${footer.text}</p>
-                    <p class="copyright">${footer.copyright}</p>
-                    <p class="admin-link"><a href="/admin-login.html">Admin Login</a></p>
+    // Clear existing content
+    contactsContainer.innerHTML = '';
+    
+    if (!contacts || contacts.length === 0) {
+        contactsContainer.innerHTML = '<p class="no-data">No contacts available yet.</p>';
+        return;
+    }
+    
+    console.log(`Displaying ${contacts.length} contacts`);
+    
+    // Group contacts by type
+    const contactsByType = {};
+    contacts.forEach(contact => {
+        const type = contact.type || 'General';
+        if (!contactsByType[type]) {
+            contactsByType[type] = [];
+        }
+        contactsByType[type].push(contact);
+    });
+    
+    // Create HTML for each contact type
+    Object.keys(contactsByType).forEach(type => {
+        const typeContacts = contactsByType[type];
+        
+        // Create type container
+        const typeContainer = document.createElement('div');
+        typeContainer.className = 'contact-type-container';
+        
+        // Add type header
+        const typeHeader = document.createElement('h2');
+        typeHeader.className = 'contact-type-header';
+        typeHeader.textContent = type;
+        typeContainer.appendChild(typeHeader);
+        
+        // Add contacts for this type
+        typeContacts.forEach(contact => {
+            const contactElement = document.createElement('div');
+            contactElement.className = 'contact-card';
+            
+            contactElement.innerHTML = `
+                <h3 class="contact-name">${contact.name}</h3>
+                ${contact.title ? `<div class="contact-title">${contact.title}</div>` : ''}
+                <div class="contact-details">
+                    ${contact.email ? `
+                        <div class="contact-detail">
+                            <i class="fas fa-envelope"></i>
+                            <a href="mailto:${contact.email}">${contact.email}</a>
+                        </div>
+                    ` : ''}
+                    ${contact.phone ? `
+                        <div class="contact-detail">
+                            <i class="fas fa-phone"></i>
+                            <a href="tel:${contact.phone}">${contact.phone}</a>
+                        </div>
+                    ` : ''}
                 </div>
+                ${contact.description ? `<p class="contact-description">${contact.description}</p>` : ''}
             `;
-        })
-        .catch(error => {
-            console.error('Error loading footer:', error);
-            footerElement.innerHTML = `
-                <div class="footer-content">
-                    <h3>Jyoti's 50th Birthday Celebration</h3>
-                    <p>Join us for a memorable celebration in Kraków, Poland!</p>
-                    <p class="copyright">© 2025 Jyoti's 50th Birthday</p>
-                    <p class="admin-link"><a href="/admin-login.html">Admin Login</a></p>
-                </div>
-            `;
+            
+            typeContainer.appendChild(contactElement);
         });
+        
+        contactsContainer.appendChild(typeContainer);
+    });
 }
 
-// Helper function to format date for display
-function formatDateForDisplay(dateString) {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    
-    if (isNaN(date.getTime())) {
-        return dateString;
+// Initialize reminders section
+function initReminders(reminders) {
+    console.log('Initializing reminders section...');
+    const remindersContainer = document.getElementById('reminders-container');
+    if (!remindersContainer) {
+        console.warn('Reminders container not found');
+        return;
     }
     
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    // Clear existing content
+    remindersContainer.innerHTML = '';
+    
+    if (!reminders || reminders.length === 0) {
+        remindersContainer.innerHTML = '<p class="no-data">No reminders available yet.</p>';
+        return;
+    }
+    
+    console.log(`Displaying ${reminders.length} reminders`);
+    
+    // Sort reminders by date
+    reminders.sort((a, b) => new Date(a.date) - new Date(b.date));
+    
+    // Create HTML for each reminder
+    reminders.forEach(reminder => {
+        const reminderElement = document.createElement('div');
+        reminderElement.className = 'reminder-card';
+        
+        // Determine icon class
+        let iconClass = 'fas fa-bell';
+        if (reminder.icon === 'Calendar') iconClass = 'fas fa-calendar-alt';
+        if (reminder.icon === 'Info') iconClass = 'fas fa-info-circle';
+        if (reminder.icon === 'Warning') iconClass = 'fas fa-exclamation-triangle';
+        
+        reminderElement.innerHTML = `
+            <div class="reminder-icon">
+                <i class="${iconClass}"></i>
+            </div>
+            <div class="reminder-content">
+                <h3 class="reminder-title">${reminder.title}</h3>
+                <p class="reminder-description">${reminder.description || ''}</p>
+                ${reminder.date ? `<div class="reminder-date">${formatDate(reminder.date)}</div>` : ''}
+            </div>
+        `;
+        
+        remindersContainer.appendChild(reminderElement);
+    });
 }
 
-// Helper function to format day from date
-function formatDay(dateString) {
-    if (!dateString) return '';
-    
-    const date = new Date(dateString);
-    
-    if (isNaN(date.getTime())) {
-        return dateString;
+// Initialize notes section
+function initNotes(notes) {
+    console.log('Initializing notes section...');
+    const notesContainer = document.getElementById('notes-container');
+    if (!notesContainer) {
+        console.warn('Notes container not found');
+        return;
     }
     
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
+    // Clear existing content
+    notesContainer.innerHTML = '';
+    
+    if (!notes || notes.length === 0) {
+        notesContainer.innerHTML = '<p class="no-data">No notes available yet.</p>';
+        return;
+    }
+    
+    console.log(`Displaying ${notes.length} notes`);
+    
+    // Create HTML for each note
+    notes.forEach(note => {
+        const noteElement = document.createElement('div');
+        noteElement.className = 'note-card';
+        
+        noteElement.innerHTML = `
+            <h3 class="note-title">${note.title}</h3>
+            <div class="note-content">${note.content || ''}</div>
+        `;
+        
+        notesContainer.appendChild(noteElement);
+    });
 }
 
-// Helper function to show message
-function showMessage(message, type = 'success') {
-    // Create message element if it doesn't exist
-    let messageElement = document.getElementById('messageNotification');
+// Initialize footer
+function initFooter(footer) {
+    console.log('Initializing footer...');
+    const footerTitleElement = document.querySelector('.footer-title');
+    const footerTextElement = document.querySelector('.footer-text');
+    const footerCopyrightElement = document.querySelector('.footer-copyright');
     
-    if (!messageElement) {
-        messageElement = document.createElement('div');
-        messageElement.id = 'messageNotification';
-        messageElement.className = 'message-notification';
-        document.body.appendChild(messageElement);
+    if (footer && footerTitleElement) {
+        footerTitleElement.textContent = footer.title || 'Jyoti\'s 50th Birthday Celebration';
     }
     
-    // Set message type class
-    messageElement.className = 'message-notification';
-    messageElement.classList.add(type);
+    if (footer && footerTextElement) {
+        footerTextElement.textContent = footer.text || '';
+    }
     
-    // Set message text
-    messageElement.textContent = message;
+    if (footer && footerCopyrightElement) {
+        footerCopyrightElement.textContent = footer.copyright || `© ${new Date().getFullYear()} Jyoti's 50th Birthday Celebration`;
+    }
+}
+
+// Update settings
+function updateSettings(settings) {
+    console.log('Updating settings...');
+    if (!settings) return;
     
-    // Show message
-    messageElement.style.display = 'block';
+    // Update theme colors if provided
+    if (settings.primaryColor || settings.secondaryColor || settings.backgroundColor) {
+        const root = document.documentElement;
+        
+        if (settings.primaryColor) {
+            root.style.setProperty('--primary-color', settings.primaryColor);
+        }
+        
+        if (settings.secondaryColor) {
+            root.style.setProperty('--secondary-color', settings.secondaryColor);
+        }
+        
+        if (settings.backgroundColor) {
+            root.style.setProperty('--background-color', settings.backgroundColor);
+        }
+    }
+}
+
+// Format date
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'long', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+// Show error message
+function showError(message) {
+    const errorElement = document.createElement('div');
+    errorElement.className = 'error-message';
+    errorElement.textContent = message;
     
-    // Hide message after 3 seconds
+    document.body.appendChild(errorElement);
+    
+    // Remove after 5 seconds
     setTimeout(() => {
-        messageElement.style.display = 'none';
-    }, 3000);
+        errorElement.remove();
+    }, 5000);
 }

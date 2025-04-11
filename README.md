@@ -1,95 +1,289 @@
-# Wedding/Event Website Project
+# Jyoti's 50th Birthday Celebration Website Documentation
 
-This repository contains a full-stack web application for Jyoti's 50th Birthday Celebration website. The application is built with Node.js, Express, MongoDB, and vanilla JavaScript.
+## Overview
+This documentation provides comprehensive information about the Jyoti's 50th Birthday Celebration website, including its architecture, features, and maintenance instructions. The website was built to provide information about the celebration taking place in Kraków, Poland from April 24-27, 2025.
+
+## Table of Contents
+1. [Website Structure](#website-structure)
+2. [Features](#features)
+3. [Technical Implementation](#technical-implementation)
+4. [Admin Panel](#admin-panel)
+5. [Google Sheets Integration](#google-sheets-integration)
+6. [Mobile Responsiveness](#mobile-responsiveness)
+7. [PWA Functionality](#pwa-functionality)
+8. [Maintenance Instructions](#maintenance-instructions)
+9. [Troubleshooting](#troubleshooting)
+
+## Website Structure
+The website consists of the following main sections:
+
+### Home
+- Displays a hero image of Jyoti
+- Features a countdown timer to the event
+- Shows important information about accommodations, weather, local currency, and transportation
+
+### Schedule
+- Displays all events organized by day
+- Shows event details including time, location, dress code, and description
+- Includes links to maps and related websites when available
+
+### Gallery
+- Displays photos related to the celebration
+- Allows users to upload their own photos
+- Features a lightbox for viewing larger images
+
+### Reminders
+- Lists important reminders for attendees
+- Includes dates and descriptions
+
+### Contacts
+- Lists important contact information
+- Organized by type (e.g., Organizers, Venue, Transportation)
+
+### Notes
+- Displays additional notes and information
 
 ## Features
 
-- Responsive design with black and gold theme
-- Event schedule management with Google Sheets integration
-- Photo gallery with upload functionality
-- Contacts management
-- Reminders and notes sections
-- Admin panel for content management
-- PWA support with "add to home screen" functionality
-- MongoDB Atlas integration for data persistence
-- AWS S3 integration for image storage
+### Countdown Timer
+The website features a countdown timer on the home page that shows the days, hours, minutes, and seconds until the celebration begins.
 
-## Project Structure
+### Tab Navigation
+The website uses a tab-based navigation system that allows users to switch between different sections without page reloads.
 
+### Photo Gallery
+The gallery section allows users to:
+- View photos in a responsive grid layout
+- Click on photos to view them in a lightbox
+- Upload their own photos with descriptions
+
+### Admin Panel
+The admin panel allows authorized users to:
+- Manage event schedules
+- Add/edit/delete contacts
+- Manage reminders and notes
+- Update footer information
+- Sync data with Google Sheets
+
+### PWA Functionality
+The website functions as a Progressive Web App (PWA), which means users can:
+- Install it on their home screen
+- Use it offline
+- Receive notifications about updates
+
+### Mobile Responsiveness
+The website is fully responsive and works well on:
+- Desktop computers
+- Tablets
+- Mobile phones (both portrait and landscape orientations)
+
+## Technical Implementation
+
+### Frontend
+- HTML5, CSS3, and JavaScript
+- Responsive design using CSS Grid and Flexbox
+- Font Awesome for icons
+- Custom CSS for styling
+
+### Backend
+- Node.js with Express
+- MongoDB for data storage
+- Authentication for admin access
+- File upload handling for gallery images
+
+### Files Structure
 ```
 wedding_website/
-├── models/             # MongoDB models
-├── public/             # Static files
-│   ├── css/            # Stylesheets
-│   ├── js/             # Client-side JavaScript
-│   ├── images/         # Static images
-│   ├── uploads/        # Uploaded images (local development)
-│   ├── index.html      # Main website
-│   └── admin-*.html    # Admin pages
-├── .env                # Environment variables
-├── server.js           # Express server
-├── s3-storage.js       # AWS S3 integration
-├── google-sheets.js    # Google Sheets integration
-└── render.yaml         # Deployment configuration
+├── public/
+│   ├── css/
+│   │   ├── styles.css
+│   │   ├── gallery.css
+│   │   └── mobile-optimization.css
+│   ├── js/
+│   │   ├── main.js
+│   │   ├── gallery.js
+│   │   └── pwa.js
+│   ├── images/
+│   ├── uploads/
+│   ├── index.html
+│   ├── admin-login.html
+│   ├── admin-dashboard.html
+│   ├── manifest.json
+│   └── service-worker.js
+├── models/
+│   ├── Event.js
+│   ├── Contact.js
+│   ├── Reminder.js
+│   ├── Note.js
+│   ├── Gallery.js
+│   ├── Footer.js
+│   ├── Settings.js
+│   └── User.js
+├── server.js
+├── google-sheets.js
+├── google-sheets-endpoint.js
+├── s3-storage.js
+├── local-storage.js
+└── .env
 ```
 
-## Setup Instructions
+## Admin Panel
 
-### Local Development
-
-1. Clone the repository
-2. Install dependencies:
-   ```
-   npm install
-   ```
-3. Create a `.env` file with the following variables:
-   ```
-   PORT=3000
-   MONGODB_URI=mongodb://localhost:27017/wedding_website
-   JWT_SECRET=your_secret_key
-   GOOGLE_SHEETS_ID=your_google_sheets_id
-   AWS_ACCESS_KEY_ID=your_aws_key
-   AWS_SECRET_ACCESS_KEY=your_aws_secret
-   AWS_REGION=your_aws_region
-   S3_BUCKET_NAME=your_s3_bucket
-   ```
-4. Start the server:
-   ```
-   node server.js
-   ```
-5. Access the website at `http://localhost:3000`
-6. Access the admin panel at `http://localhost:3000/admin-login.html`
-
-### Production Deployment
-
-#### Using Render.com
-
-1. Create an account on [Render.com](https://render.com)
-2. Connect your GitHub repository
-3. Render will automatically detect the `render.yaml` file and deploy the application
-4. Set up the environment variables in the Render dashboard
-
-#### Using Other Hosting Platforms
-
-1. Deploy the application to any Node.js hosting platform
-2. Set up the environment variables as specified in the `.env` file
-3. Ensure MongoDB Atlas and AWS S3 are properly configured
-
-## Admin Access
-
-- URL: `/admin-login.html`
+### Access
+The admin panel can be accessed at `/admin-login.html` with the following credentials:
 - Email: shubham.pandey@gmail.com
 - Password: jyoti50admin
 
-## Technologies Used
+### Features
+1. **Schedule Management**
+   - Add, edit, and delete events
+   - Set event details including time, location, dress code, and description
+   - Add links to maps and websites
 
-- **Frontend**: HTML, CSS, JavaScript
-- **Backend**: Node.js, Express
-- **Database**: MongoDB, MongoDB Atlas
-- **Storage**: AWS S3
-- **Authentication**: JWT
-- **Deployment**: Render.com
+2. **Contacts Management**
+   - Add, edit, and delete contacts
+   - Organize contacts by type
+   - Include contact details and descriptions
 
-## License
+3. **Reminders Management**
+   - Add, edit, and delete reminders
+   - Set reminder icons and dates
 
-This project is licensed under the MIT License.
+4. **Notes Management**
+   - Add, edit, and delete notes
+   - Format note content
+
+5. **Footer Management**
+   - Update footer title, text, and copyright information
+
+6. **Gallery Management**
+   - View uploaded photos
+   - Delete photos
+   - Moderate user uploads
+
+7. **Google Sheets Sync**
+   - Sync event data from Google Sheets
+   - Update website content automatically
+
+## Google Sheets Integration
+
+The website can sync event data from a Google Sheets document. This allows for easy updating of event schedules without needing to access the admin panel.
+
+### Setup
+1. The Google Sheets ID is configured in the `.env` file
+2. The sheet must follow a specific format with columns for:
+   - Day
+   - Title
+   - Start Time
+   - End Time
+   - Location
+   - Description
+   - Dress Code
+   - Map URL
+   - Website URL
+   - Notes
+
+### Syncing
+1. Log in to the admin panel
+2. Navigate to the Schedule section
+3. Click the "Sync with Google Sheets" button
+4. The website will fetch the latest data and update the database
+
+## Mobile Responsiveness
+
+The website is fully responsive and adapts to different screen sizes:
+
+### Desktop (>768px)
+- Full navigation menu
+- Multi-column layouts for gallery and contacts
+- Larger font sizes and spacing
+
+### Tablet (480px-768px)
+- Scrollable navigation menu
+- Adjusted layouts with fewer columns
+- Optimized image sizes
+
+### Mobile (<480px)
+- Compact navigation
+- Single-column layouts
+- Touch-friendly buttons and controls
+- Optimized for portrait and landscape orientations
+
+## PWA Functionality
+
+The website functions as a Progressive Web App with the following features:
+
+### Installation
+- Users can add the website to their home screen
+- Custom icons and splash screens are provided
+- The website appears as a standalone app
+
+### Offline Support
+- Key assets are cached for offline use
+- Users can view previously loaded content without an internet connection
+- Offline status is indicated to users
+
+### Performance
+- Assets are cached for faster loading
+- The service worker manages cache updates
+- The website loads quickly even on slow connections
+
+## Maintenance Instructions
+
+### Updating Content
+1. **Via Admin Panel**
+   - Log in to the admin panel
+   - Navigate to the appropriate section
+   - Make changes and save
+
+2. **Via Google Sheets**
+   - Update the Google Sheets document
+   - Log in to the admin panel
+   - Sync the changes
+
+### Adding New Features
+1. Modify the appropriate files in the `public` directory
+2. Update the backend models and routes if necessary
+3. Test thoroughly before deploying
+
+### Updating Dependencies
+1. Review the package.json file
+2. Update dependencies as needed
+3. Test for compatibility issues
+
+### Backup Procedures
+1. Regularly backup the MongoDB database
+2. Keep copies of all uploaded images
+3. Maintain a backup of the Google Sheets document
+
+## Troubleshooting
+
+### Common Issues
+
+#### Content Not Displaying
+- Check browser console for JavaScript errors
+- Verify that the API endpoints are responding correctly
+- Ensure the database connection is working
+
+#### Admin Panel Access Issues
+- Verify credentials are correct
+- Check for session timeout
+- Clear browser cache and cookies
+
+#### Image Upload Problems
+- Verify the uploads directory has proper permissions
+- Check for file size limitations
+- Ensure the file format is supported
+
+#### Google Sheets Sync Issues
+- Verify the Google Sheets ID is correct
+- Check that the sheet follows the required format
+- Ensure API access is properly configured
+
+### Support Contacts
+For technical support, please contact:
+- Shubham Pandey: shubham.pandey@gmail.com
+
+---
+
+This documentation was last updated on April 11, 2025.

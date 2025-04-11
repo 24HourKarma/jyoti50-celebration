@@ -1,195 +1,200 @@
-// Gallery specific JavaScript for handling uploads and display
+// Updated Gallery JavaScript for the website
 document.addEventListener('DOMContentLoaded', function() {
-    // Elements
-    const galleryContainer = document.getElementById('galleryContainer');
-    const uploadForm = document.getElementById('uploadForm');
-    
-    // Load gallery images
-    function loadGalleryImages() {
-        // For static deployment, show demo images
-        const demoImages = [
-            { path: '/images/jyoti.jpg', description: 'Jyoti' },
-            { path: '/images/krakow1.jpg', description: 'Kraków Old Town' },
-            { path: '/images/krakow2.jpg', description: 'Wawel Castle' }
-        ];
+    // Initialize gallery if on gallery page
+    if (document.getElementById('gallery-container')) {
+        fetchGalleryImages();
+        setupImageUpload();
+    }
+});
+
+// Fetch gallery images from API
+async function fetchGalleryImages() {
+    try {
+        const galleryContainer = document.getElementById('gallery-container');
+        if (!galleryContainer) return;
         
+        // Show loading indicator
+        galleryContainer.innerHTML = '<div class="loading">Loading gallery...</div>';
+        
+        // Fetch gallery data
+        const response = await fetch('/api/gallery');
+        
+        if (!response.ok) {
+            throw new Error(`API error: ${response.status} ${response.statusText}`);
+        }
+        
+        const images = await response.json();
+        
+        // Clear loading indicator
         galleryContainer.innerHTML = '';
         
-        if (demoImages.length === 0) {
-            galleryContainer.innerHTML = '<p class="no-images">No images yet. Be the first to share!</p>';
+        if (!images || images.length === 0) {
+            galleryContainer.innerHTML = `
+                <div class="no-images">
+                    <p>No images in the gallery yet.</p>
+                    <p>Be the first to share a photo!</p>
+                </div>
+            `;
             return;
         }
         
-        demoImages.forEach(image => {
-            const galleryItem = document.createElement('div');
-            galleryItem.className = 'gallery-item';
+        // Create gallery grid
+        const galleryGrid = document.createElement('div');
+        galleryGrid.className = 'gallery-grid';
+        
+        // Add each image to the grid
+        images.forEach(image => {
+            const imageElement = document.createElement('div');
+            imageElement.className = 'gallery-item';
             
-            const img = document.createElement('img');
-            img.src = image.path;
-            img.alt = image.description || 'Gallery image';
-            img.loading = 'lazy'; // Lazy loading for better performance
-            img.onerror = function() {
-                // If image fails to load, show placeholder
-                this.src = 'https://via.placeholder.com/300x200?text=Image';
-            };
+            // Use a default path prefix if the path doesn't start with http or /
+            let imagePath = image.path;
+            if (!imagePath.startsWith('http') && !imagePath.startsWith('/')) {
+                imagePath = '/' + imagePath;
+            }
             
-            // Add click handler to open image in lightbox
-            img.addEventListener('click', function() {
-                openLightbox(image.path, image.description);
+            imageElement.innerHTML = `
+                <img src="${imagePath}" alt="${image.description || 'Gallery Image'}" loading="lazy">
+                <div class="image-description">${image.description || 'Gallery Image'}</div>
+            `;
+            
+            // Add click event for lightbox
+            imageElement.addEventListener('click', function() {
+                openLightbox(imagePath, image.description || 'Gallery Image');
             });
             
-            galleryItem.appendChild(img);
-            
-            if (image.description) {
-                const description = document.createElement('div');
-                description.className = 'gallery-item-description';
-                description.textContent = image.description;
-                galleryItem.appendChild(description);
-            }
-            
-            galleryContainer.appendChild(galleryItem);
+            galleryGrid.appendChild(imageElement);
         });
+        
+        galleryContainer.appendChild(galleryGrid);
+        
+    } catch (error) {
+        console.error('Error fetching gallery images:', error);
+        const galleryContainer = document.getElementById('gallery-container');
+        if (galleryContainer) {
+            galleryContainer.innerHTML = `
+                <div class="error">
+                    <p>Failed to load gallery images.</p>
+                    <p>Please try again later.</p>
+                </div>
+            `;
+        }
     }
+}
+
+// Set up image upload functionality
+function setupImageUpload() {
+    const uploadForm = document.getElementById('upload-form');
+    if (!uploadForm) return;
     
-    // Handle image upload
-    if (uploadForm) {
-        uploadForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            const submitButton = this.querySelector('button[type="submit"]');
-            const fileInput = this.querySelector('input[type="file"]');
-            
-            // Validate file input
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Please select an image to upload.');
-                return;
-            }
-            
-            // Check file type
-            const file = fileInput.files[0];
-            if (!file.type.match('image.*')) {
-                alert('Please select an image file (JPEG, PNG, GIF).');
-                return;
-            }
-            
-            // Check file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('Image size should be less than 5MB.');
-                return;
-            }
-            
-            // Disable button and show loading state
-            submitButton.disabled = true;
-            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
-            
-            // In static deployment, simulate successful upload
-            setTimeout(() => {
-                // Reset form
-                uploadForm.reset();
-                
-                // Show success message
-                const successMessage = document.createElement('div');
-                successMessage.className = 'alert alert-success';
-                successMessage.textContent = 'Image uploaded successfully!';
-                uploadForm.prepend(successMessage);
-                
-                // Remove success message after 3 seconds
-                setTimeout(() => {
-                    successMessage.remove();
-                }, 3000);
-                
-                // Add the uploaded image to the gallery (for demo purposes)
-                const newImage = {
-                    path: URL.createObjectURL(file),
-                    description: formData.get('description') || 'Uploaded image'
-                };
-                
-                const galleryItem = document.createElement('div');
-                galleryItem.className = 'gallery-item';
-                
-                const img = document.createElement('img');
-                img.src = newImage.path;
-                img.alt = newImage.description;
-                
-                img.addEventListener('click', function() {
-                    openLightbox(newImage.path, newImage.description);
-                });
-                
-                galleryItem.appendChild(img);
-                
-                if (newImage.description) {
-                    const description = document.createElement('div');
-                    description.className = 'gallery-item-description';
-                    description.textContent = newImage.description;
-                    galleryItem.appendChild(description);
-                }
-                
-                if (galleryContainer) {
-                    galleryContainer.prepend(galleryItem);
-                }
-                
-                // Reset button state
-                submitButton.disabled = false;
-                submitButton.innerHTML = 'Upload Photo';
-            }, 1500); // Simulate network delay
-        });
-    }
-    
-    // Lightbox functionality
-    function openLightbox(imageSrc, description) {
-        // Create lightbox elements
-        const lightbox = document.createElement('div');
-        lightbox.className = 'lightbox';
+    uploadForm.addEventListener('submit', async function(e) {
+        e.preventDefault();
         
-        const lightboxContent = document.createElement('div');
-        lightboxContent.className = 'lightbox-content';
+        const fileInput = document.getElementById('image-upload');
+        const descriptionInput = document.getElementById('image-description');
+        const submitButton = uploadForm.querySelector('button[type="submit"]');
+        const statusMessage = document.getElementById('upload-status');
         
-        const closeBtn = document.createElement('span');
-        closeBtn.className = 'lightbox-close';
-        closeBtn.innerHTML = '&times;';
-        closeBtn.addEventListener('click', function() {
-            document.body.removeChild(lightbox);
-        });
-        
-        const image = document.createElement('img');
-        image.src = imageSrc;
-        image.alt = description || 'Gallery image';
-        
-        lightboxContent.appendChild(closeBtn);
-        lightboxContent.appendChild(image);
-        
-        if (description) {
-            const descriptionElement = document.createElement('div');
-            descriptionElement.className = 'lightbox-description';
-            descriptionElement.textContent = description;
-            lightboxContent.appendChild(descriptionElement);
+        if (!fileInput.files || fileInput.files.length === 0) {
+            statusMessage.textContent = 'Please select an image to upload.';
+            statusMessage.className = 'error';
+            return;
         }
         
-        lightbox.appendChild(lightboxContent);
-        document.body.appendChild(lightbox);
+        // Create form data
+        const formData = new FormData();
+        formData.append('image', fileInput.files[0]);
+        formData.append('description', descriptionInput.value || 'Gallery Image');
         
-        // Close lightbox when clicking outside the image
-        lightbox.addEventListener('click', function(e) {
-            if (e.target === lightbox) {
-                document.body.removeChild(lightbox);
+        try {
+            // Disable form during upload
+            fileInput.disabled = true;
+            descriptionInput.disabled = true;
+            submitButton.disabled = true;
+            statusMessage.textContent = 'Uploading image...';
+            statusMessage.className = 'info';
+            
+            // Upload image
+            const response = await fetch('/api/gallery/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
             }
-        });
-    }
+            
+            // Handle successful upload
+            statusMessage.textContent = 'Image uploaded successfully!';
+            statusMessage.className = 'success';
+            
+            // Clear form
+            fileInput.value = '';
+            descriptionInput.value = '';
+            
+            // Refresh gallery
+            fetchGalleryImages();
+            
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            statusMessage.textContent = 'Failed to upload image. Please try again.';
+            statusMessage.className = 'error';
+        } finally {
+            // Re-enable form
+            fileInput.disabled = false;
+            descriptionInput.disabled = false;
+            submitButton.disabled = false;
+            
+            // Clear status message after 5 seconds
+            setTimeout(() => {
+                statusMessage.textContent = '';
+                statusMessage.className = '';
+            }, 5000);
+        }
+    });
+}
+
+// Open lightbox
+function openLightbox(imageSrc, description) {
+    // Create lightbox container
+    const lightbox = document.createElement('div');
+    lightbox.className = 'lightbox';
     
-    // Create placeholder images for static deployment
-    function createPlaceholderImages() {
-        // Create directory for placeholder images
-        const images = [
-            { name: 'krakow1.jpg', url: 'https://images.unsplash.com/photo-1562693315-d60e1f4f1f9f' },
-            { name: 'krakow2.jpg', url: 'https://images.unsplash.com/photo-1519197924294-4ba991a11128' }
-        ];
-        
-        // For demo purposes, we'll just use the URLs directly
-        // In a real implementation, we would download these images
-    }
+    // Create lightbox content
+    lightbox.innerHTML = `
+        <div class="lightbox-content">
+            <img src="${imageSrc}" alt="${description}">
+            <div class="lightbox-description">${description}</div>
+            <button class="lightbox-close">&times;</button>
+        </div>
+    `;
     
-    // Initialize gallery
-    createPlaceholderImages();
-    loadGalleryImages();
-});
+    // Add lightbox to body
+    document.body.appendChild(lightbox);
+    
+    // Prevent scrolling on body
+    document.body.style.overflow = 'hidden';
+    
+    // Add close event
+    lightbox.addEventListener('click', function(e) {
+        if (e.target === lightbox || e.target.classList.contains('lightbox-close')) {
+            closeLightbox(lightbox);
+        }
+    });
+    
+    // Add keyboard close event
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeLightbox(lightbox);
+        }
+    });
+}
+
+// Close lightbox
+function closeLightbox(lightbox) {
+    // Remove lightbox
+    lightbox.remove();
+    
+    // Restore scrolling
+    document.body.style.overflow = '';
+}

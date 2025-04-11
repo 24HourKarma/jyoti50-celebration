@@ -20,3 +20,7 @@ services:
         value: us-east-1
       - key: S3_BUCKET_NAME
         value: jyoti50-wedding-website
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
