@@ -432,11 +432,25 @@ function formatDateForDisplay(dateStr) {
         if (year === 2025 && month === 4 && day >= 24 && day <= 27) {
             return `April ${day}, 2025`;
         } else {
-            // Default to April 24, 2025 if outside range
+            // If outside range, check if we can extract a day from the string
+            const dayMatch = dateStr.match(/April (\d+)-\d+, 2025/);
+            if (dayMatch && dayMatch[1]) {
+                return `April ${dayMatch[1]}, 2025`;
+            }
+            
+            // Default to April 24, 2025 only as a last resort
+            console.warn('Date outside expected range:', dateStr);
             return 'April 24, 2025';
         }
     } catch (error) {
         console.error('Error formatting date:', error);
+        
+        // Try to extract a specific day from the string if it's in the format "April 24-27, 2025"
+        const dayMatch = dateStr.match(/April (\d+)-\d+, 2025/);
+        if (dayMatch && dayMatch[1]) {
+            return `April ${dayMatch[1]}, 2025`;
+        }
+        
         return 'April 24, 2025';
     }
 }

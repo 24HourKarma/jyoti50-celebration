@@ -190,7 +190,7 @@ function initSchedule(events) {
     scheduleContainer.innerHTML = '';
     
     if (!events || events.length === 0) {
-        scheduleContainer.innerHTML = '<p class="no-data">No events scheduled yet.</p>';
+        scheduleContainer.innerHTML = '<div class="empty-schedule"><i class="fas fa-calendar-times"></i><h3>No events scheduled yet</h3><p>Check back later for updates to the schedule</p></div>';
         return;
     }
     
@@ -205,54 +205,238 @@ function initSchedule(events) {
         eventsByDay[event.day].push(event);
     });
     
+    // Sort days chronologically
+    const sortedDays = Object.keys(eventsByDay).sort((a, b) => {
+        // Extract day number from "April XX, 2025" format
+        const dayA = parseInt(a.match(/\d+/)[0]);
+        const dayB = parseInt(b.match(/\d+/)[0]);
+        return dayA - dayB;
+    });
+    
     // Create HTML for each day
-    Object.keys(eventsByDay).forEach(day => {
+    sortedDays.forEach(day => {
         const dayEvents = eventsByDay[day];
+        
+        // Sort events by start time
+        dayEvents.sort((a, b) => {
+            if (a.startTime < b.startTime) return -1;
+            if (a.startTime > b.startTime) return 1;
+            return 0;
+        });
         
         // Create day container
         const dayContainer = document.createElement('div');
-        dayContainer.className = 'day-container';
+        dayContainer.className = 'schedule-day';
         
         // Add day header
-        const dayHeader = document.createElement('h2');
+        const dayHeader = document.createElement('div');
         dayHeader.className = 'day-header';
-        dayHeader.textContent = day;
+        
+        // Get appropriate icon for the day
+        let dayIconClass = 'fas fa-calendar-day';
+        
+        const dayIcon = document.createElement('i');
+        dayIcon.className = dayIconClass;
+        
+        const dayTitle = document.createElement('h2');
+        dayTitle.className = 'day-title';
+        dayTitle.textContent = day;
+        
+        dayHeader.appendChild(dayIcon);
+        dayHeader.appendChild(dayTitle);
         dayContainer.appendChild(dayHeader);
         
         // Add events for this day
         dayEvents.forEach(event => {
+            // Get appropriate icon for event type
+            let eventIconClass = 'fas fa-calendar-day';
+            const lowerTitle = event.title.toLowerCase();
+            
+            if (lowerTitle.includes('breakfast') || (event.description && event.description.toLowerCase().includes('breakfast'))) {
+                eventIconClass = 'fas fa-coffee';
+            } else if (lowerTitle.includes('lunch') || (event.description && event.description.toLowerCase().includes('lunch'))) {
+                eventIconClass = 'fas fa-utensils';
+            } else if (lowerTitle.includes('dinner') || (event.description && event.description.toLowerCase().includes('dinner'))) {
+                eventIconClass = 'fas fa-utensils';
+            } else if (lowerTitle.includes('tour') || (event.description && event.description.toLowerCase().includes('tour'))) {
+                eventIconClass = 'fas fa-map-marked-alt';
+            } else if (lowerTitle.includes('party') || (event.description && event.description.toLowerCase().includes('party'))) {
+                eventIconClass = 'fas fa-glass-cheers';
+            } else if (lowerTitle.includes('ceremony') || (event.description && event.description.toLowerCase().includes('ceremony'))) {
+                eventIconClass = 'fas fa-heart';
+            } else if (lowerTitle.includes('brunch') || (event.description && event.description.toLowerCase().includes('brunch'))) {
+                eventIconClass = 'fas fa-coffee';
+            } else if (lowerTitle.includes('welcome') || (event.description && event.description.toLowerCase().includes('welcome'))) {
+                eventIconClass = 'fas fa-glass-cheers';
+            } else if (lowerTitle.includes('farewell') || (event.description && event.description.toLowerCase().includes('farewell'))) {
+                eventIconClass = 'fas fa-hand-peace';
+            } else if (lowerTitle.includes('gala') || (event.description && event.description.toLowerCase().includes('gala'))) {
+                eventIconClass = 'fas fa-star';
+            }
+            
+            // Format time
+            function formatTime(timeString) {
+                if (!timeString) return '';
+                
+                // Check if it's already in HH:MM format
+                if (/^\d{2}:\d{2}$/.test(timeString)) {
+                    // Convert 24-hour format to 12-hour format with AM/PM
+                    const [hours, minutes] = timeString.split(':');
+                    const hour = parseInt(hours);
+                    const ampm = hour >= 12 ? 'PM' : 'AM';
+                    const hour12 = hour % 12 || 12; // Convert 0 to 12
+                    return `${hour12}:${minutes} ${ampm}`;
+                }
+                
+                return timeString;
+            }
+            
             const eventElement = document.createElement('div');
             eventElement.className = 'event-card';
             
-            eventElement.innerHTML = `
-                <h3 class="event-title">${event.title}</h3>
-                <div class="event-details">
-                    <div class="event-detail">
-                        <i class="fas fa-clock"></i>
-                        <span>${event.startTime} - ${event.endTime}</span>
-                    </div>
-                    <div class="event-detail">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <span>${event.location}</span>
-                    </div>
-                    <div class="event-detail">
-                        <i class="fas fa-tshirt"></i>
-                        <span>${event.dressCode || 'No dress code specified'}</span>
-                    </div>
-                </div>
-                <p class="event-description">${event.description || ''}</p>
-                <div class="event-notes">${event.notes || ''}</div>
-                <div class="event-actions">
-                    ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-map"></i> View Map</a>` : ''}
-                    ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-secondary"><i class="fas fa-globe"></i> View Website</a>` : ''}
-                </div>
-            `;
+            // Create event header with title and time
+            const eventHeader = document.createElement('div');
+            eventHeader.className = 'event-header';
+            
+            const eventTitle = document.createElement('h3');
+            eventTitle.className = 'event-title';
+            eventTitle.textContent = event.title;
+            
+            const eventTime = document.createElement('div');
+            eventTime.className = 'event-time';
+            
+            const timeIcon = document.createElement('i');
+            timeIcon.className = 'fas fa-clock';
+            
+            const timeText = document.createElement('span');
+            if (event.startTime && event.endTime) {
+                timeText.textContent = `${event.startTime} - ${event.endTime}`;
+            } else if (event.startTime) {
+                timeText.textContent = event.startTime;
+            } else {
+                timeText.textContent = 'All day';
+            }
+            
+            eventTime.appendChild(timeIcon);
+            eventTime.appendChild(timeText);
+            
+            eventHeader.appendChild(eventTitle);
+            eventHeader.appendChild(eventTime);
+            eventElement.appendChild(eventHeader);
+            
+            // Event location if available
+            if (event.location) {
+                const eventLocation = document.createElement('div');
+                eventLocation.className = 'event-location';
+                
+                const locationIcon = document.createElement('i');
+                locationIcon.className = 'fas fa-map-marker-alt';
+                
+                const locationText = document.createElement('span');
+                locationText.textContent = event.location;
+                
+                eventLocation.appendChild(locationIcon);
+                eventLocation.appendChild(locationText);
+                eventElement.appendChild(eventLocation);
+            }
+            
+            // Event description if available
+            if (event.description) {
+                const eventDescription = document.createElement('div');
+                eventDescription.className = 'event-description';
+                eventDescription.textContent = event.description;
+                eventElement.appendChild(eventDescription);
+            }
+            
+            // Event details (dress code, notes)
+            const eventDetails = document.createElement('div');
+            eventDetails.className = 'event-details';
+            
+            if (event.dressCode) {
+                const dressCode = document.createElement('div');
+                dressCode.className = 'event-detail';
+                
+                const dressIcon = document.createElement('i');
+                dressIcon.className = 'fas fa-tshirt';
+                
+                const dressText = document.createElement('span');
+                dressText.textContent = event.dressCode;
+                
+                dressCode.appendChild(dressIcon);
+                dressCode.appendChild(dressText);
+                eventDetails.appendChild(dressCode);
+            }
+            
+            if (event.notes) {
+                const notes = document.createElement('div');
+                notes.className = 'event-detail';
+                
+                const notesIcon = document.createElement('i');
+                notesIcon.className = 'fas fa-sticky-note';
+                
+                const notesText = document.createElement('span');
+                notesText.textContent = 'Notes available';
+                
+                notes.appendChild(notesIcon);
+                notes.appendChild(notesText);
+                notes.title = event.notes;
+                eventDetails.appendChild(notes);
+            }
+            
+            if (eventDetails.children.length > 0) {
+                eventElement.appendChild(eventDetails);
+            }
+            
+            // Event links (map, website)
+            const eventLinks = document.createElement('div');
+            eventLinks.className = 'event-links';
+            
+            if (event.mapUrl) {
+                const mapLink = document.createElement('a');
+                mapLink.className = 'event-link';
+                mapLink.href = event.mapUrl;
+                mapLink.target = '_blank';
+                mapLink.rel = 'noopener noreferrer';
+                
+                const mapIcon = document.createElement('i');
+                mapIcon.className = 'fas fa-map';
+                
+                const mapText = document.createElement('span');
+                mapText.textContent = 'View Map';
+                
+                mapLink.appendChild(mapIcon);
+                mapLink.appendChild(mapText);
+                eventLinks.appendChild(mapLink);
+            }
+            
+            if (event.websiteUrl) {
+                const websiteLink = document.createElement('a');
+                websiteLink.className = 'event-link';
+                websiteLink.href = event.websiteUrl;
+                websiteLink.target = '_blank';
+                websiteLink.rel = 'noopener noreferrer';
+                
+                const websiteIcon = document.createElement('i');
+                websiteIcon.className = 'fas fa-globe';
+                
+                const websiteText = document.createElement('span');
+                websiteText.textContent = 'Visit Website';
+                
+                websiteLink.appendChild(websiteIcon);
+                websiteLink.appendChild(websiteText);
+                eventLinks.appendChild(websiteLink);
+            }
+            
+            if (eventLinks.children.length > 0) {
+                eventElement.appendChild(eventLinks);
+            }
             
             dayContainer.appendChild(eventElement);
         });
         
         scheduleContainer.appendChild(dayContainer);
     });
+}
 }
 
 // Initialize contacts section
