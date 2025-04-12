@@ -1,4 +1,4 @@
-// Updated main.js file that correctly targets the container elements in index.html
+// Updated main.js with CORS fixes - uses relative paths for API requests
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize the site
   initializeSite();
@@ -24,8 +24,9 @@ async function initializeSite() {
 
 async function fetchAndDisplayData(endpoint) {
   try {
-    console.log(`Fetching data from: /api/${endpoint}`);
-    const response = await fetch(`/api/${endpoint}`);
+    console.log(`Fetching data from: api/${endpoint}`);
+    // Use relative path without leading slash
+    const response = await fetch(`api/${endpoint}`);
     
     if (!response.ok) {
       throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText}`);

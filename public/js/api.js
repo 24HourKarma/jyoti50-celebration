@@ -1,14 +1,8 @@
-// Enhanced API client for frontend
-// This file should replace the existing api.js in public/js/
-
-/**
- * API Client for Jyoti50 Birthday Celebration Website
- * Handles all API requests with improved error handling and logging
- */
-
+// Updated API client with CORS fixes - uses relative paths for API requests
 class ApiClient {
   constructor() {
-    this.baseUrl = '/api';
+    // Use relative path without leading slash
+    this.baseUrl = 'api';
     this.token = localStorage.getItem('jyoti50_token');
   }
 
@@ -53,7 +47,7 @@ class ApiClient {
   async handleResponse(response) {
     // First get the response as text
     const text = await response.text();
-    console.log(`Raw API response: ${text}`);
+    console.log(`Raw API response:`, text);
     
     // Try to parse as JSON
     let data;
