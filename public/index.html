@@ -6,6 +6,29 @@
     <title>Jyoti's 50th Birthday Celebration</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Fallback styles in case external CSS doesn't load */
+        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; color: #333; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        header { background-color: #f8f8f8; padding: 20px 0; border-bottom: 1px solid #ddd; }
+        h1, h2, h3 { margin-top: 0; }
+        section { margin: 30px 0; }
+        .card { border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; }
+        footer { background-color: #f8f8f8; padding: 20px 0; border-top: 1px solid #ddd; text-align: center; }
+        
+        /* Day tabs styling */
+        .day-tabs { display: flex; margin-bottom: 20px; }
+        .day-tab { padding: 10px 20px; background: #f0f0f0; border: 1px solid #ddd; cursor: pointer; margin-right: 5px; }
+        .day-tab.active { background: #333; color: white; }
+        
+        /* Event card styling */
+        .event-card { border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; }
+        
+        /* Gallery styling */
+        .gallery-item { margin-bottom: 20px; }
+        .gallery-item img { max-width: 100%; border-radius: 5px; }
+        .gallery-caption { padding: 10px 0; }
+    </style>
 </head>
 <body>
     <header>
@@ -89,11 +112,278 @@
         </div>
     </footer>
 
-    <!-- Fixed scripts that use relative paths -->
-    <script src="ultra-simple-api.js"></script>
-    <script src="fixed-main.js"></script>
-    
-    <!-- Debug panel script - added to help diagnose data issues -->
-    <script src="debug-panel.js"></script>
+    <script>
+        // Wait for DOM to load
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM loaded - starting enhanced version');
+            
+            // Set up day tabs
+            setupDayTabs();
+            
+            // Fetch and display data
+            fetchEvents();
+            fetchAndDisplay('contacts', displayContacts);
+            fetchAndDisplay('reminders', displayReminders);
+            fetchAndDisplay('notes', displayNotes);
+            fetchAndDisplay('gallery', displayGallery);
+        });
+        
+        // Set up day tabs functionality
+        function setupDayTabs() {
+            const tabs = document.querySelectorAll('.day-tab');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remove active class from all tabs
+                    tabs.forEach(t => t.classList.remove('active'));
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Filter events by day
+                    const day = this.getAttribute('data-day');
+                    filterEventsByDay(day);
+                });
+            });
+        }
+        
+        // Filter events by day
+        function filterEventsByDay(day) {
+            const eventCards = document.querySelectorAll('.event-card');
+            
+            eventCards.forEach(card => {
+                if (card.getAttribute('data-day') === day) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+        
+        // Fetch events and display them
+        async function fetchEvents() {
+            try {
+                const events = await fetchData('events');
+                displayEvents(events);
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                document.querySelector('.events-container').innerHTML = '<p>Error loading events. Please try again later.</p>';
+            }
+        }
+        
+        // Display events with day filtering
+        function displayEvents(events) {
+            const container = document.querySelector('.events-container');
+            
+            if (!container) {
+                console.warn('Events container not found');
+                return;
+            }
+            
+            if (!events || events.length === 0) {
+                container.innerHTML = '<p>No events available.</p>';
+                return;
+            }
+            
+            let html = '';
+            
+            // Group events by day
+            const eventsByDay = {
+                'Thursday': [],
+                'Friday': [],
+                'Saturday': [],
+                'Sunday': []
+            };
+            
+            // Assign events to days based on date or day property
+            events.forEach(event => {
+                let day = 'Thursday'; // Default day
+                
+                // Try to determine day from date or day property
+                if (event.day) {
+                    day = event.day;
+                } else if (event.date) {
+                    const date = new Date(event.date);
+                    const dayOfWeek = date.getDay();
+                    
+                    // Map day number to day name (0 = Sunday, 1 = Monday, etc.)
+                    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+                    day = dayNames[dayOfWeek];
+                    
+                    // If day is not in our tabs, default to Thursday
+                    if (!['Thursday', 'Friday', 'Saturday', 'Sunday'].includes(day)) {
+                        day = 'Thursday';
+                    }
+                }
+                
+                eventsByDay[day].push(event);
+            });
+            
+            // Create HTML for each day's events
+            for (const [day, dayEvents] of Object.entries(eventsByDay)) {
+                dayEvents.forEach(event => {
+                    html += `
+                        <div class="event-card" data-day="${day}" style="${day === 'Thursday' ? 'display: block;' : 'display: none;'}">
+                            <h3>${event.title || 'Untitled Event'}</h3>
+                            <p><strong>Date:</strong> ${event.date || 'No date'}</p>
+                            <p><strong>Time:</strong> ${event.startTime || 'No time'} ${event.endTime ? '- ' + event.endTime : ''}</p>
+                            <p><strong>Location:</strong> ${event.location || 'No location'}</p>
+                            <p>${event.description || 'No description'}</p>
+                        </div>
+                    `;
+                });
+            }
+            
+            container.innerHTML = html || '<p>No events available.</p>';
+        }
+        
+        // Fetch and display generic data
+        async function fetchAndDisplay(endpoint, displayFunction) {
+            try {
+                const data = await fetchData(endpoint);
+                displayFunction(data);
+            } catch (error) {
+                console.error(`Error fetching ${endpoint}:`, error);
+                document.querySelector(`.${endpoint}-container`).innerHTML = `<p>Error loading ${endpoint}. Please try again later.</p>`;
+            }
+        }
+        
+        // Display contacts
+        function displayContacts(contacts) {
+            const container = document.querySelector('.contacts-container');
+            
+            if (!container) {
+                console.warn('Contacts container not found');
+                return;
+            }
+            
+            if (!contacts || contacts.length === 0) {
+                container.innerHTML = '<p>No contacts available.</p>';
+                return;
+            }
+            
+            let html = '';
+            contacts.forEach(contact => {
+                html += `
+                    <div class="card">
+                        <h3>${contact.name || 'Unnamed Contact'}</h3>
+                        <p><strong>Email:</strong> ${contact.email || 'No email'}</p>
+                        <p><strong>Phone:</strong> ${contact.phone || 'No phone'}</p>
+                        <p>${contact.notes || ''}</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Display reminders
+        function displayReminders(reminders) {
+            const container = document.querySelector('.reminders-container');
+            
+            if (!container) {
+                console.warn('Reminders container not found');
+                return;
+            }
+            
+            if (!reminders || reminders.length === 0) {
+                container.innerHTML = '<p>No reminders available.</p>';
+                return;
+            }
+            
+            let html = '';
+            reminders.forEach(reminder => {
+                const date = reminder.date ? new Date(reminder.date).toLocaleDateString() : 'No date';
+                
+                html += `
+                    <div class="card">
+                        <h3>${reminder.title || 'Untitled Reminder'}</h3>
+                        <p><strong>Date:</strong> ${date}</p>
+                        <p>${reminder.description || 'No description'}</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Display notes
+        function displayNotes(notes) {
+            const container = document.querySelector('.notes-container');
+            
+            if (!container) {
+                console.warn('Notes container not found');
+                return;
+            }
+            
+            if (!notes || notes.length === 0) {
+                container.innerHTML = '<p>No notes available.</p>';
+                return;
+            }
+            
+            let html = '';
+            notes.forEach(note => {
+                html += `
+                    <div class="card">
+                        <h3>${note.title || 'Untitled Note'}</h3>
+                        <p>${note.content || 'No content'}</p>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Display gallery
+        function displayGallery(gallery) {
+            const container = document.querySelector('.gallery-container');
+            
+            if (!container) {
+                console.warn('Gallery container not found');
+                return;
+            }
+            
+            if (!gallery || gallery.length === 0) {
+                container.innerHTML = '<p>No images available.</p>';
+                return;
+            }
+            
+            let html = '';
+            gallery.forEach(image => {
+                html += `
+                    <div class="gallery-item">
+                        <img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}">
+                        <div class="gallery-caption">
+                            <h3>${image.title || ''}</h3>
+                            <p>${image.description || ''}</p>
+                        </div>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+        
+        // Fetch data from API
+        async function fetchData(endpoint) {
+            console.log(`Fetching from ${endpoint}...`);
+            
+            try {
+                const response = await fetch(`/api/${endpoint}`);
+                
+                if (!response.ok) {
+                    console.warn(`Error fetching ${endpoint}: ${response.status}`);
+                    return [];
+                }
+                
+                const data = await response.json();
+                console.log(`Received ${data.length} items from ${endpoint}`);
+                return data;
+            } catch (error) {
+                console.error(`Failed to fetch ${endpoint}:`, error);
+                return [];
+            }
+        }
+    </script>
 </body>
 </html>
