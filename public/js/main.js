@@ -1,4 +1,4 @@
-// public/js/main.js - Complete file
+// public/js/main.js - Updated version with better error handling
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize the site
   initializeSite();
@@ -31,8 +31,18 @@ async function fetchAndDisplayData(endpoint) {
       throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText}`);
     }
     
-    const data = await response.json();
-    console.log(`Data received for ${endpoint}:`, data);
+    const text = await response.text(); // Get response as text first
+    console.log(`Raw response for ${endpoint}:`, text);
+    
+    let data;
+    try {
+      // Try to parse as JSON
+      data = text ? JSON.parse(text) : [];
+      console.log(`Parsed data for ${endpoint}:`, data);
+    } catch (parseError) {
+      console.error(`Error parsing JSON for ${endpoint}:`, parseError);
+      throw new Error(`Invalid JSON response for ${endpoint}`);
+    }
     
     // Store data in global state
     window[endpoint] = data;
@@ -43,7 +53,8 @@ async function fetchAndDisplayData(endpoint) {
     return data;
   } catch (error) {
     console.error(`Error fetching ${endpoint}:`, error);
-    displayErrorMessage(`Failed to load ${endpoint}. Please try again later.`);
+    displayErrorMessage(`Failed to load ${endpoint}: ${error.message}`);
+    return [];
   }
 }
 
