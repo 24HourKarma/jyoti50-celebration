@@ -1,7 +1,8 @@
+// Updated server.js with enhanced CORS and error handling
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
-const cors = require('cors');
+const fs = require('fs');
 const rateLimit = require('express-rate-limit');
 require('dotenv').config();
 
@@ -28,13 +29,29 @@ const PORT = process.env.PORT || 3000;
 // Connect to MongoDB
 connectDB();
 
-// Middleware
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// Ensure uploads directory exists
+const uploadDir = path.join(__dirname, '..', 'public', 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Created uploads directory at:', uploadDir);
+}
 
+// Enhanced CORS settings
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+  
+  next();
+});
+
+// Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -42,12 +59,13 @@ app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: 'Too many requests from this IP, please try again after 15 minutes'
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
 });
 app.use('/api/', limiter);
 
 // Serve static files
 app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use('/uploads', express.static(path.join(__dirname, '..', 'public', 'uploads')));
 
 // API Routes
 app.use('/api/auth', authRoutes);
@@ -70,12 +88,28 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
-// Error handler middleware
-app.use(errorHandler);
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Server Error:', err.message);
+  
+  // Log the full error stack in development
+  if (process.env.NODE_ENV === 'development') {
+    console.error(err.stack);
+  }
+  
+  // Always return JSON for API errors
+  res.status(err.statusCode || 500).json({
+    success: false,
+    error: err.message || 'Server Error',
+    stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+  });
+});
 
 // Start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
+  console.log(`MongoDB URI exists: ${!!process.env.MONGODB_URI}`);
 });
 
 module.exports = app;

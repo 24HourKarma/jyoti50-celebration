@@ -102,9 +102,11 @@ function displayEvents(container, events) {
     <div class="event-card">
       <h3>${event.title}</h3>
       <p class="event-date"><i class="fas fa-calendar"></i> ${new Date(event.date).toLocaleDateString()}</p>
-      <p class="event-time"><i class="fas fa-clock"></i> ${event.time}</p>
+      <p class="event-time"><i class="fas fa-clock"></i> ${event.time || (event.startTime + (event.endTime ? ' - ' + event.endTime : ''))}</p>
       <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
       <p class="event-description">${event.description}</p>
+      ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-map"><i class="fas fa-map"></i> View Map</a>` : ''}
+      ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>` : ''}
     </div>
   `).join('');
   
