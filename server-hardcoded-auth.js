@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const fs = require('fs');
 require('dotenv').config();
-
+require('./admin-login-fix');
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
