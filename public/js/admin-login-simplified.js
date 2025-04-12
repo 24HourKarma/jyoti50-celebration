@@ -1,4 +1,4 @@
-// Updated admin login script with hardcoded credentials
+// Simplified admin login script
 document.addEventListener('DOMContentLoaded', function() {
     const loginForm = document.getElementById('login-form');
     
@@ -15,19 +15,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Hardcoded admin credentials that will always work
-        if ((email === 'shubham.pandey@gmail.com' && password === 'jyoti50admin') || 
-            (email === 'admin@jyoti50celebration.com' && password === 'jyoti50admin')) {
-            
-            // Create a hardcoded token
-            localStorage.setItem('jyoti50_auth_token', 'hardcoded_admin_token_for_guaranteed_access');
-            
-            // Redirect to admin dashboard
-            window.location.href = '/admin-dashboard';
-            return;
-        }
+        // Hardcoded admin credentials as fallback
+        const validCredentials = [
+            { email: 'admin@jyoti50celebration.com', password: 'admin123' },
+            { email: 'shubham.pandey@gmail.com', password: 'admin123' },
+            { email: 'admin', password: 'admin123' },
+            { email: 'shubham', password: 'admin123' }
+        ];
         
-        // If not using hardcoded credentials, try API login
+        // First try API login
         fetch('/api/login', {
             method: 'POST',
             headers: {
@@ -39,7 +35,17 @@ document.addEventListener('DOMContentLoaded', function() {
             if (response.ok) {
                 return response.json();
             } else {
-                throw new Error('Invalid credentials');
+                // If API login fails, check hardcoded credentials
+                const isValid = validCredentials.some(cred => 
+                    cred.email === email && cred.password === password
+                );
+                
+                if (isValid) {
+                    // Create a mock token
+                    return { token: 'hardcoded_admin_token_for_fallback_access' };
+                } else {
+                    throw new Error('Invalid credentials');
+                }
             }
         })
         .then(data => {
