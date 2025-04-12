@@ -1,4 +1,4 @@
-// public/js/main.js - Updated version with better error handling
+// Updated main.js file that correctly targets the container elements in index.html
 document.addEventListener('DOMContentLoaded', function() {
   // Initialize the site
   initializeSite();
@@ -59,13 +59,15 @@ async function fetchAndDisplayData(endpoint) {
 }
 
 function displayData(type, data) {
-  const container = document.getElementById(`${type}-container`);
+  // Find the container based on the type
+  // This matches the exact container class names in index.html
+  const container = document.querySelector(`.${type}-container`);
   if (!container) {
-    console.warn(`Container for ${type} not found`);
+    console.warn(`Container for ${type} not found: .${type}-container`);
     return;
   }
   
-  // Clear existing content
+  // Clear existing content including loading message
   container.innerHTML = '';
   
   if (!data || data.length === 0) {
@@ -98,19 +100,88 @@ function displayData(type, data) {
 }
 
 function displayEvents(container, events) {
-  const eventsHTML = events.map(event => `
-    <div class="event-card">
-      <h3>${event.title}</h3>
-      <p class="event-date"><i class="fas fa-calendar"></i> ${new Date(event.date).toLocaleDateString()}</p>
-      <p class="event-time"><i class="fas fa-clock"></i> ${event.time || (event.startTime + (event.endTime ? ' - ' + event.endTime : ''))}</p>
-      <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
-      <p class="event-description">${event.description}</p>
-      ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-map"><i class="fas fa-map"></i> View Map</a>` : ''}
-      ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>` : ''}
-    </div>
-  `).join('');
+  // Group events by day
+  const eventsByDay = {};
+  events.forEach(event => {
+    if (!eventsByDay[event.day]) {
+      eventsByDay[event.day] = [];
+    }
+    eventsByDay[event.day].push(event);
+  });
   
-  container.innerHTML = eventsHTML || '<p class="no-data">No events scheduled.</p>';
+  // Get all day tabs
+  const dayTabs = document.querySelectorAll('.day-tab');
+  
+  // Set the first day with events as active if no tab is active
+  let activeDay = null;
+  dayTabs.forEach(tab => {
+    if (tab.classList.contains('active')) {
+      activeDay = tab.getAttribute('data-day');
+    }
+  });
+  
+  if (!activeDay && dayTabs.length > 0) {
+    activeDay = dayTabs[0].getAttribute('data-day');
+    dayTabs[0].classList.add('active');
+  }
+  
+  // Display events for the active day
+  if (activeDay && eventsByDay[activeDay]) {
+    const dayEvents = eventsByDay[activeDay];
+    const eventsHTML = dayEvents.map(event => `
+      <div class="event-card">
+        <h3>${event.title}</h3>
+        <p class="event-date"><i class="fas fa-calendar"></i> ${event.date}</p>
+        <p class="event-time"><i class="fas fa-clock"></i> ${event.startTime}${event.endTime ? ' - ' + event.endTime : ''}</p>
+        <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
+        <p class="event-description">${event.description}</p>
+        <div class="event-actions">
+          ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-map"><i class="fas fa-map"></i> View Map</a>` : ''}
+          ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>` : ''}
+        </div>
+      </div>
+    `).join('');
+    
+    container.innerHTML = eventsHTML || '<p class="no-data">No events scheduled for this day.</p>';
+  } else {
+    container.innerHTML = '<p class="no-data">No events scheduled.</p>';
+  }
+  
+  // Add event listeners to day tabs
+  dayTabs.forEach(tab => {
+    tab.addEventListener('click', function() {
+      // Remove active class from all tabs
+      dayTabs.forEach(t => t.classList.remove('active'));
+      
+      // Add active class to clicked tab
+      this.classList.add('active');
+      
+      // Get the day from the data attribute
+      const day = this.getAttribute('data-day');
+      
+      // Display events for the selected day
+      if (eventsByDay[day]) {
+        const dayEvents = eventsByDay[day];
+        const eventsHTML = dayEvents.map(event => `
+          <div class="event-card">
+            <h3>${event.title}</h3>
+            <p class="event-date"><i class="fas fa-calendar"></i> ${event.date}</p>
+            <p class="event-time"><i class="fas fa-clock"></i> ${event.startTime}${event.endTime ? ' - ' + event.endTime : ''}</p>
+            <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
+            <p class="event-description">${event.description}</p>
+            <div class="event-actions">
+              ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank" class="btn btn-map"><i class="fas fa-map"></i> View Map</a>` : ''}
+              ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank" class="btn btn-website"><i class="fas fa-globe"></i> View Website</a>` : ''}
+            </div>
+          </div>
+        `).join('');
+        
+        container.innerHTML = eventsHTML || '<p class="no-data">No events scheduled for this day.</p>';
+      } else {
+        container.innerHTML = '<p class="no-data">No events scheduled for this day.</p>';
+      }
+    });
+  });
 }
 
 function displayContacts(container, contacts) {
@@ -119,7 +190,7 @@ function displayContacts(container, contacts) {
       <h3>${contact.name}</h3>
       <p><i class="fas fa-envelope"></i> ${contact.email}</p>
       <p><i class="fas fa-phone"></i> ${contact.phone}</p>
-      <p>${contact.notes}</p>
+      <p>${contact.notes || ''}</p>
     </div>
   `).join('');
   
@@ -152,10 +223,10 @@ function displayNotes(container, notes) {
 function displayGallery(container, images) {
   const galleryHTML = images.map(image => `
     <div class="gallery-item">
-      <img src="${image.imageUrl}" alt="${image.title}">
+      <img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}">
       <div class="gallery-caption">
-        <h3>${image.title}</h3>
-        <p>${image.description}</p>
+        <h3>${image.title || ''}</h3>
+        <p>${image.description || ''}</p>
       </div>
     </div>
   `).join('');
@@ -171,7 +242,7 @@ function applySettings(settings) {
   // Apply site title
   if (setting.siteTitle) {
     document.title = setting.siteTitle;
-    const titleElements = document.querySelectorAll('.site-title');
+    const titleElements = document.querySelectorAll('h1');
     titleElements.forEach(el => el.textContent = setting.siteTitle);
   }
   
@@ -200,33 +271,30 @@ function initializeUI() {
 }
 
 function toggleMobileMenu() {
-  const navMenu = document.querySelector('.nav-menu');
-  navMenu.classList.toggle('active');
+  const navMenu = document.querySelector('nav ul');
+  if (navMenu) {
+    navMenu.classList.toggle('active');
+  }
 }
 
 function displayErrorMessage(message) {
-  const errorContainer = document.getElementById('error-container');
+  console.error(message);
+  
+  // Create error container if it doesn't exist
+  let errorContainer = document.getElementById('error-container');
   if (!errorContainer) {
-    const newErrorContainer = document.createElement('div');
-    newErrorContainer.id = 'error-container';
-    newErrorContainer.className = 'error-container';
-    document.body.prepend(newErrorContainer);
-    
-    const errorMessage = document.createElement('p');
-    errorMessage.textContent = message;
-    newErrorContainer.appendChild(errorMessage);
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      newErrorContainer.style.display = 'none';
-    }, 5000);
-  } else {
-    errorContainer.innerHTML = `<p>${message}</p>`;
-    errorContainer.style.display = 'block';
-    
-    // Auto-hide after 5 seconds
-    setTimeout(() => {
-      errorContainer.style.display = 'none';
-    }, 5000);
+    errorContainer = document.createElement('div');
+    errorContainer.id = 'error-container';
+    errorContainer.className = 'error-container';
+    document.body.prepend(errorContainer);
   }
+  
+  // Add error message
+  errorContainer.innerHTML = `<p>${message}</p>`;
+  errorContainer.style.display = 'block';
+  
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    errorContainer.style.display = 'none';
+  }, 5000);
 }
