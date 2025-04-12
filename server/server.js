@@ -1,4 +1,4 @@
-// Updated server.js with enhanced CORS and error handling
+// Updated server.js with enhanced CORS, error handling, and trust proxy setting
 const express = require('express');
 const mongoose = require('mongoose');
 const path = require('path');
@@ -25,6 +25,9 @@ const errorHandler = require('./middleware/error');
 // Initialize Express app
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Enable trust proxy for Render deployment
+app.set('trust proxy', true);
 
 // Connect to MongoDB
 connectDB();
@@ -59,7 +62,9 @@ app.use(express.urlencoded({ extended: true }));
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
-  message: { error: 'Too many requests from this IP, please try again after 15 minutes' }
+  message: { error: 'Too many requests from this IP, please try again after 15 minutes' },
+  standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use('/api/', limiter);
 
