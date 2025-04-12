@@ -1,109 +1,190 @@
-// Updated main.js with CORS fixes - uses relative paths for API requests
+// Final version of main.js with fixes for all issues
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize the site
-  initializeSite();
+  console.log('DOM fully loaded and parsed');
+  initApp();
 });
 
-async function initializeSite() {
+// Global state to store data
+const state = {
+  events: [],
+  contacts: [],
+  reminders: [],
+  notes: [],
+  gallery: [],
+  settings: []
+};
+
+// Initialize the application
+async function initApp() {
   try {
-    // Fetch all data types
-    await fetchAndDisplayData('events');
-    await fetchAndDisplayData('contacts');
-    await fetchAndDisplayData('reminders');
-    await fetchAndDisplayData('notes');
-    await fetchAndDisplayData('gallery');
-    await fetchAndDisplayData('settings');
+    console.log('Initializing application...');
     
-    // Initialize UI components
-    initializeUI();
+    // Fetch all data in parallel
+    await Promise.all([
+      fetchData('events'),
+      fetchData('contacts'),
+      fetchData('reminders'),
+      fetchData('notes'),
+      fetchData('gallery'),
+      fetchData('settings')
+    ]);
+    
+    // Render all sections
+    renderAllSections();
+    
+    // Set up navigation
+    setupNavigation();
+    
+    // Initialize countdown timer
+    initCountdownTimer();
+    
   } catch (error) {
-    console.error('Error initializing site:', error);
-    displayErrorMessage('Failed to load content. Please try again later.');
+    console.error('Error initializing application:', error);
+    showError('Failed to load content. Please try again later.');
   }
 }
 
-async function fetchAndDisplayData(endpoint) {
+// Fetch data from API
+async function fetchData(endpoint) {
   try {
-    console.log(`Fetching data from: api/${endpoint}`);
-    // Use relative path without leading slash
-    const response = await fetch(`api/${endpoint}`);
+    console.log(`Fetching data from /api/${endpoint}...`);
+    
+    const response = await fetch(`/api/${endpoint}`);
     
     if (!response.ok) {
-      throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText}`);
+      throw new Error(`API error: ${response.status}`);
     }
     
-    const text = await response.text(); // Get response as text first
-    console.log(`Raw response for ${endpoint}:`, text);
+    const data = await response.json();
+    console.log(`Data from /api/${endpoint}:`, data);
     
-    let data;
-    try {
-      // Try to parse as JSON
-      data = text ? JSON.parse(text) : [];
-      console.log(`Parsed data for ${endpoint}:`, data);
-    } catch (parseError) {
-      console.error(`Error parsing JSON for ${endpoint}:`, parseError);
-      throw new Error(`Invalid JSON response for ${endpoint}`);
-    }
-    
-    // Store data in global state
-    window[endpoint] = data;
-    
-    // Display the data in the appropriate section
-    displayData(endpoint, data);
+    // Store data in state
+    state[endpoint] = data;
     
     return data;
   } catch (error) {
-    console.error(`Error fetching ${endpoint}:`, error);
-    displayErrorMessage(`Failed to load ${endpoint}: ${error.message}`);
+    // Don't throw error for non-critical endpoints
+    console.error(`Error fetching data from /api/${endpoint}:`, error);
     return [];
   }
 }
 
-function displayData(type, data) {
-  // Find the container based on the type
-  // This matches the exact container class names in index.html
-  const container = document.querySelector(`.${type}-container`);
-  if (!container) {
-    console.warn(`Container for ${type} not found: .${type}-container`);
-    return;
-  }
+// Set up navigation
+function setupNavigation() {
+  console.log('Setting up navigation...');
   
-  // Clear existing content including loading message
-  container.innerHTML = '';
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('nav a');
   
-  if (!data || data.length === 0) {
-    container.innerHTML = `<p class="no-data">No ${type} available.</p>`;
-    return;
-  }
+  console.log('Available sections:');
+  sections.forEach(section => {
+    console.log(`- ${section.id}`);
+  });
   
-  switch (type) {
-    case 'events':
-      displayEvents(container, data);
-      break;
-    case 'contacts':
-      displayContacts(container, data);
-      break;
-    case 'reminders':
-      displayReminders(container, data);
-      break;
-    case 'notes':
-      displayNotes(container, data);
-      break;
-    case 'gallery':
-      displayGallery(container, data);
-      break;
-    case 'settings':
-      applySettings(data);
-      break;
-    default:
-      console.warn(`No display function for ${type}`);
-  }
+  // Add click event listeners to navigation links
+  navLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      e.preventDefault();
+      
+      const targetId = this.getAttribute('href').substring(1);
+      showSection(targetId);
+    });
+  });
+  
+  // Show default section
+  showSection('home');
 }
 
-function displayEvents(container, events) {
+// Show a specific section
+function showSection(sectionId) {
+  console.log(`Showing section: ${sectionId}`);
+  
+  const sections = document.querySelectorAll('section[id]');
+  
+  sections.forEach(section => {
+    if (section.id === sectionId) {
+      section.classList.add('active');
+    } else {
+      section.classList.remove('active');
+    }
+  });
+}
+
+// Initialize countdown timer
+function initCountdownTimer() {
+  console.log('Initializing countdown timer...');
+  
+  const countdownElement = document.getElementById('countdown');
+  if (!countdownElement) return;
+  
+  // Set the date we're counting down to (April 24, 2025 at 9:00 PM)
+  const countDownDate = new Date('April 24, 2025 21:00:00').getTime();
+  
+  // Update the countdown every 1 second
+  const x = setInterval(function() {
+    // Get today's date and time
+    const now = new Date().getTime();
+    
+    // Find the distance between now and the countdown date
+    const distance = countDownDate - now;
+    
+    // Time calculations for days, hours, minutes and seconds
+    const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+    const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+    
+    // Display the result
+    countdownElement.innerHTML = `
+      <div class="countdown-item">
+        <span class="countdown-number">${days}</span>
+        <span class="countdown-label">Days</span>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-number">${hours}</span>
+        <span class="countdown-label">Hours</span>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-number">${minutes}</span>
+        <span class="countdown-label">Minutes</span>
+      </div>
+      <div class="countdown-item">
+        <span class="countdown-number">${seconds}</span>
+        <span class="countdown-label">Seconds</span>
+      </div>
+    `;
+    
+    // If the countdown is finished, display celebration message
+    if (distance < 0) {
+      clearInterval(x);
+      countdownElement.innerHTML = '<div class="celebration-message">The celebration has begun!</div>';
+    }
+  }, 1000);
+}
+
+// Render all sections with data
+function renderAllSections() {
+  renderEvents();
+  renderContacts();
+  renderReminders();
+  renderNotes();
+  renderGallery();
+  applySettings();
+}
+
+// Render events section
+function renderEvents() {
+  const eventsContainer = document.querySelector('.events-container');
+  if (!eventsContainer) return;
+  
+  if (!state.events || state.events.length === 0) {
+    eventsContainer.innerHTML = '<p class="no-data">No events scheduled.</p>';
+    return;
+  }
+  
   // Group events by day
   const eventsByDay = {};
-  events.forEach(event => {
+  state.events.forEach(event => {
     if (!eventsByDay[event.day]) {
       eventsByDay[event.day] = [];
     }
@@ -143,9 +224,9 @@ function displayEvents(container, events) {
       </div>
     `).join('');
     
-    container.innerHTML = eventsHTML || '<p class="no-data">No events scheduled for this day.</p>';
+    eventsContainer.innerHTML = eventsHTML || '<p class="no-data">No events scheduled for this day.</p>';
   } else {
-    container.innerHTML = '<p class="no-data">No events scheduled.</p>';
+    eventsContainer.innerHTML = '<p class="no-data">No events scheduled.</p>';
   }
   
   // Add event listeners to day tabs
@@ -177,16 +258,25 @@ function displayEvents(container, events) {
           </div>
         `).join('');
         
-        container.innerHTML = eventsHTML || '<p class="no-data">No events scheduled for this day.</p>';
+        eventsContainer.innerHTML = eventsHTML || '<p class="no-data">No events scheduled for this day.</p>';
       } else {
-        container.innerHTML = '<p class="no-data">No events scheduled for this day.</p>';
+        eventsContainer.innerHTML = '<p class="no-data">No events scheduled for this day.</p>';
       }
     });
   });
 }
 
-function displayContacts(container, contacts) {
-  const contactsHTML = contacts.map(contact => `
+// Render contacts section
+function renderContacts() {
+  const contactsContainer = document.querySelector('.contacts-container');
+  if (!contactsContainer) return;
+  
+  if (!state.contacts || state.contacts.length === 0) {
+    contactsContainer.innerHTML = '<p class="no-data">No contacts available.</p>';
+    return;
+  }
+  
+  const contactsHTML = state.contacts.map(contact => `
     <div class="contact-card">
       <h3>${contact.name}</h3>
       <p><i class="fas fa-envelope"></i> ${contact.email}</p>
@@ -195,11 +285,20 @@ function displayContacts(container, contacts) {
     </div>
   `).join('');
   
-  container.innerHTML = contactsHTML || '<p class="no-data">No contacts available.</p>';
+  contactsContainer.innerHTML = contactsHTML;
 }
 
-function displayReminders(container, reminders) {
-  const remindersHTML = reminders.map(reminder => `
+// Render reminders section
+function renderReminders() {
+  const remindersContainer = document.querySelector('.reminders-container');
+  if (!remindersContainer) return;
+  
+  if (!state.reminders || state.reminders.length === 0) {
+    remindersContainer.innerHTML = '<p class="no-data">No reminders available.</p>';
+    return;
+  }
+  
+  const remindersHTML = state.reminders.map(reminder => `
     <div class="reminder-card">
       <h3>${reminder.title}</h3>
       <p><i class="fas fa-calendar"></i> ${new Date(reminder.date).toLocaleDateString()}</p>
@@ -207,22 +306,40 @@ function displayReminders(container, reminders) {
     </div>
   `).join('');
   
-  container.innerHTML = remindersHTML || '<p class="no-data">No reminders available.</p>';
+  remindersContainer.innerHTML = remindersHTML;
 }
 
-function displayNotes(container, notes) {
-  const notesHTML = notes.map(note => `
+// Render notes section
+function renderNotes() {
+  const notesContainer = document.querySelector('.notes-container');
+  if (!notesContainer) return;
+  
+  if (!state.notes || state.notes.length === 0) {
+    notesContainer.innerHTML = '<p class="no-data">No notes available.</p>';
+    return;
+  }
+  
+  const notesHTML = state.notes.map(note => `
     <div class="note-card">
       <h3>${note.title}</h3>
       <p>${note.content}</p>
     </div>
   `).join('');
   
-  container.innerHTML = notesHTML || '<p class="no-data">No notes available.</p>';
+  notesContainer.innerHTML = notesHTML;
 }
 
-function displayGallery(container, images) {
-  const galleryHTML = images.map(image => `
+// Render gallery section
+function renderGallery() {
+  const galleryContainer = document.querySelector('.gallery-container');
+  if (!galleryContainer) return;
+  
+  if (!state.gallery || state.gallery.length === 0) {
+    galleryContainer.innerHTML = '<p class="no-data">No images available.</p>';
+    return;
+  }
+  
+  const galleryHTML = state.gallery.map(image => `
     <div class="gallery-item">
       <img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}">
       <div class="gallery-caption">
@@ -232,13 +349,14 @@ function displayGallery(container, images) {
     </div>
   `).join('');
   
-  container.innerHTML = galleryHTML || '<p class="no-data">No images available.</p>';
+  galleryContainer.innerHTML = galleryHTML;
 }
 
-function applySettings(settings) {
-  if (!settings || settings.length === 0) return;
+// Apply settings
+function applySettings() {
+  if (!state.settings || state.settings.length === 0) return;
   
-  const setting = settings[0]; // Use the first settings object
+  const setting = state.settings[0]; // Use the first settings object
   
   // Apply site title
   if (setting.siteTitle) {
@@ -263,39 +381,28 @@ function applySettings(settings) {
   }
 }
 
-function initializeUI() {
-  // Initialize any UI components, event listeners, etc.
-  const mobileMenuButton = document.getElementById('mobile-menu-button');
-  if (mobileMenuButton) {
-    mobileMenuButton.addEventListener('click', toggleMobileMenu);
-  }
-}
-
-function toggleMobileMenu() {
-  const navMenu = document.querySelector('nav ul');
-  if (navMenu) {
-    navMenu.classList.toggle('active');
-  }
-}
-
-function displayErrorMessage(message) {
-  console.error(message);
-  
-  // Create error container if it doesn't exist
-  let errorContainer = document.getElementById('error-container');
+// Show error message
+function showError(message) {
+  const errorContainer = document.getElementById('error-container');
   if (!errorContainer) {
-    errorContainer = document.createElement('div');
-    errorContainer.id = 'error-container';
-    errorContainer.className = 'error-container';
-    document.body.prepend(errorContainer);
+    const newErrorContainer = document.createElement('div');
+    newErrorContainer.id = 'error-container';
+    newErrorContainer.className = 'error-container';
+    document.body.prepend(newErrorContainer);
+    
+    newErrorContainer.innerHTML = `<p>${message}</p>`;
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      newErrorContainer.style.display = 'none';
+    }, 5000);
+  } else {
+    errorContainer.innerHTML = `<p>${message}</p>`;
+    errorContainer.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      errorContainer.style.display = 'none';
+    }, 5000);
   }
-  
-  // Add error message
-  errorContainer.innerHTML = `<p>${message}</p>`;
-  errorContainer.style.display = 'block';
-  
-  // Auto-hide after 5 seconds
-  setTimeout(() => {
-    errorContainer.style.display = 'none';
-  }, 5000);
 }
