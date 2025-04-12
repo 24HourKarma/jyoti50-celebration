@@ -1,296 +1,219 @@
-// main.js - Main JavaScript for Jyoti's 50th Birthday Celebration website
-
-// DOM Elements
-const eventsContainer = document.querySelector('.events-container');
-const contactsContainer = document.querySelector('.contacts-container');
-const remindersContainer = document.querySelector('.reminders-container');
-const notesContainer = document.querySelector('.notes-container');
-const galleryContainer = document.querySelector('.gallery-container');
-const dayTabs = document.querySelectorAll('.day-tab');
-
-// Current active day
-let activeDay = 'Thursday';
-
-// Initialize the website
-document.addEventListener('DOMContentLoaded', async () => {
-    try {
-        // Load all data
-        await Promise.all([
-            loadEvents(),
-            loadContacts(),
-            loadReminders(),
-            loadNotes(),
-            loadGallery()
-        ]);
-        
-        // Set up event listeners
-        setupEventListeners();
-        
-    } catch (error) {
-        console.error('Error initializing website:', error);
-        showError('Failed to load website data. Please try refreshing the page.');
-    }
+// public/js/main.js - Complete file
+document.addEventListener('DOMContentLoaded', function() {
+  // Initialize the site
+  initializeSite();
 });
 
-// Load events
-async function loadEvents() {
-    try {
-        eventsContainer.innerHTML = '<div class="loading">Loading events...</div>';
-        
-        const events = await api.events.getAll();
-        
-        if (!events || events.length === 0) {
-            eventsContainer.innerHTML = '<p class="no-data">No events found.</p>';
-            return;
-        }
-        
-        // Group events by day
-        const eventsByDay = {};
-        events.forEach(event => {
-            if (!eventsByDay[event.day]) {
-                eventsByDay[event.day] = [];
-            }
-            eventsByDay[event.day].push(event);
-        });
-        
-        // Sort events by start time
-        Object.keys(eventsByDay).forEach(day => {
-            eventsByDay[day].sort((a, b) => {
-                if (a.startTime === 'All Day') return -1;
-                if (b.startTime === 'All Day') return 1;
-                return a.startTime.localeCompare(b.startTime);
-            });
-        });
-        
-        // Display events for active day
-        displayEvents(eventsByDay[activeDay] || []);
-        
-        // Update day tabs
-        updateDayTabs(Object.keys(eventsByDay));
-        
-    } catch (error) {
-        console.error('Error loading events:', error);
-        eventsContainer.innerHTML = '<p class="error">Failed to load events. Please try again later.</p>';
-    }
+async function initializeSite() {
+  try {
+    // Fetch all data types
+    await fetchAndDisplayData('events');
+    await fetchAndDisplayData('contacts');
+    await fetchAndDisplayData('reminders');
+    await fetchAndDisplayData('notes');
+    await fetchAndDisplayData('gallery');
+    await fetchAndDisplayData('settings');
+    
+    // Initialize UI components
+    initializeUI();
+  } catch (error) {
+    console.error('Error initializing site:', error);
+    displayErrorMessage('Failed to load content. Please try again later.');
+  }
 }
 
-// Display events for the active day
-function displayEvents(events) {
-    if (!events || events.length === 0) {
-        eventsContainer.innerHTML = `<p class="no-data">No events scheduled for ${activeDay}.</p>`;
-        return;
+async function fetchAndDisplayData(endpoint) {
+  try {
+    console.log(`Fetching data from: /api/${endpoint}`);
+    const response = await fetch(`/api/${endpoint}`);
+    
+    if (!response.ok) {
+      throw new Error(`Failed to fetch ${endpoint}: ${response.status} ${response.statusText}`);
     }
     
-    let html = '';
+    const data = await response.json();
+    console.log(`Data received for ${endpoint}:`, data);
     
-    events.forEach(event => {
-        html += `
-            <div class="event-card" data-id="${event._id || ''}">
-                <div class="event-card-header">
-                    <h3>${event.title}</h3>
-                    <div class="event-time">${event.startTime}${event.endTime ? ' - ' + event.endTime : ''}</div>
-                </div>
-                <div class="event-card-body">
-                    ${event.location ? `<div class="event-detail"><strong>Location:</strong> ${event.location}</div>` : ''}
-                    ${event.description ? `<div class="event-detail"><strong>Description:</strong> ${event.description}</div>` : ''}
-                    ${event.dressCode ? `<div class="event-detail"><strong>Dress Code:</strong> ${event.dressCode}</div>` : ''}
-                    ${event.notes ? `<div class="event-detail"><strong>Notes:</strong> ${event.notes}</div>` : ''}
-                    
-                    <div class="event-links">
-                        ${event.mapUrl ? `<a href="${event.mapUrl}" target="_blank"><i class="fas fa-map-marker-alt"></i> Map</a>` : ''}
-                        ${event.websiteUrl ? `<a href="${event.websiteUrl}" target="_blank"><i class="fas fa-globe"></i> Website</a>` : ''}
-                    </div>
-                </div>
-            </div>
-        `;
-    });
+    // Store data in global state
+    window[endpoint] = data;
     
-    eventsContainer.innerHTML = html;
-}
-
-// Update day tabs
-function updateDayTabs(days) {
-    // Ensure all days are in the correct order
-    const orderedDays = ['Thursday', 'Friday', 'Saturday', 'Sunday'].filter(day => days.includes(day));
+    // Display the data in the appropriate section
+    displayData(endpoint, data);
     
-    // Update active state
-    dayTabs.forEach(tab => {
-        const day = tab.getAttribute('data-day');
-        if (orderedDays.includes(day)) {
-            tab.style.display = 'block';
-            tab.classList.toggle('active', day === activeDay);
-        } else {
-            tab.style.display = 'none';
-        }
-    });
+    return data;
+  } catch (error) {
+    console.error(`Error fetching ${endpoint}:`, error);
+    displayErrorMessage(`Failed to load ${endpoint}. Please try again later.`);
+  }
 }
 
-// Load contacts
-async function loadContacts() {
-    try {
-        contactsContainer.innerHTML = '<div class="loading">Loading contacts...</div>';
-        
-        const contacts = await api.contacts.getAll();
-        
-        if (!contacts || contacts.length === 0) {
-            contactsContainer.innerHTML = '<p class="no-data">No contacts found.</p>';
-            return;
-        }
-        
-        let html = '';
-        
-        contacts.forEach(contact => {
-            html += `
-                <div class="contact-card" data-id="${contact._id || ''}">
-                    <h3>${contact.name}</h3>
-                    ${contact.title ? `<div class="contact-detail"><i class="fas fa-briefcase"></i> ${contact.title}</div>` : ''}
-                    ${contact.phone ? `<div class="contact-detail"><i class="fas fa-phone"></i> ${contact.phone}</div>` : ''}
-                    ${contact.email ? `<div class="contact-detail"><i class="fas fa-envelope"></i> ${contact.email}</div>` : ''}
-                    ${contact.type ? `<div class="contact-detail"><i class="fas fa-tag"></i> ${contact.type}</div>` : ''}
-                    ${contact.notes ? `<div class="contact-detail"><i class="fas fa-sticky-note"></i> ${contact.notes}</div>` : ''}
-                </div>
-            `;
-        });
-        
-        contactsContainer.innerHTML = html;
-        
-    } catch (error) {
-        console.error('Error loading contacts:', error);
-        contactsContainer.innerHTML = '<p class="error">Failed to load contacts. Please try again later.</p>';
-    }
+function displayData(type, data) {
+  const container = document.getElementById(`${type}-container`);
+  if (!container) {
+    console.warn(`Container for ${type} not found`);
+    return;
+  }
+  
+  // Clear existing content
+  container.innerHTML = '';
+  
+  if (!data || data.length === 0) {
+    container.innerHTML = `<p class="no-data">No ${type} available.</p>`;
+    return;
+  }
+  
+  switch (type) {
+    case 'events':
+      displayEvents(container, data);
+      break;
+    case 'contacts':
+      displayContacts(container, data);
+      break;
+    case 'reminders':
+      displayReminders(container, data);
+      break;
+    case 'notes':
+      displayNotes(container, data);
+      break;
+    case 'gallery':
+      displayGallery(container, data);
+      break;
+    case 'settings':
+      applySettings(data);
+      break;
+    default:
+      console.warn(`No display function for ${type}`);
+  }
 }
 
-// Load reminders
-async function loadReminders() {
-    try {
-        remindersContainer.innerHTML = '<div class="loading">Loading reminders...</div>';
-        
-        const reminders = await api.reminders.getAll();
-        
-        if (!reminders || reminders.length === 0) {
-            remindersContainer.innerHTML = '<p class="no-data">No reminders found.</p>';
-            return;
-        }
-        
-        // Sort reminders by date
-        reminders.sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        let html = '';
-        
-        reminders.forEach(reminder => {
-            const date = reminder.date ? new Date(reminder.date) : null;
-            const formattedDate = date ? date.toLocaleDateString('en-US', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            }) : '';
-            
-            const iconClass = reminder.icon ? `fa-${reminder.icon}` : 'fa-bell';
-            
-            html += `
-                <div class="reminder-card" data-id="${reminder._id || ''}">
-                    <div class="reminder-icon">
-                        <i class="fas ${iconClass}"></i>
-                    </div>
-                    <h3>${reminder.title}</h3>
-                    ${formattedDate ? `<div class="reminder-date">${formattedDate}</div>` : ''}
-                    ${reminder.description ? `<p>${reminder.description}</p>` : ''}
-                </div>
-            `;
-        });
-        
-        remindersContainer.innerHTML = html;
-        
-    } catch (error) {
-        console.error('Error loading reminders:', error);
-        remindersContainer.innerHTML = '<p class="error">Failed to load reminders. Please try again later.</p>';
-    }
+function displayEvents(container, events) {
+  const eventsHTML = events.map(event => `
+    <div class="event-card">
+      <h3>${event.title}</h3>
+      <p class="event-date"><i class="fas fa-calendar"></i> ${new Date(event.date).toLocaleDateString()}</p>
+      <p class="event-time"><i class="fas fa-clock"></i> ${event.time}</p>
+      <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location}</p>
+      <p class="event-description">${event.description}</p>
+    </div>
+  `).join('');
+  
+  container.innerHTML = eventsHTML || '<p class="no-data">No events scheduled.</p>';
 }
 
-// Load notes
-async function loadNotes() {
-    try {
-        notesContainer.innerHTML = '<div class="loading">Loading notes...</div>';
-        
-        const notes = await api.notes.getAll();
-        
-        if (!notes || notes.length === 0) {
-            notesContainer.innerHTML = '<p class="no-data">No notes found.</p>';
-            return;
-        }
-        
-        let html = '';
-        
-        notes.forEach(note => {
-            html += `
-                <div class="note-card" data-id="${note._id || ''}">
-                    <h3>${note.title}</h3>
-                    ${note.content ? `<p>${note.content}</p>` : ''}
-                </div>
-            `;
-        });
-        
-        notesContainer.innerHTML = html;
-        
-    } catch (error) {
-        console.error('Error loading notes:', error);
-        notesContainer.innerHTML = '<p class="error">Failed to load notes. Please try again later.</p>';
-    }
+function displayContacts(container, contacts) {
+  const contactsHTML = contacts.map(contact => `
+    <div class="contact-card">
+      <h3>${contact.name}</h3>
+      <p><i class="fas fa-envelope"></i> ${contact.email}</p>
+      <p><i class="fas fa-phone"></i> ${contact.phone}</p>
+      <p>${contact.notes}</p>
+    </div>
+  `).join('');
+  
+  container.innerHTML = contactsHTML || '<p class="no-data">No contacts available.</p>';
 }
 
-// Load gallery
-async function loadGallery() {
-    try {
-        galleryContainer.innerHTML = '<div class="loading">Loading gallery...</div>';
-        
-        const gallery = await api.gallery.getAll();
-        
-        if (!gallery || gallery.length === 0) {
-            galleryContainer.innerHTML = '<p class="no-data">No images found.</p>';
-            return;
-        }
-        
-        let html = '';
-        
-        gallery.forEach(item => {
-            html += `
-                <div class="gallery-item" data-id="${item._id || ''}">
-                    <img src="${item.url}" alt="${item.caption || 'Gallery image'}" class="gallery-image">
-                    ${item.caption ? `<div class="gallery-caption">${item.caption}</div>` : ''}
-                </div>
-            `;
-        });
-        
-        galleryContainer.innerHTML = html;
-        
-    } catch (error) {
-        console.error('Error loading gallery:', error);
-        galleryContainer.innerHTML = '<p class="error">Failed to load gallery. Please try again later.</p>';
-    }
+function displayReminders(container, reminders) {
+  const remindersHTML = reminders.map(reminder => `
+    <div class="reminder-card">
+      <h3>${reminder.title}</h3>
+      <p><i class="fas fa-calendar"></i> ${new Date(reminder.date).toLocaleDateString()}</p>
+      <p>${reminder.description}</p>
+    </div>
+  `).join('');
+  
+  container.innerHTML = remindersHTML || '<p class="no-data">No reminders available.</p>';
 }
 
-// Set up event listeners
-function setupEventListeners() {
-    // Day tab click
-    dayTabs.forEach(tab => {
-        tab.addEventListener('click', () => {
-            const day = tab.getAttribute('data-day');
-            if (day !== activeDay) {
-                activeDay = day;
-                loadEvents();
-            }
-        });
-    });
+function displayNotes(container, notes) {
+  const notesHTML = notes.map(note => `
+    <div class="note-card">
+      <h3>${note.title}</h3>
+      <p>${note.content}</p>
+    </div>
+  `).join('');
+  
+  container.innerHTML = notesHTML || '<p class="no-data">No notes available.</p>';
 }
 
-// Show error message
-function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    document.body.appendChild(errorDiv);
+function displayGallery(container, images) {
+  const galleryHTML = images.map(image => `
+    <div class="gallery-item">
+      <img src="${image.imageUrl}" alt="${image.title}">
+      <div class="gallery-caption">
+        <h3>${image.title}</h3>
+        <p>${image.description}</p>
+      </div>
+    </div>
+  `).join('');
+  
+  container.innerHTML = galleryHTML || '<p class="no-data">No images available.</p>';
+}
+
+function applySettings(settings) {
+  if (!settings || settings.length === 0) return;
+  
+  const setting = settings[0]; // Use the first settings object
+  
+  // Apply site title
+  if (setting.siteTitle) {
+    document.title = setting.siteTitle;
+    const titleElements = document.querySelectorAll('.site-title');
+    titleElements.forEach(el => el.textContent = setting.siteTitle);
+  }
+  
+  // Apply welcome message
+  if (setting.welcomeMessage) {
+    const welcomeElements = document.querySelectorAll('.welcome-message');
+    welcomeElements.forEach(el => el.textContent = setting.welcomeMessage);
+  }
+  
+  // Apply theme colors if needed
+  if (setting.primaryColor) {
+    document.documentElement.style.setProperty('--primary-color', setting.primaryColor);
+  }
+  
+  if (setting.secondaryColor) {
+    document.documentElement.style.setProperty('--secondary-color', setting.secondaryColor);
+  }
+}
+
+function initializeUI() {
+  // Initialize any UI components, event listeners, etc.
+  const mobileMenuButton = document.getElementById('mobile-menu-button');
+  if (mobileMenuButton) {
+    mobileMenuButton.addEventListener('click', toggleMobileMenu);
+  }
+}
+
+function toggleMobileMenu() {
+  const navMenu = document.querySelector('.nav-menu');
+  navMenu.classList.toggle('active');
+}
+
+function displayErrorMessage(message) {
+  const errorContainer = document.getElementById('error-container');
+  if (!errorContainer) {
+    const newErrorContainer = document.createElement('div');
+    newErrorContainer.id = 'error-container';
+    newErrorContainer.className = 'error-container';
+    document.body.prepend(newErrorContainer);
     
+    const errorMessage = document.createElement('p');
+    errorMessage.textContent = message;
+    newErrorContainer.appendChild(errorMessage);
+    
+    // Auto-hide after 5 seconds
     setTimeout(() => {
-        errorDiv.remove();
+      newErrorContainer.style.display = 'none';
     }, 5000);
+  } else {
+    errorContainer.innerHTML = `<p>${message}</p>`;
+    errorContainer.style.display = 'block';
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+      errorContainer.style.display = 'none';
+    }, 5000);
+  }
 }

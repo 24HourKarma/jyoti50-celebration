@@ -1,95 +1,185 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jyoti's 50th Birthday Celebration</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jyoti's 50th Birthday Celebration</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <header>
-        <div class="container">
-            <h1>Jyoti's 50th Birthday Celebration</h1>
-            <h2>April 24-27, 2025 | Kraków, Poland</h2>
-            <nav>
-                <ul>
-                    <li><a href="#events">Events</a></li>
-                    <li><a href="#contacts">Contacts</a></li>
-                    <li><a href="#reminders">Reminders</a></li>
-                    <li><a href="#notes">Notes</a></li>
-                    <li><a href="#gallery">Gallery</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
+  <header>
+    <div class="container">
+      <h1 class="site-title">Jyoti's 50th Birthday Celebration</h1>
+      <nav>
+        <button id="mobile-menu-button" class="mobile-menu-button">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+        <ul class="nav-menu">
+          <li><a href="#events">Events</a></li>
+          <li><a href="#gallery">Gallery</a></li>
+          <li><a href="#contacts">Contacts</a></li>
+          <li><a href="#reminders">Reminders</a></li>
+          <li><a href="#notes">Notes</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
 
-    <section id="events" class="section">
-        <div class="container">
-            <h2>Event Schedule</h2>
-            <div class="event-days">
-                <div class="day-tabs">
-                    <button class="day-tab active" data-day="Thursday">Thursday</button>
-                    <button class="day-tab" data-day="Friday">Friday</button>
-                    <button class="day-tab" data-day="Saturday">Saturday</button>
-                    <button class="day-tab" data-day="Sunday">Sunday</button>
-                </div>
-                <div class="events-container">
-                    <!-- Events will be loaded here dynamically -->
-                    <div class="loading">Loading events...</div>
-                </div>
-            </div>
+  <section id="hero">
+    <div class="container">
+      <h2 class="welcome-message">Welcome to Jyoti's 50th Birthday Celebration!</h2>
+      <p>Join us for a memorable celebration in Kraków, Poland from April 24-26, 2025</p>
+      <div id="countdown" class="countdown">
+        <div>
+          <span id="days">00</span>
+          <span>Days</span>
         </div>
-    </section>
-
-    <section id="contacts" class="section">
-        <div class="container">
-            <h2>Important Contacts</h2>
-            <div class="contacts-container">
-                <!-- Contacts will be loaded here dynamically -->
-                <div class="loading">Loading contacts...</div>
-            </div>
+        <div>
+          <span id="hours">00</span>
+          <span>Hours</span>
         </div>
-    </section>
-
-    <section id="reminders" class="section">
-        <div class="container">
-            <h2>Reminders</h2>
-            <div class="reminders-container">
-                <!-- Reminders will be loaded here dynamically -->
-                <div class="loading">Loading reminders...</div>
-            </div>
+        <div>
+          <span id="minutes">00</span>
+          <span>Minutes</span>
         </div>
-    </section>
-
-    <section id="notes" class="section">
-        <div class="container">
-            <h2>Important Information</h2>
-            <div class="notes-container">
-                <!-- Notes will be loaded here dynamically -->
-                <div class="loading">Loading notes...</div>
-            </div>
+        <div>
+          <span id="seconds">00</span>
+          <span>Seconds</span>
         </div>
-    </section>
+      </div>
+    </div>
+  </section>
 
-    <section id="gallery" class="section">
-        <div class="container">
-            <h2>Photo Gallery</h2>
-            <div class="gallery-container">
-                <!-- Gallery images will be loaded here dynamically -->
-                <div class="loading">Loading gallery...</div>
-            </div>
+  <section id="events">
+    <div class="container">
+      <h2>Events Schedule</h2>
+      <div id="events-container" class="events-grid">
+        <!-- Events will be loaded here -->
+        <p class="loading">Loading events...</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="gallery">
+    <div class="container">
+      <h2>Photo Gallery</h2>
+      <div id="gallery-container" class="gallery-grid">
+        <!-- Gallery items will be loaded here -->
+        <p class="loading">Loading gallery...</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacts">
+    <div class="container">
+      <h2>Contacts</h2>
+      <div id="contacts-container" class="contacts-grid">
+        <!-- Contacts will be loaded here -->
+        <p class="loading">Loading contacts...</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="reminders">
+    <div class="container">
+      <h2>Reminders</h2>
+      <div id="reminders-container" class="reminders-grid">
+        <!-- Reminders will be loaded here -->
+        <p class="loading">Loading reminders...</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="notes">
+    <div class="container">
+      <h2>Notes</h2>
+      <div id="notes-container" class="notes-grid">
+        <!-- Notes will be loaded here -->
+        <p class="loading">Loading notes...</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="important-info">
+    <div class="container">
+      <h2>Important Information</h2>
+      <div class="info-grid">
+        <div class="info-card">
+          <h3><i class="fas fa-hotel"></i> Accommodations</h3>
+          <p>Grand Hotel Kraków</p>
+          <p>Special rates available for guests</p>
         </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2025 Jyoti's 50th Birthday Celebration</p>
-            <p><a href="admin.html" class="admin-link">Admin Login</a></p>
+        <div class="info-card">
+          <h3><i class="fas fa-cloud-sun"></i> Weather</h3>
+          <p>April in Kraków: 10-18°C (50-65°F)</p>
+          <p>Pack layers and a light jacket</p>
         </div>
-    </footer>
+        <div class="info-card">
+          <h3><i class="fas fa-money-bill-wave"></i> Local Currency</h3>
+          <p>Polish Złoty (PLN)</p>
+          <p>Credit cards widely accepted</p>
+        </div>
+        <div class="info-card">
+          <h3><i class="fas fa-bus"></i> Transportation</h3>
+          <p>Airport transfers arranged</p>
+          <p>Walking distance to most venues</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    <script src="js/api.js"></script>
-    <script src="js/main.js"></script>
+  <footer>
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>About the Celebration</h3>
+          <p>Join us for a weekend of festivities celebrating Jyoti's 50th birthday in the beautiful city of Kraków, Poland.</p>
+        </div>
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="#events">Events</a></li>
+            <li><a href="#gallery">Gallery</a></li>
+            <li><a href="#contacts">Contacts</a></li>
+            <li><a href="#important-info">Important Info</a></li>
+          </ul>
+        </div>
+        <div class="footer-section">
+          <h3>Contact</h3>
+          <p><i class="fas fa-envelope"></i> shubham.pandey@gmail.com</p>
+          <p><i class="fas fa-phone"></i> +1 (123) 456-7890</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2025 Jyoti's 50th Birthday Celebration. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/main.js"></script>
+  <script>
+    // Countdown timer
+    function updateCountdown() {
+      const targetDate = new Date('April 24, 2025 21:00:00').getTime();
+      const now = new Date().getTime();
+      const difference = targetDate - now;
+      
+      const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+      
+      document.getElementById('days').innerText = days.toString().padStart(2, '0');
+      document.getElementById('hours').innerText = hours.toString().padStart(2, '0');
+      document.getElementById('minutes').innerText = minutes.toString().padStart(2, '0');
+      document.getElementById('seconds').innerText = seconds.toString().padStart(2, '0');
+    }
+    
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+  </script>
 </body>
 </html>
