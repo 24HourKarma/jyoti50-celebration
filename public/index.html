@@ -3,8 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <!-- Add base href to fix relative URLs -->
-    <base href="https://jyoti50-celebration.onrender.com/">
     <title>Jyoti's 50th Birthday Celebration</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -91,34 +89,11 @@
         </div>
     </footer>
 
-    <!-- Debug panel to help diagnose issues -->
-    <div id="debug-panel" style="position: fixed; bottom: 10px; right: 10px; background: #f8f8f8; border: 1px solid #ddd; padding: 10px; z-index: 9999; display: none;">
-        <h4>Debug Panel</h4>
-        <div id="debug-content"></div>
-        <button onclick="document.getElementById('debug-panel').style.display='none'">Close</button>
-    </div>
-
-    <script>
-        // Helper function to log to debug panel
-        function debugLog(message) {
-            console.log(message);
-            const debugContent = document.getElementById('debug-content');
-            if (debugContent) {
-                debugContent.innerHTML += `<p>${message}</p>`;
-                document.getElementById('debug-panel').style.display = 'block';
-            }
-        }
-
-        // Show debug panel on triple click anywhere
-        document.addEventListener('click', function(event) {
-            if (event.detail === 3) {
-                document.getElementById('debug-panel').style.display = 'block';
-            }
-        });
-    </script>
-
-    <!-- Use the CORS-fixed versions of the scripts -->
+    <!-- Original scripts -->
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>
+    
+    <!-- Debug panel script - added to help diagnose data issues -->
+    <script src="debug-panel.js"></script>
 </body>
 </html>
