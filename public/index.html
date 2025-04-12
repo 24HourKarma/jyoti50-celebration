@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jyoti's 50th Birthday Celebration</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Jyoti's 50th Birthday Celebration</h1>
+            <h2>April 24-27, 2025 | Kraków, Poland</h2>
+            <nav>
+                <ul>
+                    <li><a href="#events">Events</a></li>
+                    <li><a href="#contacts">Contacts</a></li>
+                    <li><a href="#reminders">Reminders</a></li>
+                    <li><a href="#notes">Notes</a></li>
+                    <li><a href="#gallery">Gallery</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <section id="events" class="section">
+        <div class="container">
+            <h2>Event Schedule</h2>
+            <div class="event-days">
+                <div class="day-tabs">
+                    <button class="day-tab active" data-day="Thursday">Thursday</button>
+                    <button class="day-tab" data-day="Friday">Friday</button>
+                    <button class="day-tab" data-day="Saturday">Saturday</button>
+                    <button class="day-tab" data-day="Sunday">Sunday</button>
+                </div>
+                <div class="events-container">
+                    <!-- Events will be loaded here dynamically -->
+                    <div class="loading">Loading events...</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contacts" class="section">
+        <div class="container">
+            <h2>Important Contacts</h2>
+            <div class="contacts-container">
+                <!-- Contacts will be loaded here dynamically -->
+                <div class="loading">Loading contacts...</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="reminders" class="section">
+        <div class="container">
+            <h2>Reminders</h2>
+            <div class="reminders-container">
+                <!-- Reminders will be loaded here dynamically -->
+                <div class="loading">Loading reminders...</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="notes" class="section">
+        <div class="container">
+            <h2>Important Information</h2>
+            <div class="notes-container">
+                <!-- Notes will be loaded here dynamically -->
+                <div class="loading">Loading notes...</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="gallery" class="section">
+        <div class="container">
+            <h2>Photo Gallery</h2>
+            <div class="gallery-container">
+                <!-- Gallery images will be loaded here dynamically -->
+                <div class="loading">Loading gallery...</div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 Jyoti's 50th Birthday Celebration</p>
+            <p><a href="admin.html" class="admin-link">Admin Login</a></p>
+        </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
