@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery Upload Test - Minimal Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #d4af37;
+            border-bottom: 2px solid #121212;
+            padding-bottom: 10px;
+        }
+        .test-container {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #b8960c;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        #log {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gallery Upload Test - Minimal Fix</h1>
+    
+    <div class="test-container">
+        <h2>Gallery Upload Form</h2>
+        <p>This form simulates the gallery upload functionality with the minimal fix applied.</p>
+        
+        <form id="gallery-upload-form" action="/api/gallery/upload" method="POST">
+            <div class="form-group">
+                <label for="image">Select Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter image title">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="3" placeholder="Enter image description"></textarea>
+            </div>
+            
+            <button type="submit">Upload Image</button>
+        </form>
+        
+        <div id="status"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Console Log</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script>
+        // Function to log to the console div
+        function logToConsole(...args) {
+            const log = document.getElementById('log');
+            const message = args.map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg, null, 2);
+                }
+                return arg;
+            }).join(' ');
+            
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            
+            // Auto-scroll to bottom
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Override console.log
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            logToConsole(...args);
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            logToConsole('ERROR:', ...args);
+        };
+        
+        // Mock fetch for testing
+        window.originalFetch = window.fetch;
+        window.fetch = async function(url, options) {
+            logToConsole('Fetch called with URL:', url);
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Simulate error for gallery upload
+            if (url.includes('/api/gallery/upload')) {
+                return new Response('<!DOCTYPE html><html><body>Error page</body></html>', {
+                    status: 401,
+                    statusText: 'Unauthorized'
+                });
+            }
+            
+            // For other requests, use the original fetch
+            return window.originalFetch(url, options);
+        };
+        
+        // Initialize the test
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Gallery upload test initialized');
+            
+            // Original form submission handler (will be overridden by the fix)
+            const uploadForm = document.getElementById('gallery-upload-form');
+            uploadForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const statusElement = document.getElementById('status');
+                statusElement.textContent = 'Original handler: Uploading...';
+                statusElement.className = 'info';
+                
+                console.log('Original form submission handler called');
+                
+                // This would normally make a fetch request, but we'll simulate it failing
+                setTimeout(() => {
+                    statusElement.textContent = 'Original handler: Upload failed with error: Unexpected token \'<\', "<!DOCTYPE "... is not valid JSON';
+                    statusElement.className = 'error';
+                }, 1000);
+            });
+            
+            // Function to simulate alert since we're in a test environment
+            window.alert = function(message) {
+                console.log('ALERT:', message);
+                const statusElement = document.getElementById('status');
+                statusElement.textContent = message;
+                statusElement.className = message.includes('success') ? 'success' : 'error';
+            };
+        });
+    </script>
+    
+    <!-- Load the minimal gallery fix script -->
+    <script src="../minimal-gallery-fix.js"></script>
+</body>
+</html>
