@@ -1,6 +1,6 @@
-// main.js - Enhanced version with better error handling, day tab functionality, and dress code feature
+// main.js - Enhanced version with localStorage fallback for header/footer
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded - starting enhanced version');
+  console.log('DOM loaded - starting enhanced version with localStorage fallback');
   
   // Initialize the site
   initializeSite();
@@ -10,7 +10,137 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Set up home button functionality
   setupHomeButton();
+  
+  // Load header/footer from localStorage if available
+  loadHeaderFooterFromLocalStorage();
 });
+
+// New function to load header/footer from localStorage
+function loadHeaderFooterFromLocalStorage() {
+  try {
+    console.log('Checking localStorage for header/footer settings');
+    const settings = JSON.parse(localStorage.getItem('settings')) || {};
+    
+    // Apply header settings if available
+    if (settings.header) {
+      applyHeaderSettings(settings.header);
+    }
+    
+    // Apply footer settings if available
+    if (settings.footer) {
+      applyFooterSettings(settings.footer);
+    }
+  } catch (error) {
+    console.error('Error loading header/footer from localStorage:', error);
+  }
+}
+
+// Apply header settings to the DOM
+function applyHeaderSettings(headerSettings) {
+  try {
+    console.log('Applying header settings from localStorage:', headerSettings);
+    
+    // Update logo text if available
+    if (headerSettings.logoText) {
+      const headerTitle = document.querySelector('header h1');
+      if (headerTitle) {
+        headerTitle.textContent = headerSettings.logoText;
+      }
+    }
+    
+    // Update menu items if available
+    if (headerSettings.menuItems && headerSettings.menuItems.length > 0) {
+      const navMenu = document.querySelector('header nav ul');
+      if (navMenu) {
+        // Keep only the first 5 default menu items
+        const defaultItems = Array.from(navMenu.children).slice(0, 5);
+        
+        // Clear the menu
+        navMenu.innerHTML = '';
+        
+        // Add back the default items
+        defaultItems.forEach(item => navMenu.appendChild(item));
+        
+        // Add custom menu items
+        headerSettings.menuItems.forEach(item => {
+          const li = document.createElement('li');
+          const a = document.createElement('a');
+          a.href = '#';
+          a.textContent = item;
+          li.appendChild(a);
+          navMenu.appendChild(li);
+        });
+      }
+    }
+  } catch (error) {
+    console.error('Error applying header settings:', error);
+  }
+}
+
+// Apply footer settings to the DOM
+function applyFooterSettings(footerSettings) {
+  try {
+    console.log('Applying footer settings from localStorage:', footerSettings);
+    
+    const footerContainer = document.querySelector('footer .container');
+    if (!footerContainer) return;
+    
+    // Clear existing footer content except admin link
+    const adminLink = footerContainer.querySelector('.admin-link');
+    footerContainer.innerHTML = '';
+    
+    // Add copyright if available
+    if (footerSettings.copyright) {
+      const copyrightP = document.createElement('p');
+      copyrightP.innerHTML = footerSettings.copyright;
+      footerContainer.appendChild(copyrightP);
+    }
+    
+    // Add contact info if available
+    if (footerSettings.contactInfo) {
+      const contactP = document.createElement('p');
+      contactP.innerHTML = footerSettings.contactInfo;
+      footerContainer.appendChild(contactP);
+    }
+    
+    // Add about text if available
+    if (footerSettings.about) {
+      const aboutP = document.createElement('p');
+      aboutP.innerHTML = footerSettings.about;
+      footerContainer.appendChild(aboutP);
+    }
+    
+    // Add quick links if available
+    if (footerSettings.quickLinks && footerSettings.quickLinks.length > 0) {
+      const linksDiv = document.createElement('div');
+      linksDiv.className = 'quick-links';
+      
+      const linksList = document.createElement('ul');
+      footerSettings.quickLinks.forEach(link => {
+        const li = document.createElement('li');
+        li.innerHTML = `<a href="#">${link}</a>`;
+        linksList.appendChild(li);
+      });
+      
+      linksDiv.appendChild(linksList);
+      footerContainer.appendChild(linksDiv);
+    }
+    
+    // Add back the admin link
+    if (adminLink) {
+      const adminP = document.createElement('p');
+      adminP.appendChild(adminLink);
+      footerContainer.appendChild(adminP);
+    } else {
+      // Create new admin link if it doesn't exist
+      const adminP = document.createElement('p');
+      adminP.innerHTML = '<a href="admin.html" class="admin-link">Admin Login</a>';
+      footerContainer.appendChild(adminP);
+    }
+  } catch (error) {
+    console.error('Error applying footer settings:', error);
+  }
+}
 
 async function initializeSite() {
   try {
@@ -58,7 +188,28 @@ async function fetchAndDisplayData(endpoint) {
   } catch (error) {
     console.error(`Error fetching ${endpoint}:`, error);
     displayErrorMessage(`Failed to load ${endpoint}: ${error.message}`);
+    
+    // Try to load from localStorage as fallback
+    if (endpoint === 'gallery') {
+      loadGalleryFromLocalStorage();
+    }
+    
     return [];
+  }
+}
+
+// New function to load gallery from localStorage
+function loadGalleryFromLocalStorage() {
+  try {
+    console.log('Attempting to load gallery from localStorage');
+    const galleryData = JSON.parse(localStorage.getItem('gallery')) || [];
+    
+    if (galleryData.length > 0) {
+      console.log(`Found ${galleryData.length} gallery items in localStorage`);
+      displayData('gallery', galleryData);
+    }
+  } catch (error) {
+    console.error('Error loading gallery from localStorage:', error);
   }
 }
 
