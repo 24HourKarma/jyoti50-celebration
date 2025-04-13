@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integrated Gallery and Auth Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #d4af37;
+            border-bottom: 2px solid #121212;
+            padding-bottom: 10px;
+        }
+        .test-container {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #b8960c;
+        }
+        #status, #auth-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        #log {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100px;
+            object-fit: cover;
+        }
+        .gallery-item .title {
+            padding: 5px;
+            font-weight: bold;
+            font-size: 12px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Integrated Gallery and Auth Fix Test</h1>
+    
+    <div class="test-container">
+        <h2>Authentication Status</h2>
+        <div id="auth-status" class="error">Not authenticated</div>
+        <button id="check-auth">Check Authentication</button>
+        <button id="logout">Logout</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>Mock Login Form</h2>
+        <p>This form simulates the admin login functionality with the integrated fix applied.</p>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password">
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <div id="login-status"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Gallery Upload Form</h2>
+        <p>This form simulates the gallery upload functionality with the integrated fix applied.</p>
+        
+        <form id="gallery-upload-form">
+            <div class="form-group">
+                <label for="image">Select Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter image title">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="3" placeholder="Enter image description"></textarea>
+            </div>
+            
+            <button type="submit">Upload Image</button>
+        </form>
+        
+        <div id="upload-status"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Gallery Display</h2>
+        <p>This section displays the uploaded gallery images.</p>
+        
+        <div class="gallery" id="gallery-container"></div>
+        
+        <button id="refresh-gallery" style="margin-top: 10px;">Refresh Gallery</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>Console Log</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script>
+        // Mock API for testing
+        window.api = {
+            login: async function(email, password) {
+                logToConsole('Original API login called with:', email, password);
+                
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Simulate login failure for testing
+                throw new Error('Login failed');
+            },
+            
+            isAuthenticated: function() {
+                logToConsole('Original isAuthenticated called');
+                return false;
+            },
+            
+            logout: function() {
+                logToConsole('Original logout called');
+                localStorage.removeItem('jyoti50_user');
+                localStorage.removeItem('jyoti50_token');
+            },
+            
+            uploadImage: async function(formData) {
+                logToConsole('Original uploadImage called');
+                
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Simulate upload failure for testing
+                throw new Error('Upload failed');
+            },
+            
+            getGallery: async function() {
+                logToConsole('Original getGallery called');
+                
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Simulate empty gallery for testing
+                return [];
+            }
+        };
+        
+        // Function to log to the console div
+        function logToConsole(...args) {
+            const log = document.getElementById('log');
+            const message = args.map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg, null, 2);
+                }
+                return arg;
+            }).join(' ');
+            
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            
+            // Auto-scroll to bottom
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Override console.log
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            logToConsole(...args);
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            logToConsole('ERROR:', ...args);
+        };
+        
+        // Mock fetch for testing
+        window.originalFetch = window.fetch;
+        window.fetch = async function(url, options) {
+            logToConsole('Fetch called with URL:', url);
+            
+            // Simulate network delay
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Simulate 401 error for gallery upload
+            if (url.includes('/api/gallery/upload')) {
+                return new Response('Unauthorized', {
+                    status: 401,
+                    statusText: 'Unauthorized'
+                });
+            }
+            
+            // For other requests, use the original fetch
+            return window.originalFetch(url, options);
+        };
+        
+        // Function to refresh gallery display
+        function refreshGallery() {
+            const galleryContainer = document.getElementById('gallery-container');
+            galleryContainer.innerHTML = '';
+            
+            // Get gallery data from localStorage
+            const galleryDataStr = localStorage.getItem('jyoti50_gallery_data');
+            const galleryData = galleryDataStr ? JSON.parse(galleryDataStr) : [];
+            
+            if (galleryData.length === 0) {
+                galleryContainer.innerHTML = '<p>No images in gallery</p>';
+                return;
+            }
+            
+            // Create gallery items
+            galleryData.forEach(item => {
+                const galleryItem = document.createElement('div');
+                galleryItem.className = 'gallery-item';
+                
+                const img = document.createElement('img');
+                img.src = item.imageUrl.startsWith('/') 
+                    ? `https://example.com${item.imageUrl}` // Mock URL for local paths
+                    : item.imageUrl;
+                img.alt = item.title;
+                
+                const title = document.createElement('div');
+                title.className = 'title';
+                title.textContent = item.title;
+                
+                galleryItem.appendChild(img);
+                galleryItem.appendChild(title);
+                galleryContainer.appendChild(galleryItem);
+            });
+        }
+        
+        // Initialize the test
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Integrated gallery and auth fix test initialized');
+            
+            const loginForm = document.getElementById('login-form');
+            const loginStatusElement = document.getElementById('login-status');
+            const authStatusElement = document.getElementById('auth-status');
+            const checkAuthButton = document.getElementById('check-auth');
+            const logoutButton = document.getElementById('logout');
+            const refreshGalleryButton = document.getElementById('refresh-gallery');
+            
+            // Handle login form submission
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                
+                loginStatusElement.textContent = 'Logging in...';
+                loginStatusElement.className = 'info';
+                
+                try {
+                    // Use the API login function (should be overridden by integrated fix)
+                    const user = await api.login(email, password);
+                    
+                    loginStatusElement.textContent = 'Login successful!';
+                    loginStatusElement.className = 'success';
+                    console.log('Login result:', user);
+                    
+                    updateAuthStatus();
+                } catch (error) {
+                    loginStatusElement.textContent = error.message || 'Login failed';
+                    loginStatusElement.className = 'error';
+                    console.error('Login error:', error);
+                }
+            });
+            
+            // Handle check authentication button
+            checkAuthButton.addEventListener('click', function() {
+                updateAuthStatus();
+            });
+            
+            // Handle logout button
+            logoutButton.addEventListener('click', function() {
+                api.logout();
+                updateAuthStatus();
+                console.log('Logged out');
+            });
+            
+            // Handle refresh gallery button
+            refreshGalleryButton.addEventListener('click', function() {
+                refreshGallery();
+            });
+            
+            // Update authentication status display
+            function updateAuthStatus() {
+                const isAuthenticated = api.isAuthenticated();
+                authStatusElement.textContent = isAuthenticated ? 'Authenticated' : 'Not authenticated';
+                authStatusElement.className = isAuthenticated ? 'success' : 'error';
+                
+                const user = localStorage.getItem('jyoti50_user');
+                if (user) {
+                    const userObj = JSON.parse(user);
+                    authStatusElement.textContent += ` as ${userObj.email}`;
+                }
+            }
+            
+            // Initial status check and gallery refresh
+            updateAuthStatus();
+            refreshGallery();
+        });
+    </script>
+    
+    <!-- Load the integrated fix script -->
+    <script src="integrated-gallery-auth-fix.js"></script>
+</body>
+</html>
