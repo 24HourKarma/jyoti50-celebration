@@ -1953,7 +1953,7 @@
                     location,
                     description,
                     day,
-                    dressCode: dressCode || 'Smart Casual',
+                    dressCode,
                     website,
                     map,
                     notes
@@ -2794,10 +2794,6 @@
                 } catch (e) {
                     console.error('Error saving to localStorage:', e);
                 }
-            }
-        }
-                console.error('Error saving footer settings:', error);
-                adminApi.showStatus('header-footer-status', `Error saving footer settings: ${error.message}`, 'status-error');
             }
         }
         
