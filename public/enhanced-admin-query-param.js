@@ -1222,6 +1222,19 @@
                 try {
                     this.log('Uploading image:', { fileName: file.name, fileSize: file.size, fileType: file.type });
                     
+                    // Check file size - limit to 5MB to prevent server overload
+                    if (file.size > 5 * 1024 * 1024) {
+                        this.log('File too large:', { size: file.size });
+                        throw new Error('Image file is too large (max 5MB). Please resize and try again.');
+                    }
+                    
+                    // Check file type
+                    const validTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+                    if (!validTypes.includes(file.type)) {
+                        this.log('Invalid file type:', { type: file.type });
+                        throw new Error('Invalid image type. Please use JPG, PNG, GIF or WebP format.');
+                    }
+                    
                     // Create FormData object for multipart/form-data upload
                     const formData = new FormData();
                     formData.append('image', file);
@@ -1241,9 +1254,9 @@
                         const errorText = await response.text();
                         this.log('Upload failed with status:', { status: response.status, statusText: response.statusText, body: errorText });
                         
-                        // For 401 errors, save to localStorage as fallback
-                        if (response.status === 401) {
-                            this.log('Authentication error, saving to localStorage for gallery');
+                        // For any server error (5xx), save to localStorage as fallback
+                        if (response.status >= 500) {
+                            this.log('Server error, saving to localStorage for gallery');
                             return this.saveImageToLocalStorage(file, title, description);
                         }
                         
@@ -1274,7 +1287,9 @@
                         this.log('Upload successful:', responseData);
                     } catch (parseError) {
                         this.log('Error parsing response:', { error: parseError.message });
-                        throw new Error('Invalid response format from server');
+                        // Instead of throwing, save to localStorage and return
+                        this.log('Response parsing failed, saving to localStorage instead');
+                        return this.saveImageToLocalStorage(file, title, description);
                     }
                     
                     // Save to localStorage as backup
@@ -2687,12 +2702,29 @@
                     settings = {
                         siteTitle: 'Jyoti\'s 50th Birthday Celebration',
                         tagline: 'Join us for a memorable celebration',
-                        importantInfo: ''
+                        importantInfo: '',
+                        header: {
+                            logoText: '',
+                            menuItems: []
+                        },
+                        footer: {
+                            copyright: '',
+                            contactInfo: '',
+                            about: '',
+                            quickLinks: []
+                        }
                     };
                 }
                 
+                // Ensure all required properties exist
+                if (!settings.siteTitle) settings.siteTitle = 'Jyoti\'s 50th Birthday Celebration';
+                if (!settings.tagline) settings.tagline = 'Join us for a memorable celebration';
+                if (!settings.importantInfo) settings.importantInfo = '';
+                if (!settings.header) settings.header = {};
+                
                 // Update header in settings
-                settings.header = headerData.header;
+                settings.header.logoText = logoText;
+                settings.header.menuItems = menuItems;
                 
                 // Submit to API as a complete settings object
                 const result = await adminApi.put('settings', settings.id || 'main', settings);
@@ -2756,12 +2788,36 @@
                     settings = {
                         siteTitle: 'Jyoti\'s 50th Birthday Celebration',
                         tagline: 'Join us for a memorable celebration',
-                        importantInfo: ''
+                        importantInfo: '',
+                        header: {
+                            logoText: '',
+                            menuItems: []
+                        },
+                        footer: {
+                            copyright: '',
+                            contactInfo: '',
+                            about: '',
+                            quickLinks: []
+                        }
                     };
                 }
                 
+                // Ensure all required properties exist
+                if (!settings.siteTitle) settings.siteTitle = 'Jyoti\'s 50th Birthday Celebration';
+                if (!settings.tagline) settings.tagline = 'Join us for a memorable celebration';
+                if (!settings.importantInfo) settings.importantInfo = '';
+                if (!settings.footer) settings.footer = {
+                    copyright: '',
+                    contactInfo: '',
+                    about: '',
+                    quickLinks: []
+                };
+                
                 // Update footer in settings
-                settings.footer = footerData.footer;
+                settings.footer.copyright = copyright;
+                settings.footer.contactInfo = contactInfo;
+                settings.footer.about = about;
+                settings.footer.quickLinks = quickLinks;
                 
                 // Submit to API as a complete settings object
                 const result = await adminApi.put('settings', settings.id || 'main', settings);
