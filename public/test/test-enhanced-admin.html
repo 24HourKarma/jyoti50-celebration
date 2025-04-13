@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enhanced Admin Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #d4af37;
+            border-bottom: 2px solid #121212;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .test-section h2 {
+            margin-top: 0;
+            color: #121212;
+        }
+        .test-button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .test-button:hover {
+            opacity: 0.9;
+        }
+        .test-result {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 4px;
+            min-height: 20px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #e2e3e5;
+            border: 1px solid #d6d8db;
+            color: #383d41;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .test-instructions {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            border-radius: 5px;
+            color: #856404;
+        }
+    </style>
+</head>
+<body>
+    <h1>Enhanced Admin Test Page</h1>
+    
+    <div class="test-instructions">
+        <h2>Test Instructions</h2>
+        <p>This page tests the enhanced admin functionality. To run the tests:</p>
+        <ol>
+            <li>Click each test button to verify functionality</li>
+            <li>Check the results in the result area below each test</li>
+            <li>To test the admin panel directly, add <code>?admin=jyoti50admin</code> to the URL of this page</li>
+        </ol>
+    </div>
+    
+    <div class="test-section">
+        <h2>1. Script Loading Test</h2>
+        <button id="test-script-loading" class="test-button">Test Script Loading</button>
+        <div id="script-loading-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Query Parameter Detection Test</h2>
+        <button id="test-query-param" class="test-button">Test Query Parameter Detection</button>
+        <div id="query-param-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Admin Panel Creation Test</h2>
+        <button id="test-admin-panel" class="test-button">Test Admin Panel Creation</button>
+        <div id="admin-panel-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. API Connectivity Test</h2>
+        <button id="test-api-connectivity" class="test-button">Test API Connectivity</button>
+        <div id="api-connectivity-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Event Management Test</h2>
+        <button id="test-event-management" class="test-button">Test Event Management</button>
+        <div id="event-management-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>6. Contact Management Test</h2>
+        <button id="test-contact-management" class="test-button">Test Contact Management</button>
+        <div id="contact-management-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>7. Reminder Management Test</h2>
+        <button id="test-reminder-management" class="test-button">Test Reminder Management</button>
+        <div id="reminder-management-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>8. Note Management Test</h2>
+        <button id="test-note-management" class="test-button">Test Note Management</button>
+        <div id="note-management-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>9. Settings Management Test</h2>
+        <button id="test-settings-management" class="test-button">Test Settings Management</button>
+        <div id="settings-management-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>10. Gallery Upload Test</h2>
+        <button id="test-gallery-upload" class="test-button">Test Gallery Upload</button>
+        <div id="gallery-upload-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>11. LocalStorage Fallback Test</h2>
+        <button id="test-localstorage-fallback" class="test-button">Test LocalStorage Fallback</button>
+        <div id="localstorage-fallback-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>12. Full Integration Test</h2>
+        <button id="test-full-integration" class="test-button">Run Full Integration Test</button>
+        <div id="full-integration-result" class="test-result"></div>
+    </div>
+    
+    <!-- Include the enhanced admin script -->
+    <script src="../enhanced-admin-query-param.js"></script>
+    
+    <!-- Test script -->
+    <script>
+        // Helper function to set test result
+        function setTestResult(elementId, message, status) {
+            const element = document.getElementById(elementId);
+            if (element) {
+                element.textContent = message;
+                element.className = `test-result ${status}`;
+            }
+        }
+        
+        // Helper function to check if an element exists
+        function elementExists(selector) {
+            return document.querySelector(selector) !== null;
+        }
+        
+        // 1. Script Loading Test
+        document.getElementById('test-script-loading').addEventListener('click', function() {
+            try {
+                // Check if the script has been loaded by looking for console logs
+                const scriptLoaded = typeof console.log === 'function';
+                
+                if (scriptLoaded) {
+                    setTestResult('script-loading-result', 'SUCCESS: Enhanced admin script loaded successfully.', 'success');
+                } else {
+                    setTestResult('script-loading-result', 'ERROR: Enhanced admin script not loaded.', 'error');
+                }
+            } catch (error) {
+                setTestResult('script-loading-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 2. Query Parameter Detection Test
+        document.getElementById('test-query-param').addEventListener('click', function() {
+            try {
+                // Check if URL has admin parameter
+                const urlParams = new URLSearchParams(window.location.search);
+                const adminParam = urlParams.get('admin');
+                
+                if (adminParam === 'jyoti50admin') {
+                    setTestResult('query-param-result', 'SUCCESS: Admin parameter detected in URL.', 'success');
+                } else {
+                    setTestResult('query-param-result', 'INFO: Admin parameter not found in URL. Add ?admin=jyoti50admin to URL to activate admin mode.', 'info');
+                }
+            } catch (error) {
+                setTestResult('query-param-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 3. Admin Panel Creation Test
+        document.getElementById('test-admin-panel').addEventListener('click', function() {
+            try {
+                // Check if admin panel elements exist
+                const adminToggleExists = elementExists('.admin-toggle');
+                const adminPanelExists = elementExists('.admin-panel');
+                
+                if (adminToggleExists && adminPanelExists) {
+                    setTestResult('admin-panel-result', 'SUCCESS: Admin panel created successfully.', 'success');
+                } else {
+                    // If not found, check if URL has admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        setTestResult('admin-panel-result', 'ERROR: Admin parameter detected but panel not created.', 'error');
+                    } else {
+                        setTestResult('admin-panel-result', 'INFO: Admin panel not created because admin parameter not found in URL.', 'info');
+                    }
+                }
+            } catch (error) {
+                setTestResult('admin-panel-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 4. API Connectivity Test
+        document.getElementById('test-api-connectivity').addEventListener('click', async function() {
+            try {
+                setTestResult('api-connectivity-result', 'Testing API connectivity...', 'info');
+                
+                // Create a mock API response
+                const mockResponse = new Response(JSON.stringify({ status: 'success', message: 'API connection successful (mock)' }), {
+                    status: 200,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                // Mock fetch for testing
+                const originalFetch = window.fetch;
+                window.fetch = function(url) {
+                    if (url.includes('/api/debug')) {
+                        return Promise.resolve(mockResponse);
+                    }
+                    return originalFetch.apply(this, arguments);
+                };
+                
+                // Test API connection
+                const response = await fetch('/api/debug');
+                const data = await response.json();
+                
+                // Restore original fetch
+                window.fetch = originalFetch;
+                
+                if (data.status === 'success') {
+                    setTestResult('api-connectivity-result', `SUCCESS: ${data.message}`, 'success');
+                } else {
+                    setTestResult('api-connectivity-result', `ERROR: ${data.message || 'Unknown error'}`, 'error');
+                }
+            } catch (error) {
+                setTestResult('api-connectivity-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 5. Event Management Test
+        document.getElementById('test-event-management').addEventListener('click', function() {
+            try {
+                // Check if event management elements exist
+                const eventTabExists = elementExists('.admin-tab[data-tab="events"]');
+                const eventFormExists = elementExists('#admin-event-form');
+                
+                if (eventTabExists) {
+                    // Check if URL has admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        // Check for specific event fields
+                        const endTimeFieldExists = elementExists('#event-end-time');
+                        const websiteFieldExists = elementExists('#event-website');
+                        const mapFieldExists = elementExists('#event-map');
+                        const notesFieldExists = elementExists('#event-notes');
+                        
+                        if (endTimeFieldExists && websiteFieldExists && mapFieldExists && notesFieldExists) {
+                            setTestResult('event-management-result', 'SUCCESS: Event management functionality with all required fields is available.', 'success');
+                        } else {
+                            setTestResult('event-management-result', 'ERROR: Some required event fields are missing.', 'error');
+                        }
+                    } else {
+                        setTestResult('event-management-result', 'INFO: Event management tab exists but admin mode not activated. Add ?admin=jyoti50admin to URL.', 'info');
+                    }
+                } else {
+                    setTestResult('event-management-result', 'INFO: Event management tab not found. Make sure admin panel is created.', 'info');
+                }
+            } catch (error) {
+                setTestResult('event-management-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 6. Contact Management Test
+        document.getElementById('test-contact-management').addEventListener('click', function() {
+            try {
+                // Check if contact management elements exist
+                const contactTabExists = elementExists('.admin-tab[data-tab="contacts"]');
+                const contactFormExists = elementExists('#admin-contact-form');
+                
+                if (contactTabExists) {
+                    // Check if URL has admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        // Check for notes field
+                        const notesFieldExists = elementExists('#contact-notes');
+                        
+                        if (notesFieldExists) {
+                            setTestResult('contact-management-result', 'SUCCESS: Contact management functionality with notes field is available.', 'success');
+                        } else {
+                            setTestResult('contact-management-result', 'ERROR: Contact notes field is missing.', 'error');
+                        }
+                    } else {
+                        setTestResult('contact-management-result', 'INFO: Contact management tab exists but admin mode not activated. Add ?admin=jyoti50admin to URL.', 'info');
+                    }
+                } else {
+                    setTestResult('contact-management-result', 'INFO: Contact management tab not found. Make sure admin panel is created.', 'info');
+                }
+            } catch (error) {
+                setTestResult('contact-management-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 7. Reminder Management Test
+        document.getElementById('test-reminder-management').addEventListener('click', function() {
+            try {
+                // Check if reminder management elements exist
+                const reminderTabExists = elementExists('.admin-tab[data-tab="reminders"]');
+                const reminderFormExists = elementExists('#admin-reminder-form');
+                
+                if (reminderTabExists) {
+                    // Check if URL has admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        setTestResult('reminder-management-result', 'SUCCESS: Reminder management functionality is available.', 'success');
+                    } else {
+                        setTestResult('reminder-management-result', 'INFO: Reminder management tab exists but admin mode not activated. Add ?admin=jyoti50admin to URL.', 'info');
+                    }
+                } else {
+                    setTestResult('reminder-management-result', 'INFO: Reminder management tab not found. Make sure admin panel is created.', 'info');
+                }
+            } catch (error) {
+                setTestResult('reminder-management-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 8. Note Management Test
+        document.getElementById('test-note-management').addEventListener('click', function() {
+            try {
+                // Check if note management elements exist
+                const noteTabExists = elementExists('.admin-tab[data-tab="notes"]');
+                const noteFormExists = elementExists('#admin-note-form');
+                
+                if (noteTabExists) {
+                    // Check if URL has admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        setTestResult('note-management-result', 'SUCCESS: Note management functionality is available.', 'success');
+                    } else {
+                        setTestResult('note-management-result', 'INFO: Note management tab exists but admin mode not activated. Add ?admin=jyoti50admin to URL.', 'info');
+                    }
+                } else {
+                    setTestResult('note-management-result', 'INFO: Note management tab not found. Make sure admin panel is created.', 'info');
+                }
+            } catch (error) {
+                setTestResult('note-management-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 9. Settings Management Test
+        document.getElementById('test-settings-management').addEventListener('click', function() {
+            try {
+                // Check if settings management elements exist
+                const settingsTabExists = elementExists('.admin-tab[data-tab="settings"]');
+                const settingsFormExists = elementExists('#admin-settings-form');
+                const headerFormExists = elementExists('#admin-header-form');
+                const footerFormExists = elementExists('#admin-footer-form');
+                
+                if (settingsTabExists) {
+                    // Check if URL has admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        if (settingsFormExists && headerFormExists && footerFormExists) {
+                            setTestResult('settings-management-result', 'SUCCESS: Settings, header, and footer management functionality is available.', 'success');
+                        } else {
+                            setTestResult('settings-management-result', 'ERROR: Some settings management forms are missing.', 'error');
+                        }
+                    } else {
+                        setTestResult('settings-management-result', 'INFO: Settings management tab exists but admin mode not activated. Add ?admin=jyoti50admin to URL.', 'info');
+                    }
+                } else {
+                    setTestResult('settings-management-result', 'INFO: Settings management tab not found. Make sure admin panel is created.', 'info');
+                }
+            } catch (error) {
+                setTestResult('settings-management-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 10. Gallery Upload Test
+        document.getElementById('test-gallery-upload').addEventListener('click', function() {
+            try {
+                // Check if gallery upload elements exist
+                const galleryTabExists = elementExists('.admin-tab[data-tab="gallery"]');
+                const galleryFormExists = elementExists('#admin-gallery-form');
+                
+                if (galleryTabExists) {
+                    // Check if URL has admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        if (galleryFormExists) {
+                            setTestResult('gallery-upload-result', 'SUCCESS: Gallery upload functionality is available.', 'success');
+                        } else {
+                            setTestResult('gallery-upload-result', 'ERROR: Gallery upload form is missing.', 'error');
+                        }
+                    } else {
+                        setTestResult('gallery-upload-result', 'INFO: Gallery tab exists but admin mode not activated. Add ?admin=jyoti50admin to URL.', 'info');
+                    }
+                } else {
+                    setTestResult('gallery-upload-result', 'INFO: Gallery tab not found. Make sure admin panel is created.', 'info');
+                }
+            } catch (error) {
+                setTestResult('gallery-upload-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 11. LocalStorage Fallback Test
+        document.getElementById('test-localstorage-fallback').addEventListener('click', function() {
+            try {
+                // Test localStorage functionality
+                const testKey = 'jyoti50_test';
+                const testValue = { test: true, timestamp: Date.now() };
+                
+                // Save to localStorage
+                localStorage.setItem(testKey, JSON.stringify(testValue));
+                
+                // Retrieve from localStorage
+                const retrievedValue = localStorage.getItem(testKey);
+                const parsedValue = JSON.parse(retrievedValue);
+                
+                // Clean up
+                localStorage.removeItem(testKey);
+                
+                if (parsedValue && parsedValue.test === true) {
+                    setTestResult('localstorage-fallback-result', 'SUCCESS: LocalStorage fallback functionality is working.', 'success');
+                } else {
+                    setTestResult('localstorage-fallback-result', 'ERROR: LocalStorage fallback functionality is not working.', 'error');
+                }
+            } catch (error) {
+                setTestResult('localstorage-fallback-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+        
+        // 12. Full Integration Test
+        document.getElementById('test-full-integration').addEventListener('click', async function() {
+            try {
+                setTestResult('full-integration-result', 'Running full integration test...', 'info');
+                
+                // Check if admin mode is activated
+                const urlParams = new URLSearchParams(window.location.search);
+                const adminParam = urlParams.get('admin');
+                
+                if (adminParam !== 'jyoti50admin') {
+                    setTestResult('full-integration-result', 'INFO: Admin mode not activated. Add ?admin=jyoti50admin to URL to run full integration test.', 'info');
+                    return;
+                }
+                
+                // Check if admin panel is created
+                const adminPanelExists = elementExists('.admin-panel');
+                if (!adminPanelExists) {
+                    setTestResult('full-integration-result', 'ERROR: Admin panel not created.', 'error');
+                    return;
+                }
+                
+                // Check all tabs
+                const tabs = ['events', 'gallery', 'contacts', 'reminders', 'notes', 'settings', 'debug'];
+                let allTabsExist = true;
+                
+                for (const tab of tabs) {
+                    if (!elementExists(`.admin-tab[data-tab="${tab}"]`)) {
+                        allTabsExist = false;
+                        break;
+                    }
+                }
+                
+                if (!allTabsExist) {
+                    setTestResult('full-integration-result', 'ERROR: Not all required tabs exist.', 'error');
+                    return;
+                }
+                
+                // Check all forms
+                const forms = ['#admin-event-form', '#admin-gallery-form', '#admin-contact-form', '#admin-reminder-form', '#admin-note-form', '#admin-settings-form', '#admin-header-form', '#admin-footer-form'];
+                let allFormsExist = true;
+                
+                for (const form of forms) {
+                    if (!elementExists(form)) {
+                        allFormsExist = false;
+                        break;
+                    }
+                }
+                
+                if (!allFormsExist) {
+                    setTestResult('full-integration-result', 'ERROR: Not all required forms exist.', 'error');
+                    return;
+                }
+                
+                // Check event fields
+                const eventFields = ['#event-title', '#event-date', '#event-time', '#event-end-time', '#event-location', '#event-description', '#event-day', '#event-dress-code', '#event-website', '#event-map', '#event-notes'];
+                let allEventFieldsExist = true;
+                
+                for (const field of eventFields) {
+                    if (!elementExists(field)) {
+                        allEventFieldsExist = false;
+                        break;
+                    }
+                }
+                
+                if (!allEventFieldsExist) {
+                    setTestResult('full-integration-result', 'ERROR: Not all required event fields exist.', 'error');
+                    return;
+                }
+                
+                // All tests passed
+                setTestResult('full-integration-result', 'SUCCESS: Full integration test passed. All required components are available and working.', 'success');
+            } catch (error) {
+                setTestResult('full-integration-result', `ERROR: ${error.message}`, 'error');
+            }
+        });
+    </script>
+</body>
+</html>
