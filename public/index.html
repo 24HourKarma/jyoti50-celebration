@@ -6,6 +6,39 @@
     <title>Jyoti's 50th Birthday Celebration</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* Additional styles for gallery */
+        .gallery-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            grid-gap: 20px;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            background-color: #fff;
+        }
+        .gallery-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            display: block;
+        }
+        .gallery-caption {
+            padding: 15px;
+        }
+        .gallery-caption h3 {
+            margin-top: 0;
+            margin-bottom: 8px;
+            color: #333;
+        }
+        .gallery-caption p {
+            margin: 0;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
     <a href="#" class="home-button"><i class="fas fa-home"></i> Home</a>
@@ -85,22 +118,42 @@
     <section id="gallery" class="section">
         <div class="container">
             <h2>Photo Gallery</h2>
-            <div class="gallery-container" id="hardcoded-gallery">
-                <!-- Hardcoded gallery images -->
+            <!-- Static gallery implementation that won't be overwritten -->
+            <div id="static-gallery" class="gallery-container">
+                <!-- Sample gallery images - replace with your actual images -->
                 <div class="gallery-item">
-                    <img class="gallery-image" src="https://www.dropbox.com/scl/fi/j9g96wbbgzqsndxjc5ydv/IMG_4284.jpeg?raw=1" alt="Gallery Image 1">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Kraków Old Town">
                     <div class="gallery-caption">
-                      <h3>Welcome Dinner</h3>
-                      <p>Thursday evening at Nova Restaurant</p>
+                        <h3>Kraków Old Town</h3>
+                        <p>The historic center of Kraków, where we'll be celebrating</p>
                     </div>
                 </div>
                 <div class="gallery-item">
-                    <img class="gallery-image" src="https://www.dropbox.com/scl/fi/lt4knno8n212wlg62w7nm/IMG_3605.jpeg?raw=1" alt="Gallery Image 2">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1519659528534-7fd733a832a0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Welcome Dinner">
                     <div class="gallery-caption">
-                      <h3>Welcome Dinner</h3>
-                      <p>Thursday evening at Nova Restaurant</p>
+                        <h3>Welcome Dinner</h3>
+                        <p>Thursday evening at Nova Restaurant</p>
                     </div>
                 </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Gala Dinner">
+                    <div class="gallery-caption">
+                        <h3>Gala Dinner</h3>
+                        <p>Friday evening celebration</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1533105079780-92b9be482077?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="City Tour">
+                    <div class="gallery-caption">
+                        <h3>City Tour</h3>
+                        <p>Exploring the beautiful city of Kraków</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Original gallery container (hidden but kept for compatibility) -->
+            <div class="gallery-container" style="display: none;">
+                <div class="loading">Loading gallery...</div>
             </div>
         </div>
     </section>
@@ -117,216 +170,40 @@
     <script src="js/main.js"></script>
     <script src="enhanced-admin-query-param.js"></script>
     
-    <!-- Gallery Direct Fix Script -->
+    <!-- Script to prevent gallery overwriting -->
     <script>
-    // Gallery direct fix script - Ensures hardcoded gallery images display properly
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('Gallery direct fix script loaded');
-      
-      // Wait for any other scripts to finish
-      setTimeout(function() {
-        fixGalleryImages();
-        preventGalleryOverwrite();
-      }, 1000);
-    });
-
-    // Fix Dropbox image links and ensure images are displayed
-    function fixGalleryImages() {
-      console.log('Fixing gallery images');
-      
-      // Get all gallery images
-      const galleryImages = document.querySelectorAll('.gallery-image');
-      
-      galleryImages.forEach(function(img) {
-        const src = img.getAttribute('src');
-        console.log('Processing image with src:', src);
+        console.log('Static gallery protection script loaded');
         
-        // Check if it's a Dropbox link that needs fixing
-        if (src && src.includes('dropbox.com') && src.includes('?dl=0')) {
-          // Replace ?dl=0 with ?raw=1 for direct image access
-          const newSrc = src.replace('?dl=0', '?raw=1');
-          console.log('Fixing Dropbox link:', src, '->', newSrc);
-          img.setAttribute('src', newSrc);
-        }
-      });
-    }
-
-    // Prevent other scripts from overwriting the gallery content
-    function preventGalleryOverwrite() {
-      console.log('Setting up gallery overwrite protection');
-      
-      // Get the gallery container
-      const galleryContainer = document.querySelector('.gallery-container');
-      
-      if (galleryContainer) {
-        // Store the original content
-        const originalContent = galleryContainer.innerHTML;
-        console.log('Saved original gallery content');
-        
-        // Check every second if the content has been changed
-        setInterval(function() {
-          // If the gallery no longer contains the original items, restore them
-          if (!galleryContainer.querySelector('.gallery-item')) {
-            console.log('Gallery content was overwritten, restoring original content');
-            galleryContainer.innerHTML = originalContent;
-            
-            // Fix the Dropbox links again after restoring
-            fixGalleryImages();
-          }
-        }, 1000);
-      }
-    }
-    </script>
-    
-    <!-- Disable the localStorage integration script that was overwriting gallery content -->
-    <!-- 
-    <script>
-    // Direct localStorage integration script - Final Version
-    document.addEventListener('DOMContentLoaded', function() {
-      console.log('Direct localStorage integration script loaded');
-      
-      try {
-        // Get header settings directly
-        const headerStr = localStorage.getItem('settings/header');
-        console.log('Raw header:', headerStr);
-        
-        // Get footer settings directly
-        const footerStr = localStorage.getItem('settings/footer');
-        console.log('Raw footer:', footerStr);
-        
-        // Try to update header
-        if (headerStr) {
-          try {
-            const headerObj = JSON.parse(headerStr);
-            console.log('Parsed header:', headerObj);
-            
-            // Try different possible structures
-            const logoText = headerObj.logoText || 
-                          (headerObj.value && typeof headerObj.value === 'string' && JSON.parse(headerObj.value).logoText) || 
-                          '';
-            
-            if (logoText) {
-              const headerTitle = document.querySelector('header h1');
-              if (headerTitle) {
-                headerTitle.textContent = logoText;
-                console.log('Updated header text to:', logoText);
-              }
-            }
-          } catch (e) {
-            console.error('Error parsing header:', e);
-          }
+        // Hide the original gallery container that gets overwritten
+        const originalGallery = document.querySelector('.gallery-container:not(#static-gallery)');
+        if (originalGallery) {
+            originalGallery.style.display = 'none';
         }
         
-        // Try to update footer
-        if (footerStr) {
-          try {
-            const footerObj = JSON.parse(footerStr);
-            console.log('Parsed footer:', footerObj);
-            
-            // Try different possible structures
-            const copyright = footerObj.copyright || 
-                           (footerObj.value && typeof footerObj.value === 'string' && JSON.parse(footerObj.value).copyright) || 
-                           '';
-            
-            if (copyright) {
-              const footerContainer = document.querySelector('footer .container');
-              if (footerContainer) {
-                const adminLink = footerContainer.querySelector('.admin-link');
-                footerContainer.innerHTML = '';
-                
-                const p = document.createElement('p');
-                p.innerHTML = copyright;
-                footerContainer.appendChild(p);
-                
-                if (adminLink) {
-                  const adminP = document.createElement('p');
-                  adminP.appendChild(adminLink);
-                  footerContainer.appendChild(adminP);
-                } else {
-                  const adminP = document.createElement('p');
-                  adminP.innerHTML = '<a href="admin.html" class="admin-link">Admin Login</a>';
-                  footerContainer.appendChild(adminP);
+        // Make sure our static gallery is visible
+        const staticGallery = document.getElementById('static-gallery');
+        if (staticGallery) {
+            staticGallery.style.display = 'grid';
+        }
+        
+        // Prevent any attempts to modify our static gallery
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
+                    if (staticGallery.style.display !== 'grid') {
+                        console.log('Static gallery display was changed, restoring...');
+                        staticGallery.style.display = 'grid';
+                    }
                 }
-                console.log('Updated footer content');
-              }
-            }
-          } catch (e) {
-            console.error('Error parsing footer:', e);
-          }
-        }
+            });
+        });
         
-        // Try to get gallery images
-        const galleryItems = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (key.startsWith('gallery/')) {
-            try {
-              const itemStr = localStorage.getItem(key);
-              console.log('Gallery item raw:', key, itemStr);
-              
-              if (itemStr) {
-                const item = JSON.parse(itemStr);
-                console.log('Parsed gallery item:', item);
-                
-                // Try different possible structures
-                const imageUrl = item.imageUrl || 
-                              (item.value && typeof item.value === 'string' && JSON.parse(item.value).imageUrl) || 
-                              '';
-                              
-                const title = item.title || 
-                           (item.value && typeof item.value === 'string' && JSON.parse(item.value).title) || 
-                           'Gallery Image';
-                           
-                const description = item.description || 
-                                 (item.value && typeof item.value === 'string' && JSON.parse(item.value).description) || 
-                                 '';
-                
-                if (imageUrl) {
-                  galleryItems.push({
-                    imageUrl: imageUrl,
-                    title: title,
-                    description: description
-                  });
-                }
-              }
-            } catch (e) {
-              console.error('Error parsing gallery item:', key, e);
-            }
-          }
+        if (staticGallery) {
+            observer.observe(staticGallery, { attributes: true });
+            console.log('Static gallery is now being monitored for changes');
         }
-        
-        console.log('Found gallery items:', galleryItems.length);
-        if (galleryItems.length > 0) {
-          const galleryContainer = document.querySelector('.gallery-container');
-          if (galleryContainer) {
-            // Only replace if gallery is empty or showing "No images" message
-            if (galleryContainer.children.length <= 1 || 
-                galleryContainer.innerHTML.includes('No images available') ||
-                galleryContainer.innerHTML.includes('Loading gallery')) {
-              
-              let galleryHTML = '';
-              galleryItems.forEach(image => {
-                galleryHTML += `
-                  <div class="gallery-item">
-                    <img class="gallery-image" src="${image.imageUrl}" alt="${image.title || 'Gallery image'}">
-                    <div class="gallery-caption">
-                      <h3>${image.title || 'Untitled Image'}</h3>
-                      <p>${image.description || ''}</p>
-                    </div>
-                  </div>
-                `;
-              });
-              
-              galleryContainer.innerHTML = galleryHTML;
-              console.log('Gallery images applied successfully');
-            }
-          }
-        }
-      } catch (e) {
-        console.error('Main error in localStorage integration:', e);
-      }
     });
     </script>
-    -->
 </body>
 </html>
