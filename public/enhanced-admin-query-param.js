@@ -1084,6 +1084,12 @@
             // Update data at an API endpoint
             async put(endpoint, id, data) {
                 try {
+                    // Validate ID before making the request
+                    if (!id || id.trim() === '') {
+                        this.log(`Error: Attempted to update ${endpoint} with invalid ID:`, { id });
+                        throw new Error(`Cannot update ${endpoint} with invalid ID`);
+                    }
+                    
                     this.log(`Updating ${endpoint}/${id}...`, data);
                     const response = await fetch(`${this.baseUrl}/api/${endpoint}/${id}`, {
                         method: 'PUT',
@@ -1123,14 +1129,24 @@
                 } catch (error) {
                     this.log(`Failed to update ${endpoint}/${id}:`, { error: error.message });
                     
-                    // Update in localStorage as fallback
-                    return this.updateInLocalStorage(endpoint, id, data);
+                    // Only update in localStorage as fallback if we have a valid ID
+                    if (id && id.trim() !== '') {
+                        return this.updateInLocalStorage(endpoint, id, data);
+                    } else {
+                        throw error; // Re-throw the error if we can't save to localStorage
+                    }
                 }
             },
             
             // Delete data at an API endpoint
             async delete(endpoint, id) {
                 try {
+                    // Validate ID before making the request
+                    if (!id || id.trim() === '') {
+                        this.log(`Error: Attempted to delete ${endpoint} with invalid ID:`, { id });
+                        throw new Error(`Cannot delete ${endpoint} with invalid ID`);
+                    }
+                    
                     this.log(`Deleting ${endpoint}/${id}...`);
                     const response = await fetch(`${this.baseUrl}/api/${endpoint}/${id}`, {
                         method: 'DELETE',
@@ -1888,12 +1904,15 @@
                 
                 let result;
                 
-                if (id) {
+                // Check if ID exists and is not empty
+                if (id && id.trim() !== '') {
                     // Update existing event
+                    console.log('Updating event with ID:', id);
                     result = await adminApi.put('events', id, eventData);
                     adminApi.showStatus('event-status', 'Event updated successfully!', 'status-success');
                 } else {
                     // Add new event
+                    console.log('Adding new event');
                     result = await adminApi.post('events', eventData);
                     adminApi.showStatus('event-status', 'Event added successfully!', 'status-success');
                 }
@@ -1912,6 +1931,12 @@
         // Function to delete an event
         async function deleteEvent(id) {
             try {
+                // Check if ID exists and is not empty
+                if (!id || id.trim() === '') {
+                    throw new Error('Invalid event ID for deletion');
+                }
+                
+                console.log('Deleting event with ID:', id);
                 await adminApi.delete('events', id);
                 adminApi.showStatus('event-status', 'Event deleted successfully!', 'status-success');
                 loadEvents();
@@ -2050,6 +2075,12 @@
         // Function to delete a gallery item
         async function deleteGalleryItem(id) {
             try {
+                // Check if ID exists and is not empty
+                if (!id || id.trim() === '') {
+                    throw new Error('Invalid gallery item ID for deletion');
+                }
+                
+                console.log('Deleting gallery item with ID:', id);
                 await adminApi.delete('gallery', id);
                 adminApi.showStatus('gallery-status', 'Image deleted successfully!', 'status-success');
                 loadGallery();
@@ -2160,12 +2191,15 @@
                 
                 let result;
                 
-                if (id) {
+                // Check if ID exists and is not empty
+                if (id && id.trim() !== '') {
                     // Update existing contact
+                    console.log('Updating contact with ID:', id);
                     result = await adminApi.put('contacts', id, contactData);
                     adminApi.showStatus('contact-status', 'Contact updated successfully!', 'status-success');
                 } else {
                     // Add new contact
+                    console.log('Adding new contact');
                     result = await adminApi.post('contacts', contactData);
                     adminApi.showStatus('contact-status', 'Contact added successfully!', 'status-success');
                 }
@@ -2184,6 +2218,12 @@
         // Function to delete a contact
         async function deleteContact(id) {
             try {
+                // Check if ID exists and is not empty
+                if (!id || id.trim() === '') {
+                    throw new Error('Invalid contact ID for deletion');
+                }
+                
+                console.log('Deleting contact with ID:', id);
                 await adminApi.delete('contacts', id);
                 adminApi.showStatus('contact-status', 'Contact deleted successfully!', 'status-success');
                 loadContacts();
@@ -2288,12 +2328,15 @@
                 
                 let result;
                 
-                if (id) {
+                // Check if ID exists and is not empty
+                if (id && id.trim() !== '') {
                     // Update existing reminder
+                    console.log('Updating reminder with ID:', id);
                     result = await adminApi.put('reminders', id, reminderData);
                     adminApi.showStatus('reminder-status', 'Reminder updated successfully!', 'status-success');
                 } else {
                     // Add new reminder
+                    console.log('Adding new reminder');
                     result = await adminApi.post('reminders', reminderData);
                     adminApi.showStatus('reminder-status', 'Reminder added successfully!', 'status-success');
                 }
@@ -2312,6 +2355,12 @@
         // Function to delete a reminder
         async function deleteReminder(id) {
             try {
+                // Check if ID exists and is not empty
+                if (!id || id.trim() === '') {
+                    throw new Error('Invalid reminder ID for deletion');
+                }
+                
+                console.log('Deleting reminder with ID:', id);
                 await adminApi.delete('reminders', id);
                 adminApi.showStatus('reminder-status', 'Reminder deleted successfully!', 'status-success');
                 loadReminders();
@@ -2397,12 +2446,15 @@
                 
                 let result;
                 
-                if (id) {
+                // Check if ID exists and is not empty
+                if (id && id.trim() !== '') {
                     // Update existing note
+                    console.log('Updating note with ID:', id);
                     result = await adminApi.put('notes', id, noteData);
                     adminApi.showStatus('note-status', 'Note updated successfully!', 'status-success');
                 } else {
                     // Add new note
+                    console.log('Adding new note');
                     result = await adminApi.post('notes', noteData);
                     adminApi.showStatus('note-status', 'Note added successfully!', 'status-success');
                 }
@@ -2421,6 +2473,12 @@
         // Function to delete a note
         async function deleteNote(id) {
             try {
+                // Check if ID exists and is not empty
+                if (!id || id.trim() === '') {
+                    throw new Error('Invalid note ID for deletion');
+                }
+                
+                console.log('Deleting note with ID:', id);
                 await adminApi.delete('notes', id);
                 adminApi.showStatus('note-status', 'Note deleted successfully!', 'status-success');
                 loadNotes();
