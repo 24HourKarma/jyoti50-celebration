@@ -1023,12 +1023,18 @@
                     }
                     
                     const data = await response.json();
-                    this.log(`Received ${Array.isArray(data) ? data.length : 1} items from ${endpoint}`);
+                    
+                    // Convert MongoDB _id to id for frontend compatibility
+                    const processedData = Array.isArray(data) 
+                        ? data.map(item => this.normalizeIdField(item))
+                        : this.normalizeIdField(data);
+                    
+                    this.log(`Received ${Array.isArray(processedData) ? processedData.length : 1} items from ${endpoint}`);
                     
                     // Save to localStorage as backup
-                    this.saveToLocalStorage(endpoint, data);
+                    this.saveToLocalStorage(endpoint, processedData);
                     
-                    return data;
+                    return processedData;
                 } catch (error) {
                     this.log(`Failed to fetch ${endpoint}:`, { error: error.message });
                     
@@ -1037,16 +1043,36 @@
                 }
             },
             
+            // Helper function to normalize ID fields (convert _id to id)
+            normalizeIdField(item) {
+                if (!item) return item;
+                
+                // Create a new object to avoid modifying the original
+                const normalizedItem = { ...item };
+                
+                // If item has _id but no id, copy _id to id
+                if (normalizedItem._id && !normalizedItem.id) {
+                    normalizedItem.id = normalizedItem._id;
+                    this.log('Normalized ID field', { from: normalizedItem._id, to: normalizedItem.id });
+                }
+                
+                return normalizedItem;
+            },
+            
             // Post data to an API endpoint
             async post(endpoint, data) {
                 try {
-                    this.log(`Posting to ${endpoint}...`, data);
+                    // Ensure data has no _id field to avoid conflicts
+                    const cleanData = { ...data };
+                    delete cleanData._id;
+                    
+                    this.log(`Posting to ${endpoint}...`, cleanData);
                     const response = await fetch(`${this.baseUrl}/api/${endpoint}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(data),
+                        body: JSON.stringify(cleanData),
                         credentials: 'include'
                     });
                     
@@ -1090,13 +1116,17 @@
                         throw new Error(`Cannot update ${endpoint} with invalid ID`);
                     }
                     
-                    this.log(`Updating ${endpoint}/${id}...`, data);
+                    // Ensure data has no _id field to avoid conflicts
+                    const cleanData = { ...data };
+                    delete cleanData._id;
+                    
+                    this.log(`Updating ${endpoint}/${id}...`, cleanData);
                     const response = await fetch(`${this.baseUrl}/api/${endpoint}/${id}`, {
                         method: 'PUT',
                         headers: {
                             'Content-Type': 'application/json'
                         },
-                        body: JSON.stringify(data),
+                        body: JSON.stringify(cleanData),
                         credentials: 'include'
                     });
                     
@@ -2501,22 +2531,78 @@
                     document.getElementById('settings-important-info').value = settings.importantInfo || '';
                 }
                 
-                // Fill header form
-                if (settings && settings.header) {
-                    document.getElementById('header-logo-text').value = settings.header.logoText || '';
-                    document.getElementById('header-menu-items').value = Array.isArray(settings.header.menuItems) ? settings.header.menuItems.join('\n') : '';
+                // Create default header and footer if they don't exist
+                if (!settings.header) {
+                    settings.header = {
+                        logoText: 'Jyoti\'s 50th Birthday Celebration',
+                        menuItems: ['Home', 'Events', 'Gallery', 'RSVP', 'Contact']
+                    };
+                    console.log('Created default header settings');
                 }
                 
-                // Fill footer form
-                if (settings && settings.footer) {
-                    document.getElementById('footer-copyright').value = settings.footer.copyright || '';
-                    document.getElementById('footer-contact-info').value = settings.footer.contactInfo || '';
-                    document.getElementById('footer-about').value = settings.footer.about || '';
-                    document.getElementById('footer-quick-links').value = Array.isArray(settings.footer.quickLinks) ? settings.footer.quickLinks.join('\n') : '';
+                if (!settings.footer) {
+                    settings.footer = {
+                        copyright: '© 2025 Jyoti\'s 50th Birthday Celebration',
+                        contactInfo: 'Email: contact@jyoti50.com | Phone: +1 (123) 456-7890',
+                        about: 'Join us in celebrating Jyoti\'s 50th birthday with friends and family from around the world.',
+                        quickLinks: ['Home', 'Events', 'Gallery', 'RSVP', 'Contact']
+                    };
+                    console.log('Created default footer settings');
                 }
+                
+                // Fill header form
+                document.getElementById('header-logo-text').value = settings.header.logoText || '';
+                document.getElementById('header-menu-items').value = Array.isArray(settings.header.menuItems) ? settings.header.menuItems.join('\n') : '';
+                
+                // Fill footer form
+                document.getElementById('footer-copyright').value = settings.footer.copyright || '';
+                document.getElementById('footer-contact-info').value = settings.footer.contactInfo || '';
+                document.getElementById('footer-about').value = settings.footer.about || '';
+                document.getElementById('footer-quick-links').value = Array.isArray(settings.footer.quickLinks) ? settings.footer.quickLinks.join('\n') : '';
+                
+                // Save settings to localStorage as backup
+                adminApi.saveToLocalStorage('settings', settings);
             } catch (error) {
                 console.error('Error loading settings:', error);
                 adminApi.showStatus('settings-status', `Error loading settings: ${error.message}`, 'status-error');
+                
+                // Try to load from localStorage as fallback
+                const localSettings = adminApi.getFromLocalStorage('settings');
+                if (localSettings) {
+                    console.log('Loading settings from localStorage');
+                    
+                    // Fill settings form from localStorage
+                    document.getElementById('settings-site-title').value = localSettings.siteTitle || '';
+                    document.getElementById('settings-tagline').value = localSettings.tagline || '';
+                    document.getElementById('settings-important-info').value = localSettings.importantInfo || '';
+                    
+                    // Create default header and footer if they don't exist
+                    if (!localSettings.header) {
+                        localSettings.header = {
+                            logoText: 'Jyoti\'s 50th Birthday Celebration',
+                            menuItems: ['Home', 'Events', 'Gallery', 'RSVP', 'Contact']
+                        };
+                    }
+                    
+                    if (!localSettings.footer) {
+                        localSettings.footer = {
+                            copyright: '© 2025 Jyoti\'s 50th Birthday Celebration',
+                            contactInfo: 'Email: contact@jyoti50.com | Phone: +1 (123) 456-7890',
+                            about: 'Join us in celebrating Jyoti\'s 50th birthday with friends and family from around the world.',
+                            quickLinks: ['Home', 'Events', 'Gallery', 'RSVP', 'Contact']
+                        };
+                    }
+                    
+                    // Fill header form
+                    document.getElementById('header-logo-text').value = localSettings.header.logoText || '';
+                    document.getElementById('header-menu-items').value = Array.isArray(localSettings.header.menuItems) ? localSettings.header.menuItems.join('\n') : '';
+                    
+                    // Fill footer form
+                    document.getElementById('footer-copyright').value = localSettings.footer.copyright || '';
+                    document.getElementById('footer-contact-info').value = localSettings.footer.contactInfo || '';
+                    document.getElementById('footer-about').value = localSettings.footer.about || '';
+                    document.getElementById('footer-quick-links').value = Array.isArray(localSettings.footer.quickLinks) ? localSettings.footer.quickLinks.join('\n') : '';
+                }
             }
         }
         
