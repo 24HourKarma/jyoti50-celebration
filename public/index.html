@@ -85,23 +85,22 @@
     <section id="gallery" class="section">
         <div class="container">
             <h2>Photo Gallery</h2>
-            <div class="gallery-container">
-                <!-- Gallery images will be loaded here dynamically -->
-                <!-- <div class="loading">Loading gallery...</div> -->
-		<div class="gallery-item">
-		    <img class="gallery-image" src="https://www.dropbox.com/scl/fi/j9g96wbbgzqsndxjc5ydv/IMG_4284.jpeg?rlkey=s5uf2vfv32iyk44ipa6kn71yh&dl=0" alt="Gallery Image 1">
-		    <div class="gallery-caption">
-		      <h3>Welcome Dinner</h3>
-		      <p>Thursday evening at Nova Restaurant</p>
-		    </div>
-		  </div>
-	<div class="gallery-item">
-		    <img class="gallery-image" src="https://www.dropbox.com/scl/fi/lt4knno8n212wlg62w7nm/IMG_3605.jpeg?rlkey=0in58dro8dfeityyq4lymtbkv&dl=0" alt="Gallery Image 2">
-		    <div class="gallery-caption">
-		      <h3>Welcome Dinner</h3>
-		      <p>Thursday evening at Nova Restaurant</p>
-		    </div>
-		  </div>
+            <div class="gallery-container" id="hardcoded-gallery">
+                <!-- Hardcoded gallery images -->
+                <div class="gallery-item">
+                    <img class="gallery-image" src="https://www.dropbox.com/scl/fi/j9g96wbbgzqsndxjc5ydv/IMG_4284.jpeg?raw=1" alt="Gallery Image 1">
+                    <div class="gallery-caption">
+                      <h3>Welcome Dinner</h3>
+                      <p>Thursday evening at Nova Restaurant</p>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img class="gallery-image" src="https://www.dropbox.com/scl/fi/lt4knno8n212wlg62w7nm/IMG_3605.jpeg?raw=1" alt="Gallery Image 2">
+                    <div class="gallery-caption">
+                      <h3>Welcome Dinner</h3>
+                      <p>Thursday evening at Nova Restaurant</p>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -113,11 +112,74 @@
         </div>
     </footer>
 
+    <!-- Load scripts -->
     <script src="js/api.js"></script>
     <script src="js/main.js"></script>
     <script src="enhanced-admin-query-param.js"></script>
     
-    <!-- Direct LocalStorage Integration Script - Final Version -->
+    <!-- Gallery Direct Fix Script -->
+    <script>
+    // Gallery direct fix script - Ensures hardcoded gallery images display properly
+    document.addEventListener('DOMContentLoaded', function() {
+      console.log('Gallery direct fix script loaded');
+      
+      // Wait for any other scripts to finish
+      setTimeout(function() {
+        fixGalleryImages();
+        preventGalleryOverwrite();
+      }, 1000);
+    });
+
+    // Fix Dropbox image links and ensure images are displayed
+    function fixGalleryImages() {
+      console.log('Fixing gallery images');
+      
+      // Get all gallery images
+      const galleryImages = document.querySelectorAll('.gallery-image');
+      
+      galleryImages.forEach(function(img) {
+        const src = img.getAttribute('src');
+        console.log('Processing image with src:', src);
+        
+        // Check if it's a Dropbox link that needs fixing
+        if (src && src.includes('dropbox.com') && src.includes('?dl=0')) {
+          // Replace ?dl=0 with ?raw=1 for direct image access
+          const newSrc = src.replace('?dl=0', '?raw=1');
+          console.log('Fixing Dropbox link:', src, '->', newSrc);
+          img.setAttribute('src', newSrc);
+        }
+      });
+    }
+
+    // Prevent other scripts from overwriting the gallery content
+    function preventGalleryOverwrite() {
+      console.log('Setting up gallery overwrite protection');
+      
+      // Get the gallery container
+      const galleryContainer = document.querySelector('.gallery-container');
+      
+      if (galleryContainer) {
+        // Store the original content
+        const originalContent = galleryContainer.innerHTML;
+        console.log('Saved original gallery content');
+        
+        // Check every second if the content has been changed
+        setInterval(function() {
+          // If the gallery no longer contains the original items, restore them
+          if (!galleryContainer.querySelector('.gallery-item')) {
+            console.log('Gallery content was overwritten, restoring original content');
+            galleryContainer.innerHTML = originalContent;
+            
+            // Fix the Dropbox links again after restoring
+            fixGalleryImages();
+          }
+        }, 1000);
+      }
+    }
+    </script>
+    
+    <!-- Disable the localStorage integration script that was overwriting gallery content -->
+    <!-- 
     <script>
     // Direct localStorage integration script - Final Version
     document.addEventListener('DOMContentLoaded', function() {
@@ -265,5 +327,6 @@
       }
     });
     </script>
+    -->
 </body>
 </html>
