@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery Upload Fix Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #d4af37;
+            border-bottom: 2px solid #121212;
+            padding-bottom: 10px;
+        }
+        .test-container {
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #b8960c;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+        #log {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Gallery Upload Fix Test</h1>
+    
+    <div class="test-container">
+        <h2>Test Upload Form</h2>
+        <p>This form simulates the gallery upload functionality with the fix applied.</p>
+        
+        <form id="gallery-upload-form">
+            <div class="form-group">
+                <label for="image">Select Image:</label>
+                <input type="file" id="image" name="image" accept="image/*" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="title">Title:</label>
+                <input type="text" id="title" name="title" placeholder="Enter image title">
+            </div>
+            
+            <div class="form-group">
+                <label for="description">Description:</label>
+                <textarea id="description" name="description" rows="3" placeholder="Enter image description"></textarea>
+            </div>
+            
+            <button type="submit">Upload Image</button>
+        </form>
+        
+        <div id="status"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Console Log</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script src="gallery-upload-fix.js"></script>
+    <script>
+        // Mock API for testing
+        const mockApiResponse = {
+            success: true,
+            message: 'Image uploaded successfully',
+            imageUrl: 'https://example.com/uploads/test-image.jpg',
+            id: '12345'
+        };
+        
+        // Override fetch for testing
+        const originalFetch = window.fetch;
+        window.fetch = function(url, options) {
+            // Log the request
+            logToConsole('Fetch request:', { url, method: options?.method, headers: options?.headers });
+            
+            // Simulate network delay
+            return new Promise((resolve) => {
+                setTimeout(() => {
+                    // Check if this is a gallery upload request
+                    if (url.includes('/api/gallery/upload') && options?.method === 'POST') {
+                        logToConsole('Processing gallery upload request');
+                        
+                        // Create a mock response
+                        const response = new Response(JSON.stringify(mockApiResponse), {
+                            status: 200,
+                            headers: {
+                                'Content-Type': 'application/json'
+                            }
+                        });
+                        
+                        resolve(response);
+                    } else {
+                        // For other requests, use the original fetch
+                        resolve(originalFetch(url, options));
+                    }
+                }, 1000); // 1 second delay
+            });
+        };
+        
+        // Function to log to the console div
+        function logToConsole(...args) {
+            const log = document.getElementById('log');
+            const message = args.map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg, null, 2);
+                }
+                return arg;
+            }).join(' ');
+            
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            
+            // Auto-scroll to bottom
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Override console.log
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            logToConsole(...args);
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            logToConsole('ERROR:', ...args);
+        };
+        
+        // Initialize the test
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Gallery upload fix test initialized');
+            
+            // If the fix script doesn't attach its own handler, add one here
+            const uploadForm = document.getElementById('gallery-upload-form');
+            const statusElement = document.getElementById('status');
+            
+            if (!uploadForm._hasFixApplied) {
+                console.log('Applying test upload handler');
+                
+                uploadForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const imageInput = document.getElementById('image');
+                    const titleInput = document.getElementById('title');
+                    const descriptionInput = document.getElementById('description');
+                    
+                    if (!imageInput.files || imageInput.files.length === 0) {
+                        statusElement.textContent = 'Please select an image to upload';
+                        statusElement.className = 'error';
+                        return;
+                    }
+                    
+                    const file = imageInput.files[0];
+                    const title = titleInput.value;
+                    const description = descriptionInput.value;
+                    
+                    statusElement.textContent = 'Uploading image...';
+                    statusElement.className = 'info';
+                    
+                    try {
+                        // Use the fixed upload function if available
+                        if (typeof window.uploadImageWithFix === 'function') {
+                            console.log('Using fixed upload function');
+                            const result = await window.uploadImageWithFix(file, title, description);
+                            
+                            statusElement.textContent = 'Image uploaded successfully!';
+                            statusElement.className = 'success';
+                            console.log('Upload result:', result);
+                        } else {
+                            console.error('Fixed upload function not found');
+                            statusElement.textContent = 'Error: Fixed upload function not found';
+                            statusElement.className = 'error';
+                        }
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        statusElement.textContent = error.message || 'Failed to upload image';
+                        statusElement.className = 'error';
+                    }
+                });
+                
+                uploadForm._hasFixApplied = true;
+            }
+        });
+    </script>
+</body>
+</html>
