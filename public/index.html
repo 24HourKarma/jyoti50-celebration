@@ -6,160 +6,6 @@
     <title>Jyoti's 50th Birthday Celebration</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        /* Complete styling to ensure proper display */
-        body { 
-            font-family: Arial, sans-serif; 
-            line-height: 1.6; 
-            margin: 0; 
-            padding: 0; 
-            color: #333; 
-            background-color: #fff;
-        }
-        .container { 
-            max-width: 1200px; 
-            margin: 0 auto; 
-            padding: 20px; 
-        }
-        header { 
-            background-color: #222; 
-            padding: 20px 0; 
-            border-bottom: 1px solid #ddd; 
-            color: #fff;
-        }
-        header h1, header h2 { 
-            color: #fff; 
-            margin-top: 0;
-        }
-        nav ul {
-            list-style: none;
-            padding: 0;
-            margin: 20px 0 0;
-            display: flex;
-            flex-wrap: wrap;
-        }
-        nav ul li {
-            margin-right: 20px;
-            margin-bottom: 10px;
-        }
-        nav ul li a {
-            color: #fff;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 5px 10px;
-            border-radius: 3px;
-            background-color: rgba(255,255,255,0.1);
-            transition: background-color 0.3s;
-        }
-        nav ul li a:hover {
-            background-color: rgba(255,255,255,0.2);
-        }
-        h1, h2, h3 { 
-            margin-top: 0; 
-            color: #333;
-        }
-        section { 
-            margin: 30px 0; 
-            padding: 20px 0;
-            border-bottom: 1px solid #eee;
-        }
-        .card { 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            background-color: #f9f9f9;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        footer { 
-            background-color: #222; 
-            padding: 20px 0; 
-            border-top: 1px solid #ddd; 
-            text-align: center; 
-            color: #fff;
-        }
-        footer a {
-            color: #fff;
-        }
-        
-        /* Day tabs styling */
-        .day-tabs { 
-            display: flex; 
-            flex-wrap: wrap;
-            margin-bottom: 20px; 
-        }
-        .day-tab { 
-            padding: 10px 20px; 
-            background: #f0f0f0; 
-            border: 1px solid #ddd; 
-            cursor: pointer; 
-            margin-right: 5px; 
-            margin-bottom: 5px;
-            color: #333;
-            font-weight: bold;
-        }
-        .day-tab.active { 
-            background: #333; 
-            color: white; 
-        }
-        
-        /* Event card styling */
-        .event-card { 
-            border: 1px solid #ddd; 
-            border-radius: 5px; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            background-color: #fff;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        
-        /* Gallery styling */
-        .gallery-item { 
-            margin-bottom: 20px; 
-            border: 1px solid #ddd;
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #fff;
-        }
-        .gallery-item img { 
-            max-width: 100%; 
-            border-radius: 5px; 
-            display: block;
-            margin: 0 auto;
-        }
-        .gallery-caption { 
-            padding: 10px 0; 
-            text-align: center;
-        }
-        
-        /* Hero image styling */
-        .hero-image {
-            width: 100%;
-            max-height: 400px;
-            object-fit: cover;
-            border-radius: 5px;
-            margin-bottom: 20px;
-        }
-        
-        /* Loading indicator */
-        .loading {
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
-        
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-            .day-tab {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-        }
-    </style>
 </head>
 <body>
     <header>
@@ -178,11 +24,16 @@
         </div>
     </header>
 
-    <div class="container">
-        <!-- Hero image of Jyoti -->
-        <img src="images/jyoti.jpg" alt="Jyoti's 50th Birthday" class="hero-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x400?text=Jyoti%27s+50th+Birthday'; this.alt='Placeholder image'">
-        
-        <section id="events" class="section">
+    <section class="hero">
+        <img src="images/jyoti.jpg" alt="Jyoti" class="hero-image">
+        <div class="hero-content">
+            <h2>Join Us in Celebrating Jyoti's 50th Birthday</h2>
+            <p>A special celebration with family and friends in beautiful Kraków, Poland</p>
+        </div>
+    </section>
+
+    <section id="events" class="section">
+        <div class="container">
             <h2>Event Schedule</h2>
             <div class="event-days">
                 <div class="day-tabs">
@@ -196,40 +47,48 @@
                     <div class="loading">Loading events...</div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="contacts" class="section">
+    <section id="contacts" class="section">
+        <div class="container">
             <h2>Important Contacts</h2>
             <div class="contacts-container">
                 <!-- Contacts will be loaded here dynamically -->
                 <div class="loading">Loading contacts...</div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="reminders" class="section">
+    <section id="reminders" class="section">
+        <div class="container">
             <h2>Reminders</h2>
             <div class="reminders-container">
                 <!-- Reminders will be loaded here dynamically -->
                 <div class="loading">Loading reminders...</div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="notes" class="section">
+    <section id="notes" class="section">
+        <div class="container">
             <h2>Important Information</h2>
             <div class="notes-container">
                 <!-- Notes will be loaded here dynamically -->
                 <div class="loading">Loading notes...</div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section id="gallery" class="section">
+    <section id="gallery" class="section">
+        <div class="container">
             <h2>Photo Gallery</h2>
             <div class="gallery-container">
                 <!-- Gallery images will be loaded here dynamically -->
                 <div class="loading">Loading gallery...</div>
             </div>
-        </section>
-    </div>
+        </div>
+    </section>
 
     <footer>
         <div class="container">
@@ -238,279 +97,8 @@
         </div>
     </footer>
 
-    <script>
-        // Wait for DOM to load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded - starting final version with styling fixes');
-            
-            // Set up day tabs
-            setupDayTabs();
-            
-            // Fetch and display data
-            fetchEvents();
-            fetchAndDisplay('contacts', displayContacts);
-            fetchAndDisplay('reminders', displayReminders);
-            fetchAndDisplay('notes', displayNotes);
-            fetchAndDisplay('gallery', displayGallery);
-        });
-        
-        // Set up day tabs functionality
-        function setupDayTabs() {
-            const tabs = document.querySelectorAll('.day-tab');
-            
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    // Remove active class from all tabs
-                    tabs.forEach(t => t.classList.remove('active'));
-                    
-                    // Add active class to clicked tab
-                    this.classList.add('active');
-                    
-                    // Filter events by day
-                    const day = this.getAttribute('data-day');
-                    filterEventsByDay(day);
-                });
-            });
-        }
-        
-        // Filter events by day
-        function filterEventsByDay(day) {
-            const eventCards = document.querySelectorAll('.event-card');
-            
-            eventCards.forEach(card => {
-                if (card.getAttribute('data-day') === day) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-        }
-        
-        // Fetch events and display them
-        async function fetchEvents() {
-            try {
-                const events = await fetchData('events');
-                displayEvents(events);
-            } catch (error) {
-                console.error('Error fetching events:', error);
-                document.querySelector('.events-container').innerHTML = '<p>Error loading events. Please try again later.</p>';
-            }
-        }
-        
-        // Display events with day filtering
-        function displayEvents(events) {
-            const container = document.querySelector('.events-container');
-            
-            if (!container) {
-                console.warn('Events container not found');
-                return;
-            }
-            
-            if (!events || events.length === 0) {
-                container.innerHTML = '<p>No events available.</p>';
-                return;
-            }
-            
-            let html = '';
-            
-            // Group events by day
-            const eventsByDay = {
-                'Thursday': [],
-                'Friday': [],
-                'Saturday': [],
-                'Sunday': []
-            };
-            
-            // Assign events to days based on date or day property
-            events.forEach(event => {
-                let day = 'Thursday'; // Default day
-                
-                // Try to determine day from date or day property
-                if (event.day) {
-                    day = event.day;
-                } else if (event.date) {
-                    const date = new Date(event.date);
-                    const dayOfWeek = date.getDay();
-                    
-                    // Map day number to day name (0 = Sunday, 1 = Monday, etc.)
-                    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-                    day = dayNames[dayOfWeek];
-                    
-                    // If day is not in our tabs, default to Thursday
-                    if (!['Thursday', 'Friday', 'Saturday', 'Sunday'].includes(day)) {
-                        day = 'Thursday';
-                    }
-                }
-                
-                eventsByDay[day].push(event);
-            });
-            
-            // Create HTML for each day's events
-            for (const [day, dayEvents] of Object.entries(eventsByDay)) {
-                dayEvents.forEach(event => {
-                    html += `
-                        <div class="event-card" data-day="${day}" style="${day === 'Thursday' ? 'display: block;' : 'display: none;'}">
-                            <h3>${event.title || 'Untitled Event'}</h3>
-                            <p><strong>Date:</strong> ${event.date || 'No date'}</p>
-                            <p><strong>Time:</strong> ${event.startTime || 'No time'} ${event.endTime ? '- ' + event.endTime : ''}</p>
-                            <p><strong>Location:</strong> ${event.location || 'No location'}</p>
-                            <p>${event.description || 'No description'}</p>
-                        </div>
-                    `;
-                });
-            }
-            
-            container.innerHTML = html || '<p>No events available.</p>';
-        }
-        
-        // Fetch and display generic data
-        async function fetchAndDisplay(endpoint, displayFunction) {
-            try {
-                const data = await fetchData(endpoint);
-                displayFunction(data);
-            } catch (error) {
-                console.error(`Error fetching ${endpoint}:`, error);
-                document.querySelector(`.${endpoint}-container`).innerHTML = `<p>Error loading ${endpoint}. Please try again later.</p>`;
-            }
-        }
-        
-        // Display contacts
-        function displayContacts(contacts) {
-            const container = document.querySelector('.contacts-container');
-            
-            if (!container) {
-                console.warn('Contacts container not found');
-                return;
-            }
-            
-            if (!contacts || contacts.length === 0) {
-                container.innerHTML = '<p>No contacts available.</p>';
-                return;
-            }
-            
-            let html = '';
-            contacts.forEach(contact => {
-                html += `
-                    <div class="card">
-                        <h3>${contact.name || 'Unnamed Contact'}</h3>
-                        <p><strong>Email:</strong> ${contact.email || 'No email'}</p>
-                        <p><strong>Phone:</strong> ${contact.phone || 'No phone'}</p>
-                        <p>${contact.notes || ''}</p>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-        
-        // Display reminders
-        function displayReminders(reminders) {
-            const container = document.querySelector('.reminders-container');
-            
-            if (!container) {
-                console.warn('Reminders container not found');
-                return;
-            }
-            
-            if (!reminders || reminders.length === 0) {
-                container.innerHTML = '<p>No reminders available.</p>';
-                return;
-            }
-            
-            let html = '';
-            reminders.forEach(reminder => {
-                const date = reminder.date ? new Date(reminder.date).toLocaleDateString() : 'No date';
-                
-                html += `
-                    <div class="card">
-                        <h3>${reminder.title || 'Untitled Reminder'}</h3>
-                        <p><strong>Date:</strong> ${date}</p>
-                        <p>${reminder.description || 'No description'}</p>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-        
-        // Display notes
-        function displayNotes(notes) {
-            const container = document.querySelector('.notes-container');
-            
-            if (!container) {
-                console.warn('Notes container not found');
-                return;
-            }
-            
-            if (!notes || notes.length === 0) {
-                container.innerHTML = '<p>No notes available.</p>';
-                return;
-            }
-            
-            let html = '';
-            notes.forEach(note => {
-                html += `
-                    <div class="card">
-                        <h3>${note.title || 'Untitled Note'}</h3>
-                        <p>${note.content || 'No content'}</p>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-        
-        // Display gallery
-        function displayGallery(gallery) {
-            const container = document.querySelector('.gallery-container');
-            
-            if (!container) {
-                console.warn('Gallery container not found');
-                return;
-            }
-            
-            if (!gallery || gallery.length === 0) {
-                container.innerHTML = '<p>No images available. You can add images through the admin dashboard.</p>';
-                return;
-            }
-            
-            let html = '';
-            gallery.forEach(image => {
-                html += `
-                    <div class="gallery-item">
-                        <img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" 
-                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'; this.alt='Placeholder image'">
-                        <div class="gallery-caption">
-                            <h3>${image.title || ''}</h3>
-                            <p>${image.description || ''}</p>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.innerHTML = html;
-        }
-        
-        // Fetch data from API
-        async function fetchData(endpoint) {
-            console.log(`Fetching from ${endpoint}...`);
-            
-            try {
-                const response = await fetch(`/api/${endpoint}`);
-                
-                if (!response.ok) {
-                    console.warn(`Error fetching ${endpoint}: ${response.status}`);
-                    return [];
-                }
-                
-                const data = await response.json();
-                console.log(`Received ${data.length} items from ${endpoint}`);
-                return data;
-            } catch (error) {
-                console.error(`Failed to fetch ${endpoint}:`, error);
-                return [];
-            }
-        }
-    </script>
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/debug-panel.js"></script>
 </body>
 </html>
