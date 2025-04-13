@@ -7,27 +7,158 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* Fallback styles in case external CSS doesn't load */
-        body { font-family: Arial, sans-serif; line-height: 1.6; margin: 0; padding: 0; color: #333; }
-        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-        header { background-color: #f8f8f8; padding: 20px 0; border-bottom: 1px solid #ddd; }
-        h1, h2, h3 { margin-top: 0; }
-        section { margin: 30px 0; }
-        .card { border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; }
-        footer { background-color: #f8f8f8; padding: 20px 0; border-top: 1px solid #ddd; text-align: center; }
+        /* Complete styling to ensure proper display */
+        body { 
+            font-family: Arial, sans-serif; 
+            line-height: 1.6; 
+            margin: 0; 
+            padding: 0; 
+            color: #333; 
+            background-color: #fff;
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            padding: 20px; 
+        }
+        header { 
+            background-color: #222; 
+            padding: 20px 0; 
+            border-bottom: 1px solid #ddd; 
+            color: #fff;
+        }
+        header h1, header h2 { 
+            color: #fff; 
+            margin-top: 0;
+        }
+        nav ul {
+            list-style: none;
+            padding: 0;
+            margin: 20px 0 0;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        nav ul li {
+            margin-right: 20px;
+            margin-bottom: 10px;
+        }
+        nav ul li a {
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            padding: 5px 10px;
+            border-radius: 3px;
+            background-color: rgba(255,255,255,0.1);
+            transition: background-color 0.3s;
+        }
+        nav ul li a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+        h1, h2, h3 { 
+            margin-top: 0; 
+            color: #333;
+        }
+        section { 
+            margin: 30px 0; 
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .card { 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            background-color: #f9f9f9;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        footer { 
+            background-color: #222; 
+            padding: 20px 0; 
+            border-top: 1px solid #ddd; 
+            text-align: center; 
+            color: #fff;
+        }
+        footer a {
+            color: #fff;
+        }
         
         /* Day tabs styling */
-        .day-tabs { display: flex; margin-bottom: 20px; }
-        .day-tab { padding: 10px 20px; background: #f0f0f0; border: 1px solid #ddd; cursor: pointer; margin-right: 5px; }
-        .day-tab.active { background: #333; color: white; }
+        .day-tabs { 
+            display: flex; 
+            flex-wrap: wrap;
+            margin-bottom: 20px; 
+        }
+        .day-tab { 
+            padding: 10px 20px; 
+            background: #f0f0f0; 
+            border: 1px solid #ddd; 
+            cursor: pointer; 
+            margin-right: 5px; 
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: bold;
+        }
+        .day-tab.active { 
+            background: #333; 
+            color: white; 
+        }
         
         /* Event card styling */
-        .event-card { border: 1px solid #ddd; border-radius: 5px; padding: 15px; margin-bottom: 15px; }
+        .event-card { 
+            border: 1px solid #ddd; 
+            border-radius: 5px; 
+            padding: 15px; 
+            margin-bottom: 15px; 
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
         
         /* Gallery styling */
-        .gallery-item { margin-bottom: 20px; }
-        .gallery-item img { max-width: 100%; border-radius: 5px; }
-        .gallery-caption { padding: 10px 0; }
+        .gallery-item { 
+            margin-bottom: 20px; 
+            border: 1px solid #ddd;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #fff;
+        }
+        .gallery-item img { 
+            max-width: 100%; 
+            border-radius: 5px; 
+            display: block;
+            margin: 0 auto;
+        }
+        .gallery-caption { 
+            padding: 10px 0; 
+            text-align: center;
+        }
+        
+        /* Hero image styling */
+        .hero-image {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        
+        /* Loading indicator */
+        .loading {
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            font-style: italic;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            .day-tab {
+                padding: 8px 15px;
+                font-size: 14px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -47,8 +178,11 @@
         </div>
     </header>
 
-    <section id="events" class="section">
-        <div class="container">
+    <div class="container">
+        <!-- Hero image of Jyoti -->
+        <img src="images/jyoti.jpg" alt="Jyoti's 50th Birthday" class="hero-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/800x400?text=Jyoti%27s+50th+Birthday'; this.alt='Placeholder image'">
+        
+        <section id="events" class="section">
             <h2>Event Schedule</h2>
             <div class="event-days">
                 <div class="day-tabs">
@@ -62,48 +196,40 @@
                     <div class="loading">Loading events...</div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="contacts" class="section">
-        <div class="container">
+        <section id="contacts" class="section">
             <h2>Important Contacts</h2>
             <div class="contacts-container">
                 <!-- Contacts will be loaded here dynamically -->
                 <div class="loading">Loading contacts...</div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="reminders" class="section">
-        <div class="container">
+        <section id="reminders" class="section">
             <h2>Reminders</h2>
             <div class="reminders-container">
                 <!-- Reminders will be loaded here dynamically -->
                 <div class="loading">Loading reminders...</div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="notes" class="section">
-        <div class="container">
+        <section id="notes" class="section">
             <h2>Important Information</h2>
             <div class="notes-container">
                 <!-- Notes will be loaded here dynamically -->
                 <div class="loading">Loading notes...</div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <section id="gallery" class="section">
-        <div class="container">
+        <section id="gallery" class="section">
             <h2>Photo Gallery</h2>
             <div class="gallery-container">
                 <!-- Gallery images will be loaded here dynamically -->
                 <div class="loading">Loading gallery...</div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
     <footer>
         <div class="container">
@@ -115,7 +241,7 @@
     <script>
         // Wait for DOM to load
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded - starting enhanced version');
+            console.log('DOM loaded - starting final version with styling fixes');
             
             // Set up day tabs
             setupDayTabs();
@@ -344,7 +470,7 @@
             }
             
             if (!gallery || gallery.length === 0) {
-                container.innerHTML = '<p>No images available.</p>';
+                container.innerHTML = '<p>No images available. You can add images through the admin dashboard.</p>';
                 return;
             }
             
@@ -352,7 +478,8 @@
             gallery.forEach(image => {
                 html += `
                     <div class="gallery-item">
-                        <img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}">
+                        <img src="${image.imageUrl}" alt="${image.title || 'Gallery image'}" 
+                             onerror="this.onerror=null; this.src='https://via.placeholder.com/400x300?text=Image+Not+Found'; this.alt='Placeholder image'">
                         <div class="gallery-caption">
                             <h3>${image.title || ''}</h3>
                             <p>${image.description || ''}</p>
