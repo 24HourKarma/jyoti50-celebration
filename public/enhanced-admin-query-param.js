@@ -1264,10 +1264,24 @@
                     try {
                         const responseText = await response.text();
                         responseData = responseText ? JSON.parse(responseText) : {};
+                        
+                        // Ensure the response has an ID
+                        if (responseData && !responseData.id && responseData._id) {
+                            responseData.id = responseData._id;
+                            this.log('Normalized gallery item ID:', { from: responseData._id, to: responseData.id });
+                        }
+                        
                         this.log('Upload successful:', responseData);
                     } catch (parseError) {
                         this.log('Error parsing response:', { error: parseError.message });
                         throw new Error('Invalid response format from server');
+                    }
+                    
+                    // Save to localStorage as backup
+                    if (responseData) {
+                        const gallery = this.getFromLocalStorage('gallery') || [];
+                        gallery.push(responseData);
+                        this.saveToLocalStorage('gallery', gallery);
                     }
                     
                     return responseData;
@@ -1699,18 +1713,31 @@
                 // Edit mode
                 modalTitle.textContent = 'Edit Event';
                 
+                // Ensure eventData has a valid id (normalize from _id if needed)
+                if (!eventData.id && eventData._id) {
+                    console.log('Normalizing event ID in modal:', { from: eventData._id });
+                    eventData.id = eventData._id;
+                }
+                
+                // Validate ID before populating form
+                if (!eventData.id) {
+                    console.error('Missing ID in event data:', eventData);
+                    adminApi.showStatus('event-status', 'Error: Cannot edit event with missing ID', 'status-error');
+                    return;
+                }
+                
                 // Fill form with event data
                 document.getElementById('event-id').value = eventData.id;
                 document.getElementById('event-title').value = eventData.title || '';
                 document.getElementById('event-date').value = eventData.date || '';
-                document.getElementById('event-time').value = eventData.time || '';
+                document.getElementById('event-time').value = eventData.time || eventData.startTime || '';
                 document.getElementById('event-end-time').value = eventData.endTime || '';
                 document.getElementById('event-location').value = eventData.location || '';
                 document.getElementById('event-description').value = eventData.description || '';
                 document.getElementById('event-day').value = eventData.day || 'day1';
                 document.getElementById('event-dress-code').value = eventData.dressCode || '';
-                document.getElementById('event-website').value = eventData.website || '';
-                document.getElementById('event-map').value = eventData.map || '';
+                document.getElementById('event-website').value = eventData.website || eventData.websiteUrl || '';
+                document.getElementById('event-map').value = eventData.map || eventData.mapUrl || '';
                 document.getElementById('event-notes').value = eventData.notes || '';
             } else {
                 // Add mode
@@ -2648,18 +2675,54 @@
                 
                 // Create header object
                 const headerData = {
-                    logoText,
-                    menuItems
+                    header: {
+                        logoText,
+                        menuItems
+                    }
                 };
                 
-                // Submit to API
-                const result = await adminApi.post('settings/header', headerData);
+                // Get current settings first
+                let settings = await adminApi.get('settings');
+                if (!settings) {
+                    settings = {
+                        siteTitle: 'Jyoti\'s 50th Birthday Celebration',
+                        tagline: 'Join us for a memorable celebration',
+                        importantInfo: ''
+                    };
+                }
+                
+                // Update header in settings
+                settings.header = headerData.header;
+                
+                // Submit to API as a complete settings object
+                const result = await adminApi.put('settings', settings.id || 'main', settings);
                 
                 // Show success message
                 adminApi.showStatus('header-footer-status', 'Header settings saved successfully!', 'status-success');
+                
+                // Save to localStorage as backup
+                adminApi.saveToLocalStorage('settings', settings);
             } catch (error) {
                 console.error('Error saving header settings:', error);
                 adminApi.showStatus('header-footer-status', `Error saving header settings: ${error.message}`, 'status-error');
+                
+                // Save to localStorage as fallback
+                try {
+                    // Get current settings from localStorage
+                    let settings = adminApi.getFromLocalStorage('settings') || {};
+                    
+                    // Update header
+                    if (!settings.header) settings.header = {};
+                    settings.header.logoText = document.getElementById('header-logo-text').value;
+                    settings.header.menuItems = document.getElementById('header-menu-items').value
+                        .split('\n').filter(item => item.trim() !== '');
+                    
+                    // Save back to localStorage
+                    adminApi.saveToLocalStorage('settings', settings);
+                    adminApi.showStatus('header-footer-status', 'Header settings saved to local storage', 'status-success');
+                } catch (e) {
+                    console.error('Error saving to localStorage:', e);
+                }
             }
         }
         
@@ -2679,18 +2742,60 @@
                 
                 // Create footer object
                 const footerData = {
-                    copyright,
-                    contactInfo,
-                    about,
-                    quickLinks
+                    footer: {
+                        copyright,
+                        contactInfo,
+                        about,
+                        quickLinks
+                    }
                 };
                 
-                // Submit to API
-                const result = await adminApi.post('settings/footer', footerData);
+                // Get current settings first
+                let settings = await adminApi.get('settings');
+                if (!settings) {
+                    settings = {
+                        siteTitle: 'Jyoti\'s 50th Birthday Celebration',
+                        tagline: 'Join us for a memorable celebration',
+                        importantInfo: ''
+                    };
+                }
+                
+                // Update footer in settings
+                settings.footer = footerData.footer;
+                
+                // Submit to API as a complete settings object
+                const result = await adminApi.put('settings', settings.id || 'main', settings);
                 
                 // Show success message
                 adminApi.showStatus('header-footer-status', 'Footer settings saved successfully!', 'status-success');
+                
+                // Save to localStorage as backup
+                adminApi.saveToLocalStorage('settings', settings);
             } catch (error) {
+                console.error('Error saving footer settings:', error);
+                adminApi.showStatus('header-footer-status', `Error saving footer settings: ${error.message}`, 'status-error');
+                
+                // Save to localStorage as fallback
+                try {
+                    // Get current settings from localStorage
+                    let settings = adminApi.getFromLocalStorage('settings') || {};
+                    
+                    // Update footer
+                    if (!settings.footer) settings.footer = {};
+                    settings.footer.copyright = document.getElementById('footer-copyright').value;
+                    settings.footer.contactInfo = document.getElementById('footer-contact-info').value;
+                    settings.footer.about = document.getElementById('footer-about').value;
+                    settings.footer.quickLinks = document.getElementById('footer-quick-links').value
+                        .split('\n').filter(item => item.trim() !== '');
+                    
+                    // Save back to localStorage
+                    adminApi.saveToLocalStorage('settings', settings);
+                    adminApi.showStatus('header-footer-status', 'Footer settings saved to local storage', 'status-success');
+                } catch (e) {
+                    console.error('Error saving to localStorage:', e);
+                }
+            }
+        }
                 console.error('Error saving footer settings:', error);
                 adminApi.showStatus('header-footer-status', `Error saving footer settings: ${error.message}`, 'status-error');
             }
