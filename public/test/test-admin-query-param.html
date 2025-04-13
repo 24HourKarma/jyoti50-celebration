@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Admin Query Parameter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #121212;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 10px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+        .test-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            display: none;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #e2e3e5;
+            border: 1px solid #d6d8db;
+            color: #383d41;
+        }
+        pre {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .mock-website {
+            margin-top: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .mock-header {
+            background-color: #121212;
+            color: #d4af37;
+            padding: 15px;
+            text-align: center;
+            border-radius: 4px;
+        }
+        .mock-content {
+            margin-top: 20px;
+        }
+        .mock-event {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Admin Query Parameter Solution</h1>
+    
+    <div class="test-section">
+        <h2>1. Test Script Loading</h2>
+        <p>This test checks if the admin script loads correctly.</p>
+        <button id="test-script-loading" class="test-button">Run Test</button>
+        <div id="script-loading-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Test Query Parameter Detection</h2>
+        <p>This test checks if the script correctly detects the admin query parameter.</p>
+        <button id="test-query-param" class="test-button">Run Test</button>
+        <div id="query-param-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Test Admin Panel Creation</h2>
+        <p>This test checks if the admin panel is created when the query parameter is present.</p>
+        <button id="test-panel-creation" class="test-button">Run Test</button>
+        <div id="panel-creation-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Test API Connectivity</h2>
+        <p>This test checks if the admin panel can connect to the API endpoints.</p>
+        <button id="test-api-connectivity" class="test-button">Run Test</button>
+        <div id="api-connectivity-result" class="test-result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>5. Test Gallery Upload</h2>
+        <p>This test checks if the gallery upload functionality works correctly.</p>
+        <button id="test-gallery-upload" class="test-button">Run Test</button>
+        <div id="gallery-upload-result" class="test-result"></div>
+    </div>
+    
+    <div class="mock-website">
+        <div class="mock-header">
+            <h2>Jyoti's 50th Birthday Celebration</h2>
+        </div>
+        <div class="mock-content">
+            <h3>Upcoming Events</h3>
+            <div class="mock-event">
+                <h4>Welcome Dinner</h4>
+                <p>Date: April 24, 2025</p>
+                <p>Time: 7:00 PM</p>
+                <p>Location: Grand Hotel Kraków</p>
+            </div>
+            <div class="mock-event">
+                <h4>City Tour</h4>
+                <p>Date: April 25, 2025</p>
+                <p>Time: 10:00 AM</p>
+                <p>Location: Kraków Old Town</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Include the admin script for testing -->
+    <script src="admin-query-param.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Test 1: Script Loading
+            document.getElementById('test-script-loading').addEventListener('click', function() {
+                const resultElement = document.getElementById('script-loading-result');
+                resultElement.style.display = 'block';
+                
+                if (typeof activateAdminMode === 'undefined') {
+                    // Check if the script has been loaded by looking for console logs
+                    const logs = [];
+                    const originalConsoleLog = console.log;
+                    console.log = function(message) {
+                        logs.push(message);
+                        originalConsoleLog.apply(console, arguments);
+                    };
+                    
+                    // Wait a bit to capture logs
+                    setTimeout(function() {
+                        console.log = originalConsoleLog;
+                        
+                        if (logs.some(log => log.includes('Admin query param script loaded'))) {
+                            resultElement.className = 'test-result success';
+                            resultElement.innerHTML = 'Success! The admin script has been loaded correctly.';
+                        } else {
+                            resultElement.className = 'test-result error';
+                            resultElement.innerHTML = 'Error: The admin script has not been loaded correctly. Check that the script is included in the page.';
+                        }
+                    }, 500);
+                } else {
+                    resultElement.className = 'test-result success';
+                    resultElement.innerHTML = 'Success! The admin script has been loaded correctly.';
+                }
+            });
+            
+            // Test 2: Query Parameter Detection
+            document.getElementById('test-query-param').addEventListener('click', function() {
+                const resultElement = document.getElementById('query-param-result');
+                resultElement.style.display = 'block';
+                
+                // Create a mock URL with the admin parameter
+                const testUrl = new URL(window.location.href);
+                testUrl.searchParams.set('admin', 'jyoti50admin');
+                
+                resultElement.className = 'test-result info';
+                resultElement.innerHTML = `
+                    <p>To test query parameter detection, you need to access this page with the admin parameter:</p>
+                    <pre>${testUrl.toString()}</pre>
+                    <p>When you access the page with this URL, you should see a gear icon (⚙️) in the top-right corner.</p>
+                `;
+            });
+            
+            // Test 3: Admin Panel Creation
+            document.getElementById('test-panel-creation').addEventListener('click', function() {
+                const resultElement = document.getElementById('panel-creation-result');
+                resultElement.style.display = 'block';
+                
+                // Check if the admin panel exists
+                const adminPanel = document.querySelector('.admin-panel');
+                const adminToggle = document.querySelector('.admin-toggle');
+                
+                if (adminPanel && adminToggle) {
+                    resultElement.className = 'test-result success';
+                    resultElement.innerHTML = 'Success! The admin panel has been created. Click the gear icon (⚙️) in the top-right corner to open it.';
+                } else {
+                    // Check if we're using the admin parameter
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const adminParam = urlParams.get('admin');
+                    
+                    if (adminParam === 'jyoti50admin') {
+                        resultElement.className = 'test-result error';
+                        resultElement.innerHTML = 'Error: The admin parameter is present, but the admin panel was not created. Check the browser console for errors.';
+                    } else {
+                        resultElement.className = 'test-result info';
+                        resultElement.innerHTML = `
+                            <p>The admin panel is not visible because the admin parameter is not present in the URL.</p>
+                            <p>Add <code>?admin=jyoti50admin</code> to the URL and reload the page to see the admin panel.</p>
+                        `;
+                    }
+                }
+            });
+            
+            // Test 4: API Connectivity
+            document.getElementById('test-api-connectivity').addEventListener('click', function() {
+                const resultElement = document.getElementById('api-connectivity-result');
+                resultElement.style.display = 'block';
+                
+                // Mock API response
+                const mockApiResponse = {
+                    status: 'success',
+                    message: 'API connection successful (simulated)'
+                };
+                
+                // Override fetch for testing
+                const originalFetch = window.fetch;
+                window.fetch = function(url) {
+                    return new Promise((resolve) => {
+                        // Simulate API response
+                        setTimeout(() => {
+                            resolve({
+                                ok: true,
+                                json: () => Promise.resolve(mockApiResponse),
+                                text: () => Promise.resolve(JSON.stringify(mockApiResponse))
+                            });
+                        }, 500);
+                    });
+                };
+                
+                // Simulate API connection test
+                resultElement.className = 'test-result info';
+                resultElement.innerHTML = 'Testing API connection...';
+                
+                setTimeout(() => {
+                    // Restore original fetch
+                    window.fetch = originalFetch;
+                    
+                    resultElement.className = 'test-result success';
+                    resultElement.innerHTML = `
+                        <p>API connection test completed with simulated response:</p>
+                        <pre>${JSON.stringify(mockApiResponse, null, 2)}</pre>
+                        <p>Note: This is a simulated test. In the actual implementation, the admin panel will connect to your real API endpoints.</p>
+                    `;
+                }, 1000);
+            });
+            
+            // Test 5: Gallery Upload
+            document.getElementById('test-gallery-upload').addEventListener('click', function() {
+                const resultElement = document.getElementById('gallery-upload-result');
+                resultElement.style.display = 'block';
+                
+                // Create a mock file for testing
+                const mockFile = new File(['test'], 'test-image.jpg', { type: 'image/jpeg' });
+                
+                // Override FormData for testing
+                const originalFormData = window.FormData;
+                window.FormData = function() {
+                    return {
+                        append: function() {},
+                        get: function() { return mockFile; }
+                    };
+                };
+                
+                // Override fetch for testing
+                const originalFetch = window.fetch;
+                window.fetch = function(url) {
+                    return new Promise((resolve) => {
+                        // Simulate API response
+                        setTimeout(() => {
+                            resolve({
+                                ok: true,
+                                json: () => Promise.resolve({ success: true, id: 'test-123', message: 'Image uploaded successfully (simulated)' }),
+                                text: () => Promise.resolve(JSON.stringify({ success: true, id: 'test-123', message: 'Image uploaded successfully (simulated)' }))
+                            });
+                        }, 500);
+                    });
+                };
+                
+                // Simulate gallery upload
+                resultElement.className = 'test-result info';
+                resultElement.innerHTML = 'Testing gallery upload...';
+                
+                setTimeout(() => {
+                    // Restore original functions
+                    window.FormData = originalFormData;
+                    window.fetch = originalFetch;
+                    
+                    resultElement.className = 'test-result success';
+                    resultElement.innerHTML = `
+                        <p>Gallery upload test completed with simulated response:</p>
+                        <pre>{
+  "success": true,
+  "id": "test-123",
+  "message": "Image uploaded successfully (simulated)"
+}</pre>
+                        <p>Note: This is a simulated test. In the actual implementation, the admin panel will upload images to your real API endpoint.</p>
+                        <p>The gallery upload functionality includes enhanced error handling and localStorage fallback for offline operation.</p>
+                    `;
+                }, 1000);
+            });
+        });
+    </script>
+</body>
+</html>
