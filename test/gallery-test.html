@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery Upload Test - Minimal Fix</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #d4af37;
+            text-align: center;
+            border-bottom: 2px solid #121212;
+            padding-bottom: 10px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #b8960c;
+        }
+        .console-log {
+            margin-top: 30px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Gallery Upload Test - Minimal Fix</h1>
+        
+        <div class="gallery-upload-form">
+            <h2>Gallery Upload Form</h2>
+            <p>This form simulates the gallery upload functionality with the minimal fix applied.</p>
+            
+            <form id="gallery-form">
+                <div class="form-group">
+                    <label for="gallery-image">Select Image:</label>
+                    <input type="file" id="gallery-image" name="image" accept="image/*" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gallery-title">Title:</label>
+                    <input type="text" id="gallery-title" name="title" placeholder="Enter image title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gallery-description">Description:</label>
+                    <textarea id="gallery-description" name="description" rows="3" placeholder="Enter image description"></textarea>
+                </div>
+                
+                <button type="submit">Upload Image</button>
+            </form>
+        </div>
+        
+        <div class="gallery-grid"></div>
+        
+        <div class="console-log">
+            <h3>Console Log</h3>
+            <div id="log-container"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Console log display
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function() {
+            // Call original console.log
+            originalConsoleLog.apply(console, arguments);
+            
+            // Add to our log display
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const args = Array.from(arguments).map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg);
+                }
+                return arg;
+            }).join(' ');
+            
+            logEntry.textContent = `[${timestamp}] ${args}`;
+            logContainer.appendChild(logEntry);
+        };
+        
+        console.error = function() {
+            // Call original console.error
+            originalConsoleError.apply(console, arguments);
+            
+            // Add to our log display
+            const logContainer = document.getElementById('log-container');
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.style.color = 'red';
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const args = Array.from(arguments).map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg);
+                }
+                return arg;
+            }).join(' ');
+            
+            logEntry.textContent = `[${timestamp}] ERROR: ${args}`;
+            logContainer.appendChild(logEntry);
+        };
+        
+        console.log('Gallery upload test initialized');
+    </script>
+    
+    <script src="gallery-only-fix.js"></script>
+</body>
+</html>
