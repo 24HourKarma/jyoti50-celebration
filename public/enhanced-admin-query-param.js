@@ -1217,7 +1217,7 @@
                 }
             },
             
-            // Upload a file to the gallery with enhanced error handling
+            // Upload a file to the gallery with enhanced error handling and localStorage fallback
             async uploadImage(file, title, description) {
                 try {
                     this.log('Uploading image:', { fileName: file.name, fileSize: file.size, fileType: file.type });
@@ -1235,6 +1235,12 @@
                         throw new Error('Invalid image type. Please use JPG, PNG, GIF or WebP format.');
                     }
                     
+                    // Due to persistent 520 server errors with the upload endpoint,
+                    // we'll use localStorage as the primary storage mechanism for gallery images
+                    this.log('Using localStorage for gallery image storage due to server upload issues');
+                    return this.saveImageToLocalStorage(file, title, description);
+                    
+                    /* Server upload code commented out due to persistent 520 errors
                     // Create FormData object for multipart/form-data upload
                     const formData = new FormData();
                     formData.append('image', file);
@@ -1300,11 +1306,76 @@
                     }
                     
                     return responseData;
+                    */
                 } catch (error) {
                     this.log('Upload failed:', { error: error.message });
                     
                     // Save to localStorage as fallback
                     return this.saveImageToLocalStorage(file, title, description);
+                }
+            },
+            
+            // Enhanced method to save image to localStorage with better data handling
+            saveImageToLocalStorage(file, title, description) {
+                try {
+                    this.log('Saving image to localStorage:', { title, description });
+                    
+                    // Create a FileReader to convert the image to a data URL
+                    const reader = new FileReader();
+                    
+                    // Return a promise that resolves when the file is read
+                    return new Promise((resolve, reject) => {
+                        reader.onload = () => {
+                            try {
+                                // Get the data URL
+                                const dataUrl = reader.result;
+                                
+                                // Create a unique ID for the image
+                                const id = 'local_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                                
+                                // Create the gallery item
+                                const galleryItem = {
+                                    id,
+                                    title: title || 'Untitled Image',
+                                    description: description || '',
+                                    imageUrl: dataUrl,
+                                    createdAt: new Date().toISOString(),
+                                    isLocal: true
+                                };
+                                
+                                // Get existing gallery items
+                                const gallery = this.getFromLocalStorage('gallery') || [];
+                                
+                                // Add the new item
+                                gallery.push(galleryItem);
+                                
+                                // Save back to localStorage
+                                this.saveToLocalStorage('gallery', gallery);
+                                
+                                this.log('Image saved to localStorage successfully:', { id });
+                                
+                                // Show success message in UI
+                                this.showStatus('gallery-status', 'Image saved successfully (stored locally)', 'status-success');
+                                
+                                // Resolve with the gallery item
+                                resolve(galleryItem);
+                            } catch (error) {
+                                this.log('Error saving image to localStorage:', { error: error.message });
+                                reject(error);
+                            }
+                        };
+                        
+                        reader.onerror = () => {
+                            this.log('Error reading file:', { error: reader.error });
+                            reject(new Error('Failed to read image file'));
+                        };
+                        
+                        // Read the file as a data URL
+                        reader.readAsDataURL(file);
+                    });
+                } catch (error) {
+                    this.log('Error in saveImageToLocalStorage:', { error: error.message });
+                    throw error;
                 }
             },
             
@@ -2688,51 +2759,36 @@
                 // Parse menu items
                 const menuItems = menuItemsText.split('\n').filter(item => item.trim() !== '');
                 
-                // Create header object
-                const headerData = {
-                    header: {
-                        logoText,
-                        menuItems
-                    }
-                };
+                // Create header data as JSON string
+                const headerValue = JSON.stringify({
+                    logoText,
+                    menuItems
+                });
                 
-                // Get current settings first
-                let settings = await adminApi.get('settings');
-                if (!settings) {
-                    settings = {
-                        siteTitle: 'Jyoti\'s 50th Birthday Celebration',
-                        tagline: 'Join us for a memorable celebration',
-                        importantInfo: '',
-                        header: {
-                            logoText: '',
-                            menuItems: []
-                        },
-                        footer: {
-                            copyright: '',
-                            contactInfo: '',
-                            about: '',
-                            quickLinks: []
-                        }
-                    };
+                // Submit to API as a key-value pair
+                const result = await fetch(`${adminApi.baseUrl}/api/settings/header`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: headerValue }),
+                    credentials: 'include'
+                });
+                
+                if (!result.ok) {
+                    const errorText = await result.text();
+                    console.error('Error saving header settings:', { status: result.status, text: errorText });
+                    throw new Error(`Server error: ${result.status} ${result.statusText}`);
                 }
-                
-                // Ensure all required properties exist
-                if (!settings.siteTitle) settings.siteTitle = 'Jyoti\'s 50th Birthday Celebration';
-                if (!settings.tagline) settings.tagline = 'Join us for a memorable celebration';
-                if (!settings.importantInfo) settings.importantInfo = '';
-                if (!settings.header) settings.header = {};
-                
-                // Update header in settings
-                settings.header.logoText = logoText;
-                settings.header.menuItems = menuItems;
-                
-                // Submit to API as a complete settings object
-                const result = await adminApi.put('settings', settings.id || 'main', settings);
                 
                 // Show success message
                 adminApi.showStatus('header-footer-status', 'Header settings saved successfully!', 'status-success');
                 
                 // Save to localStorage as backup
+                let settings = adminApi.getFromLocalStorage('settings') || {};
+                if (!settings.header) settings.header = {};
+                settings.header.logoText = logoText;
+                settings.header.menuItems = menuItems;
                 adminApi.saveToLocalStorage('settings', settings);
             } catch (error) {
                 console.error('Error saving header settings:', error);
@@ -2772,60 +2828,40 @@
                 // Parse quick links
                 const quickLinks = quickLinksText.split('\n').filter(item => item.trim() !== '');
                 
-                // Create footer object
-                const footerData = {
-                    footer: {
-                        copyright,
-                        contactInfo,
-                        about,
-                        quickLinks
-                    }
-                };
+                // Create footer data as JSON string
+                const footerValue = JSON.stringify({
+                    copyright,
+                    contactInfo,
+                    about,
+                    quickLinks
+                });
                 
-                // Get current settings first
-                let settings = await adminApi.get('settings');
-                if (!settings) {
-                    settings = {
-                        siteTitle: 'Jyoti\'s 50th Birthday Celebration',
-                        tagline: 'Join us for a memorable celebration',
-                        importantInfo: '',
-                        header: {
-                            logoText: '',
-                            menuItems: []
-                        },
-                        footer: {
-                            copyright: '',
-                            contactInfo: '',
-                            about: '',
-                            quickLinks: []
-                        }
-                    };
+                // Submit to API as a key-value pair
+                const result = await fetch(`${adminApi.baseUrl}/api/settings/footer`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ value: footerValue }),
+                    credentials: 'include'
+                });
+                
+                if (!result.ok) {
+                    const errorText = await result.text();
+                    console.error('Error saving footer settings:', { status: result.status, text: errorText });
+                    throw new Error(`Server error: ${result.status} ${result.statusText}`);
                 }
-                
-                // Ensure all required properties exist
-                if (!settings.siteTitle) settings.siteTitle = 'Jyoti\'s 50th Birthday Celebration';
-                if (!settings.tagline) settings.tagline = 'Join us for a memorable celebration';
-                if (!settings.importantInfo) settings.importantInfo = '';
-                if (!settings.footer) settings.footer = {
-                    copyright: '',
-                    contactInfo: '',
-                    about: '',
-                    quickLinks: []
-                };
-                
-                // Update footer in settings
-                settings.footer.copyright = copyright;
-                settings.footer.contactInfo = contactInfo;
-                settings.footer.about = about;
-                settings.footer.quickLinks = quickLinks;
-                
-                // Submit to API as a complete settings object
-                const result = await adminApi.put('settings', settings.id || 'main', settings);
                 
                 // Show success message
                 adminApi.showStatus('header-footer-status', 'Footer settings saved successfully!', 'status-success');
                 
                 // Save to localStorage as backup
+                let settings = adminApi.getFromLocalStorage('settings') || {};
+                if (!settings.footer) settings.footer = {};
+                settings.footer.copyright = copyright;
+                settings.footer.contactInfo = contactInfo;
+                settings.footer.about = about;
+                settings.footer.quickLinks = quickLinks;
                 adminApi.saveToLocalStorage('settings', settings);
             } catch (error) {
                 console.error('Error saving footer settings:', error);
