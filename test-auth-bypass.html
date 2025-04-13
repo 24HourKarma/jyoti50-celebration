@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Authentication Bypass Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #d4af37;
+            border-bottom: 2px solid #121212;
+            padding-bottom: 10px;
+        }
+        .test-container {
+            background-color: white;
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #b8960c;
+        }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        #log {
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            padding: 10px;
+            height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Admin Authentication Bypass Test</h1>
+    
+    <div class="test-container">
+        <h2>Mock Login Form</h2>
+        <p>This form simulates the admin login functionality with the bypass solution applied.</p>
+        
+        <form id="login-form">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password">
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+        
+        <div id="status"></div>
+    </div>
+    
+    <div class="test-container">
+        <h2>Authentication Status</h2>
+        <div id="auth-status">Not authenticated</div>
+        <button id="check-auth">Check Authentication</button>
+        <button id="logout">Logout</button>
+    </div>
+    
+    <div class="test-container">
+        <h2>Console Log</h2>
+        <div id="log"></div>
+    </div>
+    
+    <script>
+        // Mock API for testing
+        window.api = {
+            login: async function(email, password) {
+                logToConsole('Original API login called with:', email, password);
+                
+                // Simulate network delay
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                
+                // Simulate login failure for testing
+                throw new Error('Login failed');
+            },
+            
+            isAuthenticated: function() {
+                logToConsole('Original isAuthenticated called');
+                return false;
+            },
+            
+            logout: function() {
+                logToConsole('Original logout called');
+                localStorage.removeItem('jyoti50_user');
+                localStorage.removeItem('jyoti50_token');
+            }
+        };
+        
+        // Function to log to the console div
+        function logToConsole(...args) {
+            const log = document.getElementById('log');
+            const message = args.map(arg => {
+                if (typeof arg === 'object') {
+                    return JSON.stringify(arg, null, 2);
+                }
+                return arg;
+            }).join(' ');
+            
+            const entry = document.createElement('div');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            
+            // Auto-scroll to bottom
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // Override console.log
+        const originalConsoleLog = console.log;
+        const originalConsoleError = console.error;
+        
+        console.log = function(...args) {
+            originalConsoleLog.apply(console, args);
+            logToConsole(...args);
+        };
+        
+        console.error = function(...args) {
+            originalConsoleError.apply(console, args);
+            logToConsole('ERROR:', ...args);
+        };
+        
+        // Initialize the test
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Admin authentication bypass test initialized');
+            
+            const loginForm = document.getElementById('login-form');
+            const statusElement = document.getElementById('status');
+            const authStatusElement = document.getElementById('auth-status');
+            const checkAuthButton = document.getElementById('check-auth');
+            const logoutButton = document.getElementById('logout');
+            
+            // Handle login form submission
+            loginForm.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const emailInput = document.getElementById('email');
+                const passwordInput = document.getElementById('password');
+                
+                const email = emailInput.value;
+                const password = passwordInput.value;
+                
+                statusElement.textContent = 'Logging in...';
+                statusElement.className = '';
+                
+                try {
+                    // Use the API login function (should be overridden by auth-bypass.js)
+                    const user = await api.login(email, password);
+                    
+                    statusElement.textContent = 'Login successful!';
+                    statusElement.className = 'success';
+                    console.log('Login result:', user);
+                    
+                    updateAuthStatus();
+                } catch (error) {
+                    statusElement.textContent = error.message || 'Login failed';
+                    statusElement.className = 'error';
+                    console.error('Login error:', error);
+                }
+            });
+            
+            // Handle check authentication button
+            checkAuthButton.addEventListener('click', function() {
+                updateAuthStatus();
+            });
+            
+            // Handle logout button
+            logoutButton.addEventListener('click', function() {
+                api.logout();
+                updateAuthStatus();
+                console.log('Logged out');
+            });
+            
+            // Update authentication status display
+            function updateAuthStatus() {
+                const isAuthenticated = api.isAuthenticated();
+                authStatusElement.textContent = isAuthenticated ? 'Authenticated' : 'Not authenticated';
+                authStatusElement.className = isAuthenticated ? 'success' : 'error';
+                
+                const user = localStorage.getItem('jyoti50_user');
+                if (user) {
+                    const userObj = JSON.parse(user);
+                    authStatusElement.textContent += ` as ${userObj.email}`;
+                }
+            }
+            
+            // Initial status check
+            updateAuthStatus();
+        });
+    </script>
+    
+    <!-- Load the auth bypass script -->
+    <script src="auth-bypass.js"></script>
+</body>
+</html>
