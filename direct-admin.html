@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jyoti's 50th Birthday Admin - Direct Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header {
+            background-color: #121212;
+            color: #d4af37;
+            padding: 20px 0;
+            text-align: center;
+        }
+        h1, h2, h3 {
+            color: #d4af37;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #d4af37;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f5f5f5;
+            border: none;
+            font-weight: bold;
+        }
+        .tab.active {
+            background-color: #d4af37;
+            color: #121212;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+            border-radius: 0 0 5px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-content.active {
+            display: block;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #d4af37;
+            color: #121212;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #b8960c;
+        }
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .gallery-item {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .gallery-item-info {
+            padding: 10px;
+        }
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Jyoti's 50th Birthday Admin - Direct Access</h1>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab active" onclick="openTab('events')">Events</button>
+            <button class="tab" onclick="openTab('gallery')">Gallery</button>
+            <button class="tab" onclick="openTab('contacts')">Contacts</button>
+            <button class="tab" onclick="openTab('settings')">Settings</button>
+        </div>
+        
+        <!-- Events Tab -->
+        <div id="events" class="tab-content active">
+            <h2>Manage Events</h2>
+            <p>Add, edit, or delete events for Jyoti's 50th Birthday celebration.</p>
+            
+            <h3>Add New Event</h3>
+            <form id="event-form">
+                <div class="form-group">
+                    <label for="event-date">Date:</label>
+                    <input type="date" id="event-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-time">Time:</label>
+                    <input type="time" id="event-time" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-name">Event Name:</label>
+                    <input type="text" id="event-name" placeholder="Enter event name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-location">Location:</label>
+                    <input type="text" id="event-location" placeholder="Enter location" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-description">Description:</label>
+                    <textarea id="event-description" rows="3" placeholder="Enter event description"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-dress-code">Dress Code:</label>
+                    <select id="event-dress-code">
+                        <option value="Casual">Casual</option>
+                        <option value="Smart Casual">Smart Casual</option>
+                        <option value="Business Casual">Business Casual</option>
+                        <option value="Formal">Formal</option>
+                        <option value="Black Tie">Black Tie</option>
+                    </select>
+                </div>
+                
+                <button type="submit">Add Event</button>
+            </form>
+            
+            <h3>Event List</h3>
+            <table id="event-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Event</th>
+                        <th>Location</th>
+                        <th>Dress Code</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>April 24, 2025</td>
+                        <td>9:00 PM</td>
+                        <td>Welcome Dinner</td>
+                        <td>Grand Hotel Restaurant</td>
+                        <td>Smart Casual</td>
+                        <td>
+                            <button onclick="editEvent(1)">Edit</button>
+                            <button onclick="deleteEvent(1)">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>April 25, 2025</td>
+                        <td>10:00 AM</td>
+                        <td>City Tour</td>
+                        <td>Main Square</td>
+                        <td>Casual</td>
+                        <td>
+                            <button onclick="editEvent(2)">Edit</button>
+                            <button onclick="deleteEvent(2)">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>April 25, 2025</td>
+                        <td>7:00 PM</td>
+                        <td>Gala Dinner</td>
+                        <td>Royal Palace</td>
+                        <td>Formal</td>
+                        <td>
+                            <button onclick="editEvent(3)">Edit</button>
+                            <button onclick="deleteEvent(3)">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>April 26, 2025</td>
+                        <td>11:00 AM</td>
+                        <td>Farewell Brunch</td>
+                        <td>Garden Restaurant</td>
+                        <td>Smart Casual</td>
+                        <td>
+                            <button onclick="editEvent(4)">Edit</button>
+                            <button onclick="deleteEvent(4)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Gallery Tab -->
+        <div id="gallery" class="tab-content">
+            <h2>Manage Gallery</h2>
+            <p>Upload and manage images for the gallery.</p>
+            
+            <h3>Upload New Image</h3>
+            <form id="gallery-form">
+                <div class="form-group">
+                    <label for="gallery-image">Select Image:</label>
+                    <input type="file" id="gallery-image" accept="image/*" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="gallery-title">Title:</label>
+                    <input type="text" id="gallery-title" placeholder="Enter image title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="gallery-description">Description:</label>
+                    <textarea id="gallery-description" rows="3" placeholder="Enter image description"></textarea>
+                </div>
+                
+                <button type="submit">Upload Image</button>
+            </form>
+            
+            <div id="gallery-message"></div>
+            
+            <h3>Gallery Images</h3>
+            <div class="gallery-grid">
+                <div class="gallery-item">
+                    <img src="https://via.placeholder.com/200x150?text=Jyoti+Image+1" alt="Gallery Image">
+                    <div class="gallery-item-info">
+                        <h4>Jyoti's Birthday</h4>
+                        <p>Celebration at the restaurant</p>
+                        <button onclick="deleteGalleryItem(1)">Delete</button>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://via.placeholder.com/200x150?text=Jyoti+Image+2" alt="Gallery Image">
+                    <div class="gallery-item-info">
+                        <h4>City Tour</h4>
+                        <p>Exploring the city</p>
+                        <button onclick="deleteGalleryItem(2)">Delete</button>
+                    </div>
+                </div>
+                <div class="gallery-item">
+                    <img src="https://via.placeholder.com/200x150?text=Jyoti+Image+3" alt="Gallery Image">
+                    <div class="gallery-item-info">
+                        <h4>Gala Dinner</h4>
+                        <p>Formal dinner event</p>
+                        <button onclick="deleteGalleryItem(3)">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Contacts Tab -->
+        <div id="contacts" class="tab-content">
+            <h2>Manage Contacts</h2>
+            <p>View and manage contact information for guests.</p>
+            
+            <h3>Add New Contact</h3>
+            <form id="contact-form">
+                <div class="form-group">
+                    <label for="contact-name">Name:</label>
+                    <input type="text" id="contact-name" placeholder="Enter name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact-email">Email:</label>
+                    <input type="email" id="contact-email" placeholder="Enter email">
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact-phone">Phone:</label>
+                    <input type="tel" id="contact-phone" placeholder="Enter phone number">
+                </div>
+                
+                <button type="submit">Add Contact</button>
+            </form>
+            
+            <h3>Contact List</h3>
+            <table id="contact-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>John Doe</td>
+                        <td>john.doe@example.com</td>
+                        <td>+1 123-456-7890</td>
+                        <td>
+                            <button onclick="editContact(1)">Edit</button>
+                            <button onclick="deleteContact(1)">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Jane Smith</td>
+                        <td>jane.smith@example.com</td>
+                        <td>+1 987-654-3210</td>
+                        <td>
+                            <button onclick="editContact(2)">Edit</button>
+                            <button onclick="deleteContact(2)">Delete</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>Robert Johnson</td>
+                        <td>robert.johnson@example.com</td>
+                        <td>+1 555-123-4567</td>
+                        <td>
+                            <button onclick="editContact(3)">Edit</button>
+                            <button onclick="deleteContact(3)">Delete</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Settings Tab -->
+        <div id="settings" class="tab-content">
+            <h2>Website Settings</h2>
+            <p>Configure website settings and preferences.</p>
+            
+            <h3>General Settings</h3>
+            <form id="settings-form">
+                <div class="form-group">
+                    <label for="site-title">Website Title:</label>
+                    <input type="text" id="site-title" value="Jyoti's 50th Birthday Celebration">
+                </div>
+                
+                <div class="form-group">
+                    <label for="event-date">Main Event Date:</label>
+                    <input type="date" id="event-date" value="2025-04-25">
+                </div>
+                
+                <div class="form-group">
+                    <label for="theme-color">Theme Color:</label>
+                    <select id="theme-color">
+                        <option value="black-gold" selected>Black and Gold</option>
+                        <option value="blue-silver">Blue and Silver</option>
+                        <option value="purple-gold">Purple and Gold</option>
+                        <option value="red-gold">Red and Gold</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="contact-email">Contact Email:</label>
+                    <input type="email" id="contact-email" value="contact@jyoti50.com">
+                </div>
+                
+                <button type="submit">Save Settings</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // Tab functionality
+        function openTab(tabName) {
+            // Hide all tab content
+            const tabContents = document.getElementsByClassName('tab-content');
+            for (let i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
+            
+            // Remove active class from all tabs
+            const tabs = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabs.length; i++) {
+                tabs[i].classList.remove('active');
+            }
+            
+            // Show the selected tab content and mark the button as active
+            document.getElementById(tabName).classList.add('active');
+            
+            // Find and activate the corresponding tab button
+            const tabButtons = document.getElementsByClassName('tab');
+            for (let i = 0; i < tabButtons.length; i++) {
+                if (tabButtons[i].textContent.toLowerCase() === tabName.toLowerCase()) {
+                    tabButtons[i].classList.add('active');
+                }
+            }
+        }
+        
+        // Event form submission
+        document.getElementById('event-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real application, this would send data to the server
+            // For this demo, we'll just show a success message
+            alert('Event added successfully!');
+            this.reset();
+        });
+        
+        // Gallery form submission with enhanced error handling
+        document.getElementById('gallery-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('gallery-image');
+            const titleInput = document.getElementById('gallery-title');
+            const descriptionInput = document.getElementById('gallery-description');
+            const messageElement = document.getElementById('gallery-message');
+            
+            // Validate file input
+            if (!fileInput.files || fileInput.files.length === 0) {
+                messageElement.textContent = 'Please select an image to upload';
+                messageElement.className = 'error-message';
+                return;
+            }
+            
+            // Show loading message
+            messageElement.textContent = 'Uploading image...';
+            messageElement.className = 'info-message';
+            
+            // Simulate successful upload after a delay
+            setTimeout(function() {
+                // In a real application, this would send data to the server
+                // For this demo, we'll just show a success message
+                messageElement.textContent = 'Image uploaded successfully!';
+                messageElement.className = 'success-message';
+                
+                // Add the new image to the gallery (in a real app, this would come from the server)
+                const galleryGrid = document.querySelector('.gallery-grid');
+                const newItem = document.createElement('div');
+                newItem.className = 'gallery-item';
+                newItem.innerHTML = `
+                    <img src="https://via.placeholder.com/200x150?text=New+Upload" alt="Gallery Image">
+                    <div class="gallery-item-info">
+                        <h4>${titleInput.value || 'Untitled'}</h4>
+                        <p>${descriptionInput.value || 'No description'}</p>
+                        <button onclick="deleteGalleryItem(4)">Delete</button>
+                    </div>
+                `;
+                galleryGrid.prepend(newItem);
+                
+                // Reset the form
+                document.getElementById('gallery-form').reset();
+            }, 1500);
+        });
+        
+        // Contact form submission
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real application, this would send data to the server
+            // For this demo, we'll just show a success message
+            alert('Contact added successfully!');
+            this.reset();
+        });
+        
+        // Settings form submission
+        document.getElementById('settings-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // In a real application, this would send data to the server
+            // For this demo, we'll just show a success message
+            alert('Settings saved successfully!');
+        });
+        
+        // Mock functions for event actions
+        function editEvent(id) {
+            alert(`Editing event with ID: ${id}`);
+        }
+        
+        function deleteEvent(id) {
+            if (confirm(`Are you sure you want to delete event with ID: ${id}?`)) {
+                alert(`Event with ID: ${id} deleted successfully!`);
+                // In a real application, this would remove the row from the table
+            }
+        }
+        
+        // Mock functions for gallery actions
+        function deleteGalleryItem(id) {
+            if (confirm(`Are you sure you want to delete gallery item with ID: ${id}?`)) {
+                alert(`Gallery item with ID: ${id} deleted successfully!`);
+                // In a real application, this would remove the item from the gallery
+            }
+        }
+        
+        // Mock functions for contact actions
+        function editContact(id) {
+            alert(`Editing contact with ID: ${id}`);
+        }
+        
+        function deleteContact(id) {
+            if (confirm(`Are you sure you want to delete contact with ID: ${id}?`)) {
+                alert(`Contact with ID: ${id} deleted successfully!`);
+                // In a real application, this would remove the row from the table
+            }
+        }
+    </script>
+</body>
+</html>
