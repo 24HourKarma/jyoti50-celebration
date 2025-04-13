@@ -98,6 +98,31 @@ nav ul li a:hover {
     color: var(--secondary-color);
 }
 
+/* Home Button */
+.home-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+    padding: 8px 15px;
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    box-shadow: var(--box-shadow);
+}
+
+.home-button i {
+    margin-right: 5px;
+}
+
+.home-button:hover {
+    background-color: white;
+    color: var(--secondary-color);
+}
+
 /* Hero Section */
 .hero {
     position: relative;
@@ -110,6 +135,7 @@ nav ul li a:hover {
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center 30%;
     opacity: 0.8;
 }
 
@@ -122,6 +148,9 @@ nav ul li a:hover {
     color: white;
     z-index: 1;
     width: 80%;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: var(--border-radius);
 }
 
 .hero-content h2 {
@@ -209,12 +238,12 @@ nav ul li a:hover {
     border-bottom: 1px solid #eee;
 }
 
-.event-date, .event-time, .event-location {
+.event-date, .event-time, .event-location, .event-dress-code {
     padding: 0 15px;
     margin-bottom: 5px;
 }
 
-.event-date i, .event-time i, .event-location i {
+.event-date i, .event-time i, .event-location i, .event-dress-code i {
     color: var(--primary-color);
     width: 20px;
     text-align: center;
@@ -223,6 +252,35 @@ nav ul li a:hover {
 
 .event-description {
     padding: 10px 15px 15px;
+}
+
+/* Dress Code Button */
+.dress-code-button {
+    display: inline-block;
+    margin: 10px 15px;
+    padding: 8px 15px;
+    background-color: var(--secondary-color);
+    color: var(--primary-color);
+    border-radius: var(--border-radius);
+    font-weight: bold;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.dress-code-button i {
+    margin-right: 5px;
+}
+
+.dress-code-button:hover {
+    background-color: var(--primary-color);
+    color: var(--secondary-color);
+}
+
+.dress-code-info {
+    padding: 0 15px 15px;
+    margin-top: 5px;
+    font-style: italic;
+    border-top: 1px dashed #eee;
 }
 
 /* Contacts Section */
@@ -412,6 +470,13 @@ footer p {
 @media (max-width: 768px) {
     header h1 {
         font-size: 2rem;
+    }
+    
+    .home-button {
+        top: 10px;
+        left: 10px;
+        padding: 5px 10px;
+        font-size: 0.9rem;
     }
     
     .hero {
