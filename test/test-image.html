@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Image Upload</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        .status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        .result-image {
+            max-width: 100%;
+            max-height: 300px;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Image Upload</h1>
+    
+    <div class="form-group">
+        <label for="test-image">Select Image:</label>
+        <input type="file" id="test-image" accept="image/*">
+    </div>
+    
+    <div class="form-group">
+        <label for="test-title">Title:</label>
+        <input type="text" id="test-title" placeholder="Enter image title">
+    </div>
+    
+    <div class="form-group">
+        <label for="test-description">Description:</label>
+        <textarea id="test-description" rows="3" placeholder="Enter image description"></textarea>
+    </div>
+    
+    <button id="upload-btn">Upload Image</button>
+    
+    <div id="status" class="status" style="display: none;"></div>
+    
+    <div id="result" style="margin-top: 20px; display: none;">
+        <h2>Upload Result:</h2>
+        <pre id="result-json"></pre>
+        <div id="result-image-container">
+            <h3>Uploaded Image:</h3>
+            <img id="result-image" class="result-image">
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const uploadBtn = document.getElementById('upload-btn');
+            const statusEl = document.getElementById('status');
+            const resultEl = document.getElementById('result');
+            const resultJsonEl = document.getElementById('result-json');
+            const resultImageEl = document.getElementById('result-image');
+            
+            uploadBtn.addEventListener('click', async function() {
+                const fileInput = document.getElementById('test-image');
+                const title = document.getElementById('test-title').value;
+                const description = document.getElementById('test-description').value;
+                
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    showStatus('Please select an image to upload', 'error');
+                    return;
+                }
+                
+                const file = fileInput.files[0];
+                
+                // Show uploading status
+                showStatus('Uploading image...', 'warning');
+                
+                try {
+                    // Create FormData
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('title', title || 'Test Image');
+                    formData.append('description', description || '');
+                    
+                    // Upload image
+                    const response = await fetch('/api/gallery/upload', {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    
+                    // Check if response is OK
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        console.error('Upload failed:', response.status, response.statusText, errorText);
+                        
+                        // Try to parse error as JSON
+                        let errorData;
+                        try {
+                            errorData = JSON.parse(errorText);
+                        } catch (e) {
+                            errorData = { error: true, message: errorText || response.statusText };
+                        }
+                        
+                        throw new Error(`Error uploading image: ${errorData.message || response.statusText}`);
+                    }
+                    
+                    // Parse response
+                    const responseText = await response.text();
+                    const result = responseText ? JSON.parse(responseText) : {};
+                    
+                    // Show success
+                    showStatus('Image uploaded successfully!', 'success');
+                    
+                    // Display result
+                    resultJsonEl.textContent = JSON.stringify(result, null, 2);
+                    
+                    // Display image if available
+                    if (result.image) {
+                        resultImageEl.src = result.image.startsWith('http') ? 
+                            result.image : 
+                            `/uploads/${result.image}`;
+                    } else {
+                        // Use FileReader to display the uploaded image
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            resultImageEl.src = e.target.result;
+                        };
+                        reader.readAsDataURL(file);
+                    }
+                    
+                    resultEl.style.display = 'block';
+                } catch (error) {
+                    console.error('Upload error:', error);
+                    showStatus(`Error: ${error.message}`, 'error');
+                    
+                    // Create a fallback local preview
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        resultJsonEl.textContent = JSON.stringify({
+                            error: true,
+                            message: error.message,
+                            fallback: "Using local preview only"
+                        }, null, 2);
+                        resultImageEl.src = e.target.result;
+                        resultEl.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            function showStatus(message, type) {
+                statusEl.textContent = message;
+                statusEl.className = `status ${type}`;
+                statusEl.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

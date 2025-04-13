@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jyoti's 50th Birthday - Standalone Admin</title>
+    <style>
+        :root {
+            --primary-color: #d4af37;
+            --secondary-color: #121212;
+            --light-color: #f8f9fa;
+            --border-color: #ddd;
+            --success-color: #28a745;
+            --danger-color: #dc3545;
+            --warning-color: #ffc107;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-color);
+            color: var(--secondary-color);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: var(--secondary-color);
+            color: var(--primary-color);
+            padding: 20px 0;
+            text-align: center;
+        }
+        
+        h1, h2, h3 {
+            color: var(--primary-color);
+        }
+        
+        .admin-panel {
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        .tabs {
+            display: flex;
+            background-color: var(--secondary-color);
+        }
+        
+        .tab {
+            padding: 15px 20px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .tab:hover {
+            background-color: rgba(255,255,255,0.1);
+        }
+        
+        .tab.active {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        
+        button {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        button:hover {
+            opacity: 0.9;
+        }
+        
+        .card {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 15px;
+            background-color: white;
+        }
+        
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .gallery-item {
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        
+        .gallery-item-content {
+            padding: 10px;
+        }
+        
+        .status {
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 4px;
+        }
+        
+        .status-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        
+        .status-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        
+        .status-warning {
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            color: #856404;
+        }
+        
+        .event-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .event-item {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .contact-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .contact-item {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 10px;
+        }
+        
+        .settings-section {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .debug-panel {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .debug-log {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #212529;
+            color: #f8f9fa;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            margin-top: 10px;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s ease-in-out infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Jyoti's 50th Birthday - Standalone Admin</h1>
+            <p>Manage your website content without login</p>
+        </div>
+    </header>
+    
+    <div class="container">
+        <div class="admin-panel" id="admin-panel">
+            <div class="tabs">
+                <div class="tab active" data-tab="events">Events</div>
+                <div class="tab" data-tab="gallery">Gallery</div>
+                <div class="tab" data-tab="contacts">Contacts</div>
+                <div class="tab" data-tab="settings">Settings</div>
+                <div class="tab" data-tab="debug">Debug</div>
+            </div>
+            
+            <!-- Events Tab -->
+            <div class="tab-content active" id="events-tab">
+                <h2>Manage Events</h2>
+                
+                <div class="card">
+                    <h3>Add New Event</h3>
+                    <form id="event-form">
+                        <div class="form-group">
+                            <label for="event-title">Event Title:</label>
+                            <input type="text" id="event-title" name="title" placeholder="Enter event title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-date">Event Date:</label>
+                            <input type="date" id="event-date" name="date" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-time">Event Time:</label>
+                            <input type="time" id="event-time" name="time" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-location">Location:</label>
+                            <input type="text" id="event-location" name="location" placeholder="Enter event location">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-description">Description:</label>
+                            <textarea id="event-description" name="description" rows="3" placeholder="Enter event description"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-day">Day:</label>
+                            <select id="event-day" name="day">
+                                <option value="day1">Day 1 (April 24)</option>
+                                <option value="day2">Day 2 (April 25)</option>
+                                <option value="day3">Day 3 (April 26)</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="event-dress-code">Dress Code:</label>
+                            <input type="text" id="event-dress-code" name="dressCode" placeholder="Enter dress code (e.g., Formal, Casual)">
+                        </div>
+                        
+                        <button type="submit">Add Event</button>
+                    </form>
+                    <div id="event-status"></div>
+                </div>
+                
+                <h3>Current Events</h3>
+                <button id="refresh-events-btn">Refresh Events</button>
+                <div id="events-loading" style="display: none;">
+                    Loading events... <div class="loading-spinner"></div>
+                </div>
+                <ul class="event-list" id="event-list">
+                    <!-- Events will be loaded here -->
+                </ul>
+            </div>
+            
+            <!-- Gallery Tab -->
+            <div class="tab-content" id="gallery-tab">
+                <h2>Manage Gallery</h2>
+                
+                <div class="card">
+                    <h3>Upload New Image</h3>
+                    <form id="gallery-upload-form">
+                        <div class="form-group">
+                            <label for="gallery-image">Select Image:</label>
+                            <input type="file" id="gallery-image" name="image" accept="image/*" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gallery-title">Title:</label>
+                            <input type="text" id="gallery-title" name="title" placeholder="Enter image title">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="gallery-description">Description:</label>
+                            <textarea id="gallery-description" name="description" rows="3" placeholder="Enter image description"></textarea>
+                        </div>
+                        
+                        <button type="submit">Upload Image</button>
+                    </form>
+                    <div id="upload-status"></div>
+                </div>
+                
+                <h3>Gallery Images</h3>
+                <button id="refresh-gallery-btn">Refresh Gallery</button>
+                <div id="gallery-loading" style="display: none;">
+                    Loading gallery... <div class="loading-spinner"></div>
+                </div>
+                <div class="gallery-grid" id="gallery-grid">
+                    <!-- Gallery images will be loaded here -->
+                </div>
+            </div>
+            
+            <!-- Contacts Tab -->
+            <div class="tab-content" id="contacts-tab">
+                <h2>Manage Contacts</h2>
+                
+                <div class="card">
+                    <h3>Add New Contact</h3>
+                    <form id="contact-form">
+                        <div class="form-group">
+                            <label for="contact-name">Name:</label>
+                            <input type="text" id="contact-name" name="name" placeholder="Enter contact name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-email">Email:</label>
+                            <input type="email" id="contact-email" name="email" placeholder="Enter contact email">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-phone">Phone:</label>
+                            <input type="tel" id="contact-phone" name="phone" placeholder="Enter contact phone">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="contact-whatsapp">WhatsApp:</label>
+                            <input type="tel" id="contact-whatsapp" name="whatsapp" placeholder="Enter WhatsApp number">
+                        </div>
+                        
+                        <button type="submit">Add Contact</button>
+                    </form>
+                    <div id="contact-status"></div>
+                </div>
+                
+                <h3>Contact List</h3>
+                <button id="refresh-contacts-btn">Refresh Contacts</button>
+                <div id="contacts-loading" style="display: none;">
+                    Loading contacts... <div class="loading-spinner"></div>
+                </div>
+                <ul class="contact-list" id="contact-list">
+                    <!-- Contacts will be loaded here -->
+                </ul>
+            </div>
+            
+            <!-- Settings Tab -->
+            <div class="tab-content" id="settings-tab">
+                <h2>Website Settings</h2>
+                
+                <div class="settings-section">
+                    <h3>General Settings</h3>
+                    <form id="general-settings-form">
+                        <div class="form-group">
+                            <label for="site-title">Website Title:</label>
+                            <input type="text" id="site-title" name="title" value="Jyoti's 50th Birthday Celebration">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="site-description">Website Description:</label>
+                            <textarea id="site-description" name="description" rows="3">Join us in celebrating Jyoti's 50th Birthday in Kraków, Poland from April 24-26, 2025.</textarea>
+                        </div>
+                        
+                        <button type="submit">Save Settings</button>
+                    </form>
+                    <div id="settings-status"></div>
+                </div>
+                
+                <div class="settings-section">
+                    <h3>Important Information</h3>
+                    <form id="important-info-form">
+                        <div class="form-group">
+                            <label for="accommodation-info">Accommodation Information:</label>
+                            <textarea id="accommodation-info" name="accommodation" rows="3">Grand Hotel Kraków - Special rates available for guests. Contact the hotel directly and mention "Jyoti's 50th".</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="weather-info">Weather Information:</label>
+                            <textarea id="weather-info" name="weather" rows="3">April in Kraków: Temperatures range from 5°C to 15°C (41°F to 59°F). Pack layers and a light jacket.</textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="currency-info">Currency Information:</label>
+                            <textarea id="currency-info" name="currency" rows="3">The local currency is Polish Złoty (PLN). Current exchange rate: 1 USD ≈ 3.8 PLN.</textarea>
+                        </div>
+                        
+                        <button type="submit">Save Information</button>
+                    </form>
+                    <div id="info-status"></div>
+                </div>
+            </div>
+            
+            <!-- Debug Tab -->
+            <div class="tab-content" id="debug-tab">
+                <h2>Debug Panel</h2>
+                
+                <div class="card">
+                    <h3>API Connection Test</h3>
+                    <button id="test-connection-btn">Test API Connection</button>
+                    <div id="connection-status"></div>
+                </div>
+                
+                <div class="card">
+                    <h3>Debug Log</h3>
+                    <div class="debug-log" id="debug-log"></div>
+                    <button id="clear-log-btn">Clear Log</button>
+                </div>
+                
+                <div class="card">
+                    <h3>Local Storage</h3>
+                    <button id="view-storage-btn">View Local Storage</button>
+                    <button id="clear-storage-btn">Clear Local Storage</button>
+                    <div id="storage-display"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // API Client
+        const api = {
+            baseUrl: '',  // Empty for relative paths
+            
+            // Log messages to debug console
+            log(message, data) {
+                console.log(message, data);
+                const debugLog = document.getElementById('debug-log');
+                if (debugLog) {
+                    const logEntry = document.createElement('div');
+                    logEntry.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+                    if (data) {
+                        try {
+                            logEntry.textContent += ` - ${JSON.stringify(data)}`;
+                        } catch (e) {
+                            logEntry.textContent += ` - [Object]`;
+                        }
+                    }
+                    debugLog.appendChild(logEntry);
+                    debugLog.scrollTop = debugLog.scrollHeight;
+                }
+            },
+            
+            // Get data from an API endpoint
+            async get(endpoint) {
+                try {
+                    this.log(`Fetching from ${endpoint}...`);
+                    const response = await fetch(`${this.baseUrl}/api/${endpoint}`);
+                    
+                    if (!response.ok) {
+                        this.log(`Error fetching ${endpoint}:`, { status: response.status, statusText: response.statusText });
+                        
+                        // Try to get error details
+                        let errorDetails = '';
+                        try {
+                            const errorText = await response.text();
+                            errorDetails = errorText;
+                        } catch (e) {}
+                        
+                        // For 401 errors, try to use localStorage as fallback
+                        if (response.status === 401) {
+                            this.log(`Authentication error, using localStorage fallback for ${endpoint}`);
+                            return this.getFromLocalStorage(endpoint);
+                        }
+                        
+                        throw new Error(`Error fetching ${endpoint}: ${response.status} ${response.statusText} ${errorDetails}`);
+                    }
+                    
+                    const data = await response.json();
+                    this.log(`Received ${Array.isArray(data) ? data.length : 1} items from ${endpoint}`);
+                    
+                    // Save to localStorage as backup
+                    this.saveToLocalStorage(endpoint, data);
+                    
+                    return data;
+                } catch (error) {
+                    this.log(`Failed to fetch ${endpoint}:`, { error: error.message });
+                    
+                    // Try to get from localStorage as fallback
+                    return this.getFromLocalStorage(endpoint);
+                }
+            },
+            
+            // Post data to an API endpoint
+            async post(endpoint, data) {
+                try {
+                    this.log(`Posting to ${endpoint}...`, data);
+                    const response = await fetch(`${this.baseUrl}/api/${endpoint}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data),
+                        credentials: 'include'
+                    });
+                    
+                    if (!response.ok) {
+                        this.log(`Error posting to ${endpoint}:`, { status: response.status, statusText: response.statusText });
+                        
+                        // Try to get error details
+                        let errorDetails = '';
+                        try {
+                            const errorText = await response.text();
+                            errorDetails = errorText;
+                        } catch (e) {}
+                        
+                        // For 401 errors, save to localStorage as fallback
+                        if (response.status === 401) {
+                            this.log(`Authentication error, saving to localStorage for ${endpoint}`);
+                            return this.saveToLocalStorageAndReturn(endpoint, data);
+                        }
+                        
+                        throw new Error(`Error posting to ${endpoint}: ${response.status} ${response.statusText} ${errorDetails}`);
+                    }
+                    
+                    const responseData = await response.json();
+                    this.log(`Successfully posted to ${endpoint}`, responseData);
+                    
+                    return responseData;
+                } catch (error) {
+                    this.log(`Failed to post to ${endpoint}:`, { error: error.message });
+                    
+                    // Save to localStorage as fallback
+                    return this.saveToLocalStorageAndReturn(endpoint, data);
+                }
+            },
+            
+            // Upload a file to the gallery with enhanced error handling
+            async uploadImage(file, title, description) {
+                try {
+                    this.log('Uploading image:', { fileName: file.name, fileSize: file.size, fileType: file.type });
+                    
+                    // Create FormData object for multipart/form-data upload
+                    const formData = new FormData();
+                    formData.append('image', file);
+                    formData.append('title', title || 'Untitled Image');
+                    formData.append('description', description || '');
+                    
+                    // Make the fetch request with proper headers and credentials
+                    const response = await fetch(`${this.baseUrl}/api/gallery/upload`, {
+                        method: 'POST',
+                        body: formData,
+                        credentials: 'include'
+                    });
+                    
+                    // First check if the response is OK
+                    if (!response.ok) {
+                        // Get response as text for better error diagnosis
+                        const errorText = await response.text();
+                        this.log('Upload failed with status:', { status: response.status, statusText: response.statusText, body: errorText });
+                        
+                        // For 401 errors, save to localStorage as fallback
+                        if (response.status === 401) {
+                            this.log('Authentication error, saving to localStorage for gallery');
+                            return this.saveImageToLocalStorage(file, title, description);
+                        }
+                        
+                        // Try to parse as JSON if possible, otherwise use text
+                        let errorData;
+                        try {
+                            errorData = JSON.parse(errorText);
+                        } catch (e) {
+                            // If it's not JSON, create an error object with the text
+                            errorData = { error: true, message: errorText || response.statusText };
+                        }
+                        
+                        throw new Error(`Error uploading image: ${errorData.message || response.statusText}`);
+                    }
+                    
+                    // Try to parse response as JSON
+                    let responseData;
+                    try {
+                        const responseText = await response.text();
+                        responseData = responseText ? JSON.parse(responseText) : {};
+                        this.log('Upload successful:', responseData);
+                    } catch (parseError) {
+                        this.log('Error parsing response:', { error: parseError.message });
+                        throw new Error('Invalid response format from server');
+                    }
+                    
+                    return responseData;
+                } catch (error) {
+                    this.log('Upload failed:', { error: error.message });
+                    
+                    // Save to localStorage as fallback
+                    return this.saveImageToLocalStorage(file, title, description);
+                }
+            },
+            
+            // Debug method to check API connection
+            async checkConnection() {
+                try {
+                    this.log('Testing API connection...');
+                    const response = await fetch(`${this.baseUrl}/api/debug`);
+                    
+                    if (!response.ok) {
+                        this.log('API connection test failed:', { status: response.status, statusText: response.statusText });
+                        return { status: 'error', message: `API connection failed: ${response.status} ${response.statusText}` };
+                    }
+                    
+                    const data = await response.json();
+                    this.log('API connection test successful:', data);
+                    return data;
+                } catch (error) {
+                    this.log('API connection test error:', { error: error.message });
+                    return { status: 'error', message: `API connection failed: ${error.message}` };
+                }
+            },
+            
+            // LocalStorage fallback methods
+            getFromLocalStorage(endpoint) {
+                try {
+                    const key = `jyoti50_${endpoint.replace(/\//g, '_')}`;
+                    const data = localStorage.getItem(key);
+                    if (data) {
+                        const parsedData = JSON.parse(data);
+                        this.log(`Retrieved ${endpoint} from localStorage:`, { count: Array.isArray(parsedData) ? parsedData.length : 1 });
+                        return parsedData;
+                    }
+                    return endpoint.includes('gallery') ? [] : [];
+                } catch (error) {
+                    this.log(`Error retrieving ${endpoint} from localStorage:`, { error: error.message });
+                    return [];
+                }
+            },
+            
+            saveToLocalStorage(endpoint, data) {
+                try {
+                    const key = `jyoti50_${endpoint.replace(/\//g, '_')}`;
+                    localStorage.setItem(key, JSON.stringify(data));
+                    this.log(`Saved ${endpoint} to localStorage`);
+                } catch (error) {
+                    this.log(`Error saving ${endpoint} to localStorage:`, { error: error.message });
+                }
+            },
+            
+            saveToLocalStorageAndReturn(endpoint, data) {
+                try {
+                    // For posts, we need to handle different endpoints differently
+                    if (endpoint.includes('events')) {
+                        return this.saveEventToLocalStorage(data);
+                    } else if (endpoint.includes('contacts')) {
+                        return this.saveContactToLocalStorage(data);
+                    } else if (endpoint.includes('settings')) {
+                        return this.saveSettingsToLocalStorage(data);
+                    }
+                    
+                    // Generic fallback
+                    const key = `jyoti50_${endpoint.replace(/\//g, '_')}`;
+                    let existingData = [];
+                    try {
+                        const existing = localStorage.getItem(key);
+                        if (existing) {
+                            existingData = JSON.parse(existing);
+                        }
+                    } catch (e) {}
+                    
+                    // Add ID if not present
+                    if (!data.id) {
+                        data.id = `local_${Date.now()}`;
+                    }
+                    
+                    // Add to array if it's an array, otherwise just save
+                    if (Array.isArray(existingData)) {
+                        existingData.push(data);
+                        localStorage.setItem(key, JSON.stringify(existingData));
+                    } else {
+                        localStorage.setItem(key, JSON.stringify(data));
+                    }
+                    
+                    this.log(`Saved to localStorage for ${endpoint}`);
+                    return { success: true, id: data.id, message: 'Saved to local storage (offline mode)' };
+                } catch (error) {
+                    this.log(`Error saving to localStorage for ${endpoint}:`, { error: error.message });
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            saveEventToLocalStorage(eventData) {
+                try {
+                    // Get existing events
+                    let events = [];
+                    try {
+                        const existing = localStorage.getItem('jyoti50_events');
+                        if (existing) {
+                            events = JSON.parse(existing);
+                        }
+                    } catch (e) {}
+                    
+                    // Add ID if not present
+                    if (!eventData.id) {
+                        eventData.id = `local_${Date.now()}`;
+                    }
+                    
+                    // Add to events array
+                    events.push(eventData);
+                    localStorage.setItem('jyoti50_events', JSON.stringify(events));
+                    
+                    this.log('Saved event to localStorage:', eventData);
+                    return { success: true, id: eventData.id, message: 'Event saved to local storage (offline mode)' };
+                } catch (error) {
+                    this.log('Error saving event to localStorage:', { error: error.message });
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            saveContactToLocalStorage(contactData) {
+                try {
+                    // Get existing contacts
+                    let contacts = [];
+                    try {
+                        const existing = localStorage.getItem('jyoti50_contacts');
+                        if (existing) {
+                            contacts = JSON.parse(existing);
+                        }
+                    } catch (e) {}
+                    
+                    // Add ID if not present
+                    if (!contactData.id) {
+                        contactData.id = `local_${Date.now()}`;
+                    }
+                    
+                    // Add to contacts array
+                    contacts.push(contactData);
+                    localStorage.setItem('jyoti50_contacts', JSON.stringify(contacts));
+                    
+                    this.log('Saved contact to localStorage:', contactData);
+                    return { success: true, id: contactData.id, message: 'Contact saved to local storage (offline mode)' };
+                } catch (error) {
+                    this.log('Error saving contact to localStorage:', { error: error.message });
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            saveSettingsToLocalStorage(settingsData) {
+                try {
+                    localStorage.setItem('jyoti50_settings', JSON.stringify(settingsData));
+                    this.log('Saved settings to localStorage:', settingsData);
+                    return { success: true, message: 'Settings saved to local storage (offline mode)' };
+                } catch (error) {
+                    this.log('Error saving settings to localStorage:', { error: error.message });
+                    return { success: false, error: error.message };
+                }
+            },
+            
+            saveImageToLocalStorage(file, title, description) {
+                return new Promise((resolve, reject) => {
+                    try {
+                        const reader = new FileReader();
+                        
+                        reader.onload = (e) => {
+                            try {
+                                // Get existing gallery items
+                                let galleryItems = [];
+                                try {
+                                    const existing = localStorage.getItem('jyoti50_gallery');
+                                    if (existing) {
+                                        galleryItems = JSON.parse(existing);
+                                    }
+                                } catch (e) {}
+                                
+                                // Create new gallery item
+                                const newItem = {
+                                    id: `local_${Date.now()}`,
+                                    title: title || 'Untitled Image',
+                                    description: description || '',
+                                    image: e.target.result,
+                                    date: new Date().toISOString()
+                                };
+                                
+                                // Add to gallery array
+                                galleryItems.push(newItem);
+                                localStorage.setItem('jyoti50_gallery', JSON.stringify(galleryItems));
+                                
+                                this.log('Saved image to localStorage:', { id: newItem.id, title: newItem.title });
+                                resolve({ success: true, id: newItem.id, message: 'Image saved to local storage (offline mode)' });
+                            } catch (error) {
+                                this.log('Error saving image to localStorage:', { error: error.message });
+                                reject(error);
+                            }
+                        };
+                        
+                        reader.onerror = (error) => {
+                            this.log('Error reading file:', { error: error });
+                            reject(new Error('Failed to read image file'));
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    } catch (error) {
+                        this.log('Error in saveImageToLocalStorage:', { error: error.message });
+                        reject(error);
+                    }
+                });
+            }
+        };
+        
+        // Tab switching functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remove active class from all tabs and contents
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Add active class to clicked tab and corresponding content
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                });
+            });
+            
+            // Initialize the admin panel
+            initializeAdminPanel();
+        });
+        
+        // Initialize the admin panel
+        function initializeAdminPanel() {
+            // Load initial data
+            loadEvents();
+            loadGallery();
+            loadContacts();
+            loadSettings();
+            
+            // Set up event handlers
+            setupEventHandlers();
+            
+            // Log initialization
+            api.log('Admin panel initialized');
+        }
+        
+        // Set up event handlers
+        function setupEventHandlers() {
+            // Events
+            const eventForm = document.getElementById('event-form');
+            if (eventForm) {
+                eventForm.addEventListener('submit', handleEventSubmit);
+            }
+            
+            const refreshEventsBtn = document.getElementById('refresh-events-btn');
+            if (refreshEventsBtn) {
+                refreshEventsBtn.addEventListener('click', loadEvents);
+            }
+            
+            // Gallery
+            const galleryForm = document.getElementById('gallery-upload-form');
+            if (galleryForm) {
+                galleryForm.addEventListener('submit', handleGallerySubmit);
+            }
+            
+            const refreshGalleryBtn = document.getElementById('refresh-gallery-btn');
+            if (refreshGalleryBtn) {
+                refreshGalleryBtn.addEventListener('click', loadGallery);
+            }
+            
+            // Contacts
+            const contactForm = document.getElementById('contact-form');
+            if (contactForm) {
+                contactForm.addEventListener('submit', handleContactSubmit);
+            }
+            
+            const refreshContactsBtn = document.getElementById('refresh-contacts-btn');
+            if (refreshContactsBtn) {
+                refreshContactsBtn.addEventListener('click', loadContacts);
+            }
+            
+            // Settings
+            const generalSettingsForm = document.getElementById('general-settings-form');
+            if (generalSettingsForm) {
+                generalSettingsForm.addEventListener('submit', handleGeneralSettingsSubmit);
+            }
+            
+            const importantInfoForm = document.getElementById('important-info-form');
+            if (importantInfoForm) {
+                importantInfoForm.addEventListener('submit', handleImportantInfoSubmit);
+            }
+            
+            // Debug
+            const testConnectionBtn = document.getElementById('test-connection-btn');
+            if (testConnectionBtn) {
+                testConnectionBtn.addEventListener('click', testApiConnection);
+            }
+            
+            const clearLogBtn = document.getElementById('clear-log-btn');
+            if (clearLogBtn) {
+                clearLogBtn.addEventListener('click', clearDebugLog);
+            }
+            
+            const viewStorageBtn = document.getElementById('view-storage-btn');
+            if (viewStorageBtn) {
+                viewStorageBtn.addEventListener('click', viewLocalStorage);
+            }
+            
+            const clearStorageBtn = document.getElementById('clear-storage-btn');
+            if (clearStorageBtn) {
+                clearStorageBtn.addEventListener('click', clearLocalStorage);
+            }
+        }
+        
+        // Load events from API
+        async function loadEvents() {
+            const eventList = document.getElementById('event-list');
+            const loadingElement = document.getElementById('events-loading');
+            
+            if (!eventList) return;
+            
+            try {
+                // Show loading indicator
+                if (loadingElement) loadingElement.style.display = 'block';
+                
+                // Clear existing events
+                eventList.innerHTML = '';
+                
+                // Fetch events from API
+                const events = await api.get('events');
+                
+                if (Array.isArray(events) && events.length > 0) {
+                    // Render events
+                    events.forEach(event => {
+                        const eventItem = createEventElement(event);
+                        eventList.appendChild(eventItem);
+                    });
+                } else {
+                    // No events found
+                    eventList.innerHTML = '<li class="event-item">No events found. Add your first event above.</li>';
+                }
+            } catch (error) {
+                console.error('Error loading events:', error);
+                eventList.innerHTML = `<li class="event-item">Error loading events: ${error.message}</li>`;
+            } finally {
+                // Hide loading indicator
+                if (loadingElement) loadingElement.style.display = 'none';
+            }
+        }
+        
+        // Create event element
+        function createEventElement(event) {
+            const eventItem = document.createElement('li');
+            eventItem.className = 'event-item';
+            eventItem.dataset.id = event.id;
+            
+            // Format date for display
+            let displayDate = 'N/A';
+            try {
+                displayDate = new Date(event.date).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            } catch (e) {
+                console.error('Error formatting date:', e);
+            }
+            
+            eventItem.innerHTML = `
+                <h4>${event.title || 'Untitled Event'}</h4>
+                <p><strong>Date:</strong> ${displayDate}</p>
+                <p><strong>Time:</strong> ${event.time || 'N/A'}</p>
+                <p><strong>Location:</strong> ${event.location || 'N/A'}</p>
+                <p><strong>Dress Code:</strong> ${event.dressCode || 'Smart Casual'}</p>
+                <p>${event.description || 'No description provided.'}</p>
+                <button class="edit-event-btn" data-id="${event.id}">Edit</button>
+                <button class="delete-event-btn" data-id="${event.id}">Delete</button>
+            `;
+            
+            // Add event listeners for edit and delete buttons
+            const editBtn = eventItem.querySelector('.edit-event-btn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => handleEditEvent(event));
+            }
+            
+            const deleteBtn = eventItem.querySelector('.delete-event-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => handleDeleteEvent(event.id));
+            }
+            
+            return eventItem;
+        }
+        
+        // Handle event form submission
+        async function handleEventSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const statusElement = document.getElementById('event-status');
+            
+            try {
+                // Get form values
+                const title = document.getElementById('event-title').value;
+                const date = document.getElementById('event-date').value;
+                const time = document.getElementById('event-time').value;
+                const location = document.getElementById('event-location').value;
+                const description = document.getElementById('event-description').value;
+                const day = document.getElementById('event-day').value;
+                const dressCode = document.getElementById('event-dress-code').value;
+                
+                // Validate required fields
+                if (!title || !date) {
+                    throw new Error('Title and date are required');
+                }
+                
+                // Create event object
+                const eventData = {
+                    title,
+                    date,
+                    time,
+                    location,
+                    description,
+                    day,
+                    dressCode: dressCode || 'Smart Casual'
+                };
+                
+                // Show status
+                if (statusElement) {
+                    statusElement.className = 'status status-warning';
+                    statusElement.textContent = 'Saving event...';
+                }
+                
+                // Submit to API
+                const result = await api.post('events', eventData);
+                
+                // Show success message
+                if (statusElement) {
+                    statusElement.className = 'status status-success';
+                    statusElement.textContent = 'Event added successfully!';
+                }
+                
+                // Reset form
+                form.reset();
+                
+                // Reload events
+                loadEvents();
+                
+                // Clear status after delay
+                setTimeout(() => {
+                    if (statusElement) {
+                        statusElement.textContent = '';
+                        statusElement.className = '';
+                    }
+                }, 3000);
+            } catch (error) {
+                console.error('Error adding event:', error);
+                
+                // Show error message
+                if (statusElement) {
+                    statusElement.className = 'status status-error';
+                    statusElement.textContent = `Error adding event: ${error.message}`;
+                }
+            }
+        }
+        
+        // Handle edit event
+        function handleEditEvent(event) {
+            // TODO: Implement edit functionality
+            alert(`Edit event functionality will be implemented in a future update.\n\nEvent ID: ${event.id}\nTitle: ${event.title}`);
+        }
+        
+        // Handle delete event
+        function handleDeleteEvent(eventId) {
+            // TODO: Implement delete functionality
+            alert(`Delete event functionality will be implemented in a future update.\n\nEvent ID: ${eventId}`);
+        }
+        
+        // Load gallery from API
+        async function loadGallery() {
+            const galleryGrid = document.getElementById('gallery-grid');
+            const loadingElement = document.getElementById('gallery-loading');
+            
+            if (!galleryGrid) return;
+            
+            try {
+                // Show loading indicator
+                if (loadingElement) loadingElement.style.display = 'block';
+                
+                // Clear existing gallery items
+                galleryGrid.innerHTML = '';
+                
+                // Fetch gallery from API
+                const galleryItems = await api.get('gallery');
+                
+                if (Array.isArray(galleryItems) && galleryItems.length > 0) {
+                    // Render gallery items
+                    galleryItems.forEach(item => {
+                        const galleryItem = createGalleryElement(item);
+                        galleryGrid.appendChild(galleryItem);
+                    });
+                } else {
+                    // No gallery items found
+                    galleryGrid.innerHTML = '<div class="gallery-item"><div class="gallery-item-content"><p>No images found. Upload your first image above.</p></div></div>';
+                }
+                
+                // Also check localStorage for any offline uploads
+                const localGallery = api.getFromLocalStorage('gallery');
+                if (Array.isArray(localGallery) && localGallery.length > 0) {
+                    localGallery.forEach(item => {
+                        // Check if this item is already displayed (by ID)
+                        const existingItem = galleryGrid.querySelector(`[data-id="${item.id}"]`);
+                        if (!existingItem) {
+                            const galleryItem = createGalleryElement(item);
+                            galleryGrid.appendChild(galleryItem);
+                        }
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                galleryGrid.innerHTML = `<div class="gallery-item"><div class="gallery-item-content"><p>Error loading gallery: ${error.message}</p></div></div>`;
+            } finally {
+                // Hide loading indicator
+                if (loadingElement) loadingElement.style.display = 'none';
+            }
+        }
+        
+        // Create gallery element
+        function createGalleryElement(item) {
+            const galleryItem = document.createElement('div');
+            galleryItem.className = 'gallery-item';
+            galleryItem.dataset.id = item.id;
+            
+            // Determine image source
+            let imgSrc = item.image;
+            if (!imgSrc.startsWith('data:') && !imgSrc.startsWith('http')) {
+                // If it's a relative path, make it absolute
+                imgSrc = `/uploads/${imgSrc}`;
+            }
+            
+            galleryItem.innerHTML = `
+                <img src="${imgSrc}" alt="${item.title || 'Gallery Image'}" onerror="this.src='data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22200%22%20height%3D%22150%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20150%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_1%20text%20%7B%20fill%3A%23999%3Bfont-weight%3Anormal%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A10pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_1%22%3E%3Crect%20width%3D%22200%22%20height%3D%22150%22%20fill%3D%22%23EEEEEE%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%2256.1953125%22%20y%3D%2279.5%22%3EImage%20not%20found%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E';">
+                <div class="gallery-item-content">
+                    <h4>${item.title || 'Untitled Image'}</h4>
+                    <p>${item.description || ''}</p>
+                    <button class="delete-gallery-btn" data-id="${item.id}">Delete</button>
+                </div>
+            `;
+            
+            // Add event listener for delete button
+            const deleteBtn = galleryItem.querySelector('.delete-gallery-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => handleDeleteGalleryItem(item.id));
+            }
+            
+            return galleryItem;
+        }
+        
+        // Handle gallery form submission
+        async function handleGallerySubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const statusElement = document.getElementById('upload-status');
+            
+            try {
+                // Get form values
+                const fileInput = document.getElementById('gallery-image');
+                const title = document.getElementById('gallery-title').value;
+                const description = document.getElementById('gallery-description').value;
+                
+                // Validate file
+                if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+                    throw new Error('Please select an image to upload');
+                }
+                
+                const file = fileInput.files[0];
+                
+                // Show status
+                if (statusElement) {
+                    statusElement.className = 'status status-warning';
+                    statusElement.textContent = 'Uploading image...';
+                }
+                
+                // Submit to API
+                const result = await api.uploadImage(file, title, description);
+                
+                // Show success message
+                if (statusElement) {
+                    statusElement.className = 'status status-success';
+                    statusElement.textContent = 'Image uploaded successfully!';
+                }
+                
+                // Reset form
+                form.reset();
+                
+                // Reload gallery
+                loadGallery();
+                
+                // Clear status after delay
+                setTimeout(() => {
+                    if (statusElement) {
+                        statusElement.textContent = '';
+                        statusElement.className = '';
+                    }
+                }, 3000);
+            } catch (error) {
+                console.error('Error uploading image:', error);
+                
+                // Show error message
+                if (statusElement) {
+                    statusElement.className = 'status status-error';
+                    statusElement.textContent = `Error uploading image: ${error.message}`;
+                }
+            }
+        }
+        
+        // Handle delete gallery item
+        function handleDeleteGalleryItem(itemId) {
+            // TODO: Implement delete functionality
+            alert(`Delete gallery item functionality will be implemented in a future update.\n\nItem ID: ${itemId}`);
+        }
+        
+        // Load contacts from API
+        async function loadContacts() {
+            const contactList = document.getElementById('contact-list');
+            const loadingElement = document.getElementById('contacts-loading');
+            
+            if (!contactList) return;
+            
+            try {
+                // Show loading indicator
+                if (loadingElement) loadingElement.style.display = 'block';
+                
+                // Clear existing contacts
+                contactList.innerHTML = '';
+                
+                // Fetch contacts from API
+                const contacts = await api.get('contacts');
+                
+                if (Array.isArray(contacts) && contacts.length > 0) {
+                    // Render contacts
+                    contacts.forEach(contact => {
+                        const contactItem = createContactElement(contact);
+                        contactList.appendChild(contactItem);
+                    });
+                } else {
+                    // No contacts found
+                    contactList.innerHTML = '<li class="contact-item">No contacts found. Add your first contact above.</li>';
+                }
+            } catch (error) {
+                console.error('Error loading contacts:', error);
+                contactList.innerHTML = `<li class="contact-item">Error loading contacts: ${error.message}</li>`;
+            } finally {
+                // Hide loading indicator
+                if (loadingElement) loadingElement.style.display = 'none';
+            }
+        }
+        
+        // Create contact element
+        function createContactElement(contact) {
+            const contactItem = document.createElement('li');
+            contactItem.className = 'contact-item';
+            contactItem.dataset.id = contact.id;
+            
+            contactItem.innerHTML = `
+                <h4>${contact.name || 'Unnamed Contact'}</h4>
+                <p><strong>Email:</strong> ${contact.email || 'N/A'}</p>
+                <p><strong>Phone:</strong> ${contact.phone || 'N/A'}</p>
+                <p><strong>WhatsApp:</strong> ${contact.whatsapp || 'N/A'}</p>
+                <button class="edit-contact-btn" data-id="${contact.id}">Edit</button>
+                <button class="delete-contact-btn" data-id="${contact.id}">Delete</button>
+            `;
+            
+            // Add event listeners for edit and delete buttons
+            const editBtn = contactItem.querySelector('.edit-contact-btn');
+            if (editBtn) {
+                editBtn.addEventListener('click', () => handleEditContact(contact));
+            }
+            
+            const deleteBtn = contactItem.querySelector('.delete-contact-btn');
+            if (deleteBtn) {
+                deleteBtn.addEventListener('click', () => handleDeleteContact(contact.id));
+            }
+            
+            return contactItem;
+        }
+        
+        // Handle contact form submission
+        async function handleContactSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const statusElement = document.getElementById('contact-status');
+            
+            try {
+                // Get form values
+                const name = document.getElementById('contact-name').value;
+                const email = document.getElementById('contact-email').value;
+                const phone = document.getElementById('contact-phone').value;
+                const whatsapp = document.getElementById('contact-whatsapp').value;
+                
+                // Validate required fields
+                if (!name) {
+                    throw new Error('Name is required');
+                }
+                
+                // Create contact object
+                const contactData = {
+                    name,
+                    email,
+                    phone,
+                    whatsapp
+                };
+                
+                // Show status
+                if (statusElement) {
+                    statusElement.className = 'status status-warning';
+                    statusElement.textContent = 'Saving contact...';
+                }
+                
+                // Submit to API
+                const result = await api.post('contacts', contactData);
+                
+                // Show success message
+                if (statusElement) {
+                    statusElement.className = 'status status-success';
+                    statusElement.textContent = 'Contact added successfully!';
+                }
+                
+                // Reset form
+                form.reset();
+                
+                // Reload contacts
+                loadContacts();
+                
+                // Clear status after delay
+                setTimeout(() => {
+                    if (statusElement) {
+                        statusElement.textContent = '';
+                        statusElement.className = '';
+                    }
+                }, 3000);
+            } catch (error) {
+                console.error('Error adding contact:', error);
+                
+                // Show error message
+                if (statusElement) {
+                    statusElement.className = 'status status-error';
+                    statusElement.textContent = `Error adding contact: ${error.message}`;
+                }
+            }
+        }
+        
+        // Handle edit contact
+        function handleEditContact(contact) {
+            // TODO: Implement edit functionality
+            alert(`Edit contact functionality will be implemented in a future update.\n\nContact ID: ${contact.id}\nName: ${contact.name}`);
+        }
+        
+        // Handle delete contact
+        function handleDeleteContact(contactId) {
+            // TODO: Implement delete functionality
+            alert(`Delete contact functionality will be implemented in a future update.\n\nContact ID: ${contactId}`);
+        }
+        
+        // Load settings from API
+        async function loadSettings() {
+            try {
+                // Fetch settings from API
+                const settings = await api.get('settings');
+                
+                // Update form values if settings exist
+                if (settings) {
+                    // General settings
+                    const siteTitle = document.getElementById('site-title');
+                    const siteDescription = document.getElementById('site-description');
+                    
+                    if (siteTitle && settings.title) {
+                        siteTitle.value = settings.title;
+                    }
+                    
+                    if (siteDescription && settings.description) {
+                        siteDescription.value = settings.description;
+                    }
+                    
+                    // Important information
+                    const accommodationInfo = document.getElementById('accommodation-info');
+                    const weatherInfo = document.getElementById('weather-info');
+                    const currencyInfo = document.getElementById('currency-info');
+                    
+                    if (accommodationInfo && settings.accommodation) {
+                        accommodationInfo.value = settings.accommodation;
+                    }
+                    
+                    if (weatherInfo && settings.weather) {
+                        weatherInfo.value = settings.weather;
+                    }
+                    
+                    if (currencyInfo && settings.currency) {
+                        currencyInfo.value = settings.currency;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading settings:', error);
+            }
+        }
+        
+        // Handle general settings form submission
+        async function handleGeneralSettingsSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const statusElement = document.getElementById('settings-status');
+            
+            try {
+                // Get form values
+                const title = document.getElementById('site-title').value;
+                const description = document.getElementById('site-description').value;
+                
+                // Create settings object
+                const settingsData = {
+                    title,
+                    description
+                };
+                
+                // Show status
+                if (statusElement) {
+                    statusElement.className = 'status status-warning';
+                    statusElement.textContent = 'Saving settings...';
+                }
+                
+                // Submit to API
+                const result = await api.post('settings', settingsData);
+                
+                // Show success message
+                if (statusElement) {
+                    statusElement.className = 'status status-success';
+                    statusElement.textContent = 'Settings saved successfully!';
+                }
+                
+                // Clear status after delay
+                setTimeout(() => {
+                    if (statusElement) {
+                        statusElement.textContent = '';
+                        statusElement.className = '';
+                    }
+                }, 3000);
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                
+                // Show error message
+                if (statusElement) {
+                    statusElement.className = 'status status-error';
+                    statusElement.textContent = `Error saving settings: ${error.message}`;
+                }
+            }
+        }
+        
+        // Handle important info form submission
+        async function handleImportantInfoSubmit(e) {
+            e.preventDefault();
+            
+            const form = e.target;
+            const statusElement = document.getElementById('info-status');
+            
+            try {
+                // Get form values
+                const accommodation = document.getElementById('accommodation-info').value;
+                const weather = document.getElementById('weather-info').value;
+                const currency = document.getElementById('currency-info').value;
+                
+                // Create info object
+                const infoData = {
+                    accommodation,
+                    weather,
+                    currency
+                };
+                
+                // Show status
+                if (statusElement) {
+                    statusElement.className = 'status status-warning';
+                    statusElement.textContent = 'Saving information...';
+                }
+                
+                // Submit to API
+                const result = await api.post('settings/info', infoData);
+                
+                // Show success message
+                if (statusElement) {
+                    statusElement.className = 'status status-success';
+                    statusElement.textContent = 'Information saved successfully!';
+                }
+                
+                // Clear status after delay
+                setTimeout(() => {
+                    if (statusElement) {
+                        statusElement.textContent = '';
+                        statusElement.className = '';
+                    }
+                }, 3000);
+            } catch (error) {
+                console.error('Error saving information:', error);
+                
+                // Show error message
+                if (statusElement) {
+                    statusElement.className = 'status status-error';
+                    statusElement.textContent = `Error saving information: ${error.message}`;
+                }
+            }
+        }
+        
+        // Test API connection
+        async function testApiConnection() {
+            const statusElement = document.getElementById('connection-status');
+            
+            try {
+                // Show status
+                if (statusElement) {
+                    statusElement.className = 'status status-warning';
+                    statusElement.textContent = 'Testing API connection...';
+                }
+                
+                // Test connection
+                const result = await api.checkConnection();
+                
+                // Show result
+                if (statusElement) {
+                    if (result.status === 'success') {
+                        statusElement.className = 'status status-success';
+                        statusElement.textContent = `API connection successful: ${result.message || 'Connected to API'}`;
+                    } else {
+                        statusElement.className = 'status status-error';
+                        statusElement.textContent = `API connection failed: ${result.message || 'Unknown error'}`;
+                    }
+                }
+            } catch (error) {
+                console.error('Error testing API connection:', error);
+                
+                // Show error message
+                if (statusElement) {
+                    statusElement.className = 'status status-error';
+                    statusElement.textContent = `Error testing API connection: ${error.message}`;
+                }
+            }
+        }
+        
+        // Clear debug log
+        function clearDebugLog() {
+            const debugLog = document.getElementById('debug-log');
+            if (debugLog) {
+                debugLog.innerHTML = '';
+            }
+        }
+        
+        // View local storage
+        function viewLocalStorage() {
+            const storageDisplay = document.getElementById('storage-display');
+            if (!storageDisplay) return;
+            
+            try {
+                // Get all localStorage keys
+                const keys = Object.keys(localStorage).filter(key => key.startsWith('jyoti50_'));
+                
+                if (keys.length === 0) {
+                    storageDisplay.innerHTML = '<div class="status status-warning">No Jyoti50 data found in localStorage</div>';
+                    return;
+                }
+                
+                // Create HTML for each key
+                let html = '<div class="debug-log">';
+                
+                keys.forEach(key => {
+                    try {
+                        const value = localStorage.getItem(key);
+                        const parsedValue = JSON.parse(value);
+                        const count = Array.isArray(parsedValue) ? parsedValue.length : 1;
+                        
+                        html += `<div><strong>${key}</strong>: ${count} item(s)</div>`;
+                    } catch (e) {
+                        html += `<div><strong>${key}</strong>: Error parsing value</div>`;
+                    }
+                });
+                
+                html += '</div>';
+                storageDisplay.innerHTML = html;
+            } catch (error) {
+                console.error('Error viewing localStorage:', error);
+                storageDisplay.innerHTML = `<div class="status status-error">Error viewing localStorage: ${error.message}</div>`;
+            }
+        }
+        
+        // Clear local storage
+        function clearLocalStorage() {
+            const storageDisplay = document.getElementById('storage-display');
+            
+            try {
+                // Get all localStorage keys
+                const keys = Object.keys(localStorage).filter(key => key.startsWith('jyoti50_'));
+                
+                if (keys.length === 0) {
+                    if (storageDisplay) {
+                        storageDisplay.innerHTML = '<div class="status status-warning">No Jyoti50 data found in localStorage</div>';
+                    }
+                    return;
+                }
+                
+                // Remove each key
+                keys.forEach(key => {
+                    localStorage.removeItem(key);
+                });
+                
+                if (storageDisplay) {
+                    storageDisplay.innerHTML = `<div class="status status-success">Cleared ${keys.length} item(s) from localStorage</div>`;
+                }
+                
+                // Log to debug console
+                api.log(`Cleared ${keys.length} item(s) from localStorage`, keys);
+            } catch (error) {
+                console.error('Error clearing localStorage:', error);
+                if (storageDisplay) {
+                    storageDisplay.innerHTML = `<div class="status status-error">Error clearing localStorage: ${error.message}</div>`;
+                }
+            }
+        }
+        
+        // Function to refresh the gallery display
+        function refreshGallery() {
+            loadGallery();
+        }
+        
+        // Initialize the admin panel when the page loads
+        window.addEventListener('load', function() {
+            api.log('Page loaded');
+        });
+    </script>
+</body>
+</html>
