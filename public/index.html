@@ -103,80 +103,118 @@
     <script src="js/main.js"></script>
     <script src="enhanced-admin-query-param.js"></script>
     
-    <!-- Final LocalStorage Integration Script - Targets Exact Key Structure -->
+    <!-- Direct LocalStorage Integration Script - Final Version -->
     <script>
-    // Final localStorage integration script - targets exact key structure
+    // Direct localStorage integration script - Final Version
     document.addEventListener('DOMContentLoaded', function() {
-      console.log('Final localStorage integration script loaded');
+      console.log('Direct localStorage integration script loaded');
       
       try {
-        // Check for header settings using the exact key
-        const headerSettings = JSON.parse(localStorage.getItem('settings/header'));
-        console.log('Header settings:', headerSettings);
-        if (headerSettings && headerSettings.value) {
+        // Get header settings directly
+        const headerStr = localStorage.getItem('settings/header');
+        console.log('Raw header:', headerStr);
+        
+        // Get footer settings directly
+        const footerStr = localStorage.getItem('settings/footer');
+        console.log('Raw footer:', footerStr);
+        
+        // Try to update header
+        if (headerStr) {
           try {
-            const headerData = JSON.parse(headerSettings.value);
-            if (headerData.logoText) {
+            const headerObj = JSON.parse(headerStr);
+            console.log('Parsed header:', headerObj);
+            
+            // Try different possible structures
+            const logoText = headerObj.logoText || 
+                          (headerObj.value && typeof headerObj.value === 'string' && JSON.parse(headerObj.value).logoText) || 
+                          '';
+            
+            if (logoText) {
               const headerTitle = document.querySelector('header h1');
               if (headerTitle) {
-                headerTitle.textContent = headerData.logoText;
-                console.log('Updated header logo text to:', headerData.logoText);
+                headerTitle.textContent = logoText;
+                console.log('Updated header text to:', logoText);
               }
             }
           } catch (e) {
-            console.error('Error parsing header settings:', e);
+            console.error('Error parsing header:', e);
           }
         }
         
-        // Check for footer settings using the exact key
-        const footerSettings = JSON.parse(localStorage.getItem('settings/footer'));
-        console.log('Footer settings:', footerSettings);
-        if (footerSettings && footerSettings.value) {
+        // Try to update footer
+        if (footerStr) {
           try {
-            const footerData = JSON.parse(footerSettings.value);
-            const footerContainer = document.querySelector('footer .container');
-            if (footerContainer && footerData.copyright) {
-              // Save admin link
-              const adminLink = footerContainer.querySelector('.admin-link');
-              
-              // Update footer content
-              footerContainer.innerHTML = '';
-              
-              // Add copyright
-              const copyrightP = document.createElement('p');
-              copyrightP.innerHTML = footerData.copyright;
-              footerContainer.appendChild(copyrightP);
-              
-              // Add back admin link
-              if (adminLink) {
-                const adminP = document.createElement('p');
-                adminP.appendChild(adminLink);
-                footerContainer.appendChild(adminP);
-              } else {
-                // Create new admin link if it doesn't exist
-                const adminP = document.createElement('p');
-                adminP.innerHTML = '<a href="admin.html" class="admin-link">Admin Login</a>';
-                footerContainer.appendChild(adminP);
+            const footerObj = JSON.parse(footerStr);
+            console.log('Parsed footer:', footerObj);
+            
+            // Try different possible structures
+            const copyright = footerObj.copyright || 
+                           (footerObj.value && typeof footerObj.value === 'string' && JSON.parse(footerObj.value).copyright) || 
+                           '';
+            
+            if (copyright) {
+              const footerContainer = document.querySelector('footer .container');
+              if (footerContainer) {
+                const adminLink = footerContainer.querySelector('.admin-link');
+                footerContainer.innerHTML = '';
+                
+                const p = document.createElement('p');
+                p.innerHTML = copyright;
+                footerContainer.appendChild(p);
+                
+                if (adminLink) {
+                  const adminP = document.createElement('p');
+                  adminP.appendChild(adminLink);
+                  footerContainer.appendChild(adminP);
+                } else {
+                  const adminP = document.createElement('p');
+                  adminP.innerHTML = '<a href="admin.html" class="admin-link">Admin Login</a>';
+                  footerContainer.appendChild(adminP);
+                }
+                console.log('Updated footer content');
               }
-              console.log('Updated footer content');
             }
           } catch (e) {
-            console.error('Error parsing footer settings:', e);
+            console.error('Error parsing footer:', e);
           }
         }
         
-        // Check for gallery images
+        // Try to get gallery images
         const galleryItems = [];
         for (let i = 0; i < localStorage.length; i++) {
           const key = localStorage.key(i);
           if (key.startsWith('gallery/')) {
             try {
-              const item = JSON.parse(localStorage.getItem(key));
-              if (item && item.imageUrl) {
-                galleryItems.push(item);
+              const itemStr = localStorage.getItem(key);
+              console.log('Gallery item raw:', key, itemStr);
+              
+              if (itemStr) {
+                const item = JSON.parse(itemStr);
+                console.log('Parsed gallery item:', item);
+                
+                // Try different possible structures
+                const imageUrl = item.imageUrl || 
+                              (item.value && typeof item.value === 'string' && JSON.parse(item.value).imageUrl) || 
+                              '';
+                              
+                const title = item.title || 
+                           (item.value && typeof item.value === 'string' && JSON.parse(item.value).title) || 
+                           'Gallery Image';
+                           
+                const description = item.description || 
+                                 (item.value && typeof item.value === 'string' && JSON.parse(item.value).description) || 
+                                 '';
+                
+                if (imageUrl) {
+                  galleryItems.push({
+                    imageUrl: imageUrl,
+                    title: title,
+                    description: description
+                  });
+                }
               }
             } catch (e) {
-              console.error('Error parsing gallery item:', e);
+              console.error('Error parsing gallery item:', key, e);
             }
           }
         }
@@ -208,8 +246,8 @@
             }
           }
         }
-      } catch (error) {
-        console.error('Error in localStorage integration script:', error);
+      } catch (e) {
+        console.error('Main error in localStorage integration:', e);
       }
     });
     </script>
