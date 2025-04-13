@@ -1,4 +1,4 @@
-// main.js - Enhanced version with better error handling and day tab functionality
+// main.js - Enhanced version with better error handling, day tab functionality, and dress code feature
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded - starting enhanced version');
   
@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Set up event listeners for day tabs
   setupDayTabs();
+  
+  // Set up home button functionality
+  setupHomeButton();
 });
 
 async function initializeSite() {
@@ -137,22 +140,68 @@ function displayEvents(container, events) {
     if (dayEvents.length === 0) {
       dayContainer.innerHTML = `<p class="no-data">No events scheduled for ${day}.</p>`;
     } else {
-      const eventsHTML = dayEvents.map(event => `
-        <div class="event-card">
-          <h3>${event.title || 'Untitled Event'}</h3>
-          <p class="event-date"><i class="fas fa-calendar"></i> ${new Date(event.date).toLocaleDateString()}</p>
-          <p class="event-time"><i class="fas fa-clock"></i> ${event.startTime || ''} ${event.endTime ? '- ' + event.endTime : ''}</p>
-          <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location || 'No location specified'}</p>
-          <p class="event-description">${event.description || 'No description available.'}</p>
-        </div>
-      `).join('');
+      const eventsHTML = dayEvents.map(event => {
+        // Determine dress code (use default if not specified)
+        const dressCode = event.dressCode || 'Smart Casual';
+        
+        return `
+          <div class="event-card">
+            <h3>${event.title || 'Untitled Event'}</h3>
+            <p class="event-date"><i class="fas fa-calendar"></i> ${new Date(event.date).toLocaleDateString()}</p>
+            <p class="event-time"><i class="fas fa-clock"></i> ${event.startTime || ''} ${event.endTime ? '- ' + event.endTime : ''}</p>
+            <p class="event-location"><i class="fas fa-map-marker-alt"></i> ${event.location || 'No location specified'}</p>
+            <p class="event-dress-code"><i class="fas fa-tshirt"></i> Dress Code: ${dressCode}</p>
+            <button class="dress-code-button" onclick="toggleDressCode(this)">
+              <i class="fas fa-info-circle"></i> Dress Code Details
+            </button>
+            <div class="dress-code-info" style="display: none;">
+              ${getDressCodeDescription(dressCode)}
+            </div>
+            <p class="event-description">${event.description || 'No description available.'}</p>
+          </div>
+        `;
+      }).join('');
       
       dayContainer.innerHTML = eventsHTML;
     }
     
     container.appendChild(dayContainer);
   });
+  
+  // Add event listeners for dress code buttons
+  setupDressCodeButtons();
 }
+
+function getDressCodeDescription(dressCode) {
+  // Provide descriptions for different dress codes
+  const descriptions = {
+    'Formal': 'Full evening wear. Men: Tuxedo or dark suit with tie. Women: Evening gown or cocktail dress.',
+    'Semi-Formal': 'Business professional attire. Men: Suit and tie. Women: Cocktail dress or dressy separates.',
+    'Smart Casual': 'Polished yet relaxed look. Men: Dress pants with button-down shirt. Women: Dress, skirt, or nice pants with blouse.',
+    'Casual': 'Comfortable, everyday clothing. Jeans acceptable with nice top. No athletic wear.',
+    'Beach Formal': 'Elegant beach attire. Men: Linen shirt and khakis. Women: Summer dress.',
+    'Festive': 'Celebration attire with bright colors or holiday-themed clothing.'
+  };
+  
+  return descriptions[dressCode] || 'Please dress appropriately for the occasion.';
+}
+
+function setupDressCodeButtons() {
+  // This function is not needed as we're using inline onclick handlers
+  // But it's kept here for potential future enhancements
+}
+
+// Global function to toggle dress code details visibility
+window.toggleDressCode = function(button) {
+  const infoDiv = button.nextElementSibling;
+  if (infoDiv.style.display === 'none') {
+    infoDiv.style.display = 'block';
+    button.innerHTML = '<i class="fas fa-times-circle"></i> Hide Dress Code Details';
+  } else {
+    infoDiv.style.display = 'none';
+    button.innerHTML = '<i class="fas fa-info-circle"></i> Dress Code Details';
+  }
+};
 
 function displayContacts(container, contacts) {
   const contactsHTML = contacts.map(contact => `
@@ -236,6 +285,16 @@ function setupDayTabs() {
       }
     });
   });
+}
+
+function setupHomeButton() {
+  const homeButton = document.querySelector('.home-button');
+  if (homeButton) {
+    homeButton.addEventListener('click', function(e) {
+      e.preventDefault();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 }
 
 function initializeUI() {
