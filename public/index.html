@@ -8,8 +8,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Additional styles for gallery */
-        .gallery-container {
-            display: grid;
+        #static-gallery {
+            display: grid !important;
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             grid-gap: 20px;
             margin-top: 20px;
@@ -37,16 +37,6 @@
         .gallery-caption p {
             margin: 0;
             color: #666;
-        }
-        
-        /* Hide the original gallery container completely */
-        .gallery-container:not(#static-gallery) {
-            display: none !important;
-        }
-        
-        /* Ensure our static gallery is always visible */
-        #static-gallery {
-            display: grid !important;
         }
     </style>
 </head>
@@ -128,8 +118,8 @@
     <section id="gallery" class="section">
         <div class="container">
             <h2>Photo Gallery</h2>
-            <!-- Static gallery implementation that won't be overwritten -->
-            <div id="static-gallery" class="gallery-container">
+            <!-- Static gallery that won't be overwritten -->
+            <div id="static-gallery">
                 <!-- REPLACE WITH YOUR OWN IMAGES -->
                 <!-- Upload these images to your 'images' folder on your server -->
                 
@@ -164,13 +154,11 @@
                         <p>Sunday morning gathering</p>
                     </div>
                 </div>
-                
-                <!-- Add more gallery items as needed following the same format -->
             </div>
             
-            <!-- Original gallery container (hidden but kept for compatibility) -->
+            <!-- Hidden container for main.js to target -->
             <div class="gallery-container" style="display: none !important;">
-                <div class="loading">Loading gallery...</div>
+                <!-- This will be hidden and used by main.js -->
             </div>
         </div>
     </section>
@@ -187,61 +175,38 @@
     <script src="js/main.js"></script>
     <script src="enhanced-admin-query-param.js"></script>
     
-    <!-- Script to ensure gallery is always visible -->
+    <!-- Override script - must be loaded after main.js -->
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('Guaranteed gallery display script loaded');
-        
-        // Function to ensure our static gallery is always visible
-        function ensureGalleryVisible() {
-            // Hide all other gallery containers
-            const otherGalleries = document.querySelectorAll('.gallery-container:not(#static-gallery)');
-            otherGalleries.forEach(function(gallery) {
-                gallery.style.display = 'none';
-            });
-            
-            // Make sure our static gallery is visible
-            const staticGallery = document.getElementById('static-gallery');
-            if (staticGallery) {
-                staticGallery.style.display = 'grid';
-                console.log('Static gallery visibility enforced');
-            }
+    // Simple targeted solution to fix gallery display
+    (function() {
+      console.log('Gallery override script loaded');
+      
+      // Override the displayGallery function in the global scope
+      window.displayGallery = function(container, images) {
+        console.log('Intercepted displayGallery call - preventing default behavior');
+        // Only modify the hidden container, not our static gallery
+        if (container && container.classList.contains('gallery-container')) {
+          container.style.display = 'none';
         }
-        
-        // Run immediately
-        ensureGalleryVisible();
-        
-        // Run again after a short delay to override any other scripts
-        setTimeout(ensureGalleryVisible, 500);
-        
-        // Run periodically to ensure gallery remains visible
-        setInterval(ensureGalleryVisible, 2000);
-        
-        // Override any attempts to modify our gallery
-        const staticGallery = document.getElementById('static-gallery');
-        if (staticGallery) {
-            // Create a strong override for the display property
-            Object.defineProperty(staticGallery.style, 'display', {
-                get: function() { return 'grid'; },
-                set: function(val) { 
-                    console.log('Attempt to change gallery display blocked');
-                    return 'grid'; 
-                }
-            });
-        }
-        
-        // Override any attempts to hide our gallery section
-        const gallerySection = document.getElementById('gallery');
-        if (gallerySection) {
-            Object.defineProperty(gallerySection.style, 'display', {
-                get: function() { return 'block'; },
-                set: function(val) { 
-                    console.log('Attempt to hide gallery section blocked');
-                    return 'block'; 
-                }
-            });
-        }
-    });
+        return;
+      };
+      
+      // Make sure our static gallery is visible
+      const staticGallery = document.getElementById('static-gallery');
+      if (staticGallery) {
+        staticGallery.style.display = 'grid';
+      }
+      
+      // Hide any "No gallery available" messages
+      setTimeout(function() {
+        const noDataMessages = document.querySelectorAll('.no-data');
+        noDataMessages.forEach(function(message) {
+          if (message.textContent.includes('No images available')) {
+            message.style.display = 'none';
+          }
+        });
+      }, 1000);
+    })();
     </script>
 </body>
 </html>
