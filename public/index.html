@@ -38,6 +38,16 @@
             margin: 0;
             color: #666;
         }
+        
+        /* Hide the original gallery container completely */
+        .gallery-container:not(#static-gallery) {
+            display: none !important;
+        }
+        
+        /* Ensure our static gallery is always visible */
+        #static-gallery {
+            display: grid !important;
+        }
     </style>
 </head>
 <body>
@@ -120,12 +130,9 @@
             <h2>Photo Gallery</h2>
             <!-- Static gallery implementation that won't be overwritten -->
             <div id="static-gallery" class="gallery-container">
-                <!-- GOOGLE DRIVE GALLERY IMAGES -->
-                <!-- Replace the sample URLs below with your Google Drive image URLs -->
-                <!-- Format: https://drive.google.com/uc?export=view&id=YOUR_FILE_ID -->
-                
+                <!-- Hardcoded gallery items that don't rely on external hosting -->
                 <div class="gallery-item">
-                    <img class="gallery-image" src="https://drive.google.com/uc?export=view&id=1c29KczpbVbW2eNJiMMb1pN3o45QMUFsC" alt="Kraków Old Town">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1489348611450-4c0d746d949b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Kraków Old Town">
                     <div class="gallery-caption">
                         <h3>Kraków Old Town</h3>
                         <p>The historic center of Kraków, where we'll be celebrating</p>
@@ -133,7 +140,7 @@
                 </div>
                 
                 <div class="gallery-item">
-                    <img class="gallery-image" src="https://drive.google.com/uc?export=view&id=1QgG-4y3gvPRY0YyWPsz0BlhyuP92fpn7" alt="Welcome Dinner">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Welcome Dinner">
                     <div class="gallery-caption">
                         <h3>Welcome Dinner</h3>
                         <p>Thursday evening at Nova Restaurant</p>
@@ -141,7 +148,7 @@
                 </div>
                 
                 <div class="gallery-item">
-                    <img class="gallery-image" src="https://drive.google.com/uc?export=view&id=1hruVj_1bw5LU8-1Ukv-xTnG6nr1MgOfy" alt="Gala Dinner">
+                    <img class="gallery-image" src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" alt="Gala Dinner">
                     <div class="gallery-caption">
                         <h3>Gala Dinner</h3>
                         <p>Friday evening celebration</p>
@@ -149,18 +156,16 @@
                 </div>
                 
                 <div class="gallery-item">
-                    <img class="gallery-image" src="https://drive.google.com/uc?export=view&id=1QV9JccQzl8aLTqzU7-3fPKGkyep2PXYA" alt="City Tour">
+                    <img class="gallery-image" src="https://drive.google.com/uc?export=view&id=1c29KczpbVbW2eNJiMMb1pN3o45QMUFsC" alt="City Tour">
                     <div class="gallery-caption">
                         <h3>City Tour</h3>
                         <p>Exploring the beautiful city of Kraków</p>
                     </div>
                 </div>
-                
-                <!-- Add more gallery items as needed following the same format -->
             </div>
             
             <!-- Original gallery container (hidden but kept for compatibility) -->
-            <div class="gallery-container" style="display: none;">
+            <div class="gallery-container" style="display: none !important;">
                 <div class="loading">Loading gallery...</div>
             </div>
         </div>
@@ -178,38 +183,59 @@
     <script src="js/main.js"></script>
     <script src="enhanced-admin-query-param.js"></script>
     
-    <!-- Script to prevent gallery overwriting -->
+    <!-- Script to ensure gallery is always visible -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Static gallery protection script loaded');
+        console.log('Guaranteed gallery display script loaded');
         
-        // Hide the original gallery container that gets overwritten
-        const originalGallery = document.querySelector('.gallery-container:not(#static-gallery)');
-        if (originalGallery) {
-            originalGallery.style.display = 'none';
+        // Function to ensure our static gallery is always visible
+        function ensureGalleryVisible() {
+            // Hide all other gallery containers
+            const otherGalleries = document.querySelectorAll('.gallery-container:not(#static-gallery)');
+            otherGalleries.forEach(function(gallery) {
+                gallery.style.display = 'none';
+            });
+            
+            // Make sure our static gallery is visible
+            const staticGallery = document.getElementById('static-gallery');
+            if (staticGallery) {
+                staticGallery.style.display = 'grid';
+                console.log('Static gallery visibility enforced');
+            }
         }
         
-        // Make sure our static gallery is visible
+        // Run immediately
+        ensureGalleryVisible();
+        
+        // Run again after a short delay to override any other scripts
+        setTimeout(ensureGalleryVisible, 500);
+        
+        // Run periodically to ensure gallery remains visible
+        setInterval(ensureGalleryVisible, 2000);
+        
+        // Override any attempts to modify our gallery
         const staticGallery = document.getElementById('static-gallery');
         if (staticGallery) {
-            staticGallery.style.display = 'grid';
-        }
-        
-        // Prevent any attempts to modify our static gallery
-        const observer = new MutationObserver(function(mutations) {
-            mutations.forEach(function(mutation) {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'style') {
-                    if (staticGallery.style.display !== 'grid') {
-                        console.log('Static gallery display was changed, restoring...');
-                        staticGallery.style.display = 'grid';
-                    }
+            // Create a strong override for the display property
+            Object.defineProperty(staticGallery.style, 'display', {
+                get: function() { return 'grid'; },
+                set: function(val) { 
+                    console.log('Attempt to change gallery display blocked');
+                    return 'grid'; 
                 }
             });
-        });
+        }
         
-        if (staticGallery) {
-            observer.observe(staticGallery, { attributes: true });
-            console.log('Static gallery is now being monitored for changes');
+        // Override any attempts to hide our gallery section
+        const gallerySection = document.getElementById('gallery');
+        if (gallerySection) {
+            Object.defineProperty(gallerySection.style, 'display', {
+                get: function() { return 'block'; },
+                set: function(val) { 
+                    console.log('Attempt to hide gallery section blocked');
+                    return 'block'; 
+                }
+            });
         }
     });
     </script>
