@@ -16,6 +16,7 @@
             grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
             grid-gap: 30px;
             margin-top: 30px;
+            margin-bottom: 50px;
         }
         .gallery-item {
             border-radius: 8px;
@@ -116,7 +117,140 @@
             box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.5);
         }
         
+        /* Scrollable Image Carousel Styles */
+        .carousel-container {
+            position: relative;
+            max-width: 100%;
+            margin: 40px auto 0;
+            padding: 0 50px;
+        }
+        
+        .carousel-title {
+            color: #ffd700;
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .carousel-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: #d4af37 #111;
+            padding: 20px 0;
+            margin: 0 -10px;
+        }
+        
+        /* Custom scrollbar styling */
+        .carousel-wrapper::-webkit-scrollbar {
+            height: 8px;
+        }
+        
+        .carousel-wrapper::-webkit-scrollbar-track {
+            background: #111;
+            border-radius: 10px;
+        }
+        
+        .carousel-wrapper::-webkit-scrollbar-thumb {
+            background: #d4af37;
+            border-radius: 10px;
+        }
+        
+        .carousel-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #ffd700;
+        }
+        
+        .carousel-track {
+            display: flex;
+            gap: 20px;
+            padding: 0 10px;
+        }
+        
+        .carousel-item {
+            flex: 0 0 auto;
+            width: calc(25% - 15px); /* Show 4 items at a time */
+            min-width: 220px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            background-color: #000;
+            border: 2px solid #d4af37;
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+        
+        .carousel-item:hover {
+            transform: translateY(-5px);
+            border-color: #ffd700;
+        }
+        
+        .carousel-image {
+            width: 100%;
+            height: 160px;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.5s ease;
+        }
+        
+        .carousel-item:hover .carousel-image {
+            transform: scale(1.05);
+        }
+        
+        .carousel-caption {
+            padding: 12px;
+            background-color: #111;
+            text-align: center;
+        }
+        
+        .carousel-caption h4 {
+            margin: 0 0 5px;
+            color: #ffd700;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            width: 100%;
+            left: 0;
+            transform: translateY(-50%);
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            padding: 0 10px;
+        }
+        
+        .carousel-button {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #ffd700;
+            border: 2px solid #d4af37;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            pointer-events: auto;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .carousel-button:hover {
+            background-color: #000;
+            color: #fff;
+            border-color: #ffd700;
+        }
+        
         /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .carousel-item {
+                width: calc(33.333% - 14px); /* Show 3 items at a time */
+            }
+        }
+        
         @media (max-width: 768px) {
             #static-gallery {
                 grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
@@ -133,6 +267,26 @@
             }
             .gallery-caption p {
                 font-size: 1rem;
+            }
+            .carousel-item {
+                width: calc(50% - 10px); /* Show 2 items at a time */
+                min-width: 180px;
+            }
+            .carousel-image {
+                height: 140px;
+            }
+            .carousel-container {
+                padding: 0 30px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .carousel-item {
+                width: calc(100% - 20px); /* Show 1 item at a time */
+                min-width: 200px;
+            }
+            .carousel-image {
+                height: 180px;
             }
         }
     </style>
@@ -261,6 +415,81 @@
                 </div>
             </div>
             
+            <!-- Scrollable Image Carousel -->
+            <div class="carousel-container">
+                <h3 class="carousel-title">More Memories</h3>
+                <div class="carousel-wrapper">
+                    <div class="carousel-track">
+                        <!-- Carousel Items - Using the same images for demonstration -->
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery1.jpeg" alt="Carousel Image 1">
+                            <div class="carousel-caption">
+                                <h4>Welcome Dinner</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery2.jpeg" alt="Carousel Image 2">
+                            <div class="carousel-caption">
+                                <h4>Gala Dinner</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery3.jpeg" alt="Carousel Image 3">
+                            <div class="carousel-caption">
+                                <h4>City Tour</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery4.jpeg" alt="Carousel Image 4">
+                            <div class="carousel-caption">
+                                <h4>Farewell Brunch</h4>
+                            </div>
+                        </div>
+                        
+                        <!-- Additional carousel items -->
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery1.jpeg" alt="Carousel Image 5">
+                            <div class="carousel-caption">
+                                <h4>Evening Event</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery2.jpeg" alt="Carousel Image 6">
+                            <div class="carousel-caption">
+                                <h4>Group Photo</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery3.jpeg" alt="Carousel Image 7">
+                            <div class="carousel-caption">
+                                <h4>Sightseeing</h4>
+                            </div>
+                        </div>
+                        
+                        <div class="carousel-item">
+                            <img class="carousel-image" src="images/gallery4.jpeg" alt="Carousel Image 8">
+                            <div class="carousel-caption">
+                                <h4>Birthday Cake</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="carousel-nav">
+                    <button class="carousel-button prev-button" onclick="scrollCarousel(-1)">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                    <button class="carousel-button next-button" onclick="scrollCarousel(1)">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+            
             <!-- Hidden container for main.js to target -->
             <div class="gallery-container" style="display: none !important;">
                 <!-- This will be hidden and used by main.js -->
@@ -311,6 +540,16 @@
           }
         });
       }, 1000);
+      
+      // Carousel scroll function
+      window.scrollCarousel = function(direction) {
+        const carouselWrapper = document.querySelector('.carousel-wrapper');
+        const scrollAmount = carouselWrapper.clientWidth * 0.75 * direction;
+        carouselWrapper.scrollBy({
+          left: scrollAmount,
+          behavior: 'smooth'
+        });
+      };
     })();
     </script>
 </body>
