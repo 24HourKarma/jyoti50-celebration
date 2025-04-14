@@ -4,6 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jyoti's 50th Birthday Celebration</title>
+    
+    <!-- App Icon Meta Tags for iOS -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Jyoti's 50th">
+    <link rel="apple-touch-icon" href="images/jyoti.jpg">
+    
+    <!-- App Icon Meta Tags for Android -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="Jyoti's 50th">
+    <link rel="icon" sizes="192x192" href="images/jyoti.jpg">
+    
+    <!-- Theme Color for Browser UI -->
+    <meta name="theme-color" content="#000000">
+    
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -244,6 +259,117 @@
             border-color: #ffd700;
         }
         
+        /* App Icon Links Styling */
+        .app-links {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 10px 0;
+            background-color: #000;
+            position: relative;
+            z-index: 100;
+        }
+        
+        .app-link {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 15px;
+            background-color: #111;
+            color: #ffd700;
+            border: 2px solid #d4af37;
+            border-radius: 25px;
+            font-family: 'Raleway', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .app-link:hover, .app-link:focus {
+            background-color: #d4af37;
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+        
+        .app-link i {
+            margin-right: 8px;
+            font-size: 1.1rem;
+        }
+        
+        /* App Installation Instructions Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow: auto;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .modal.show {
+            display: block;
+            opacity: 1;
+        }
+        
+        .modal-content {
+            background-color: #111;
+            margin: 15% auto;
+            padding: 25px;
+            width: 90%;
+            max-width: 500px;
+            border: 3px solid #d4af37;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            color: #d4af37;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .modal-close:hover {
+            color: #ffd700;
+        }
+        
+        .modal-title {
+            color: #ffd700;
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-top: 0;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .modal-body {
+            color: #f5f5f5;
+            font-family: 'Raleway', sans-serif;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+        
+        .modal-body ol {
+            padding-left: 25px;
+        }
+        
+        .modal-body li {
+            margin-bottom: 10px;
+        }
+        
+        .modal-body strong {
+            color: #ffd700;
+        }
+        
         /* Responsive adjustments */
         @media (max-width: 992px) {
             .carousel-item {
@@ -288,10 +414,61 @@
             .carousel-image {
                 height: 180px;
             }
+            .app-links {
+                flex-direction: column;
+                align-items: center;
+                gap: 10px;
+            }
+            .app-link {
+                width: 80%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- App Icon Links -->
+    <div class="app-links">
+        <a href="#" class="app-link" id="ios-app-link">
+            <i class="fab fa-apple"></i> Add to iPhone Home Screen
+        </a>
+        <a href="#" class="app-link" id="android-app-link">
+            <i class="fab fa-android"></i> Add to Android Home Screen
+        </a>
+    </div>
+    
+    <!-- iOS Installation Instructions Modal -->
+    <div id="ios-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="ios-modal-close">&times;</span>
+            <h3 class="modal-title">Add to iPhone Home Screen</h3>
+            <div class="modal-body">
+                <ol>
+                    <li>Tap the <strong>Share</strong> button <i class="fas fa-share-square"></i> at the bottom of your Safari browser.</li>
+                    <li>Scroll down and tap <strong>"Add to Home Screen"</strong>.</li>
+                    <li>Customize the name if you wish, then tap <strong>"Add"</strong>.</li>
+                    <li>The website will now appear as an app icon on your home screen!</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Android Installation Instructions Modal -->
+    <div id="android-modal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close" id="android-modal-close">&times;</span>
+            <h3 class="modal-title">Add to Android Home Screen</h3>
+            <div class="modal-body">
+                <ol>
+                    <li>Tap the <strong>Menu</strong> button <i class="fas fa-ellipsis-v"></i> in Chrome.</li>
+                    <li>Select <strong>"Add to Home screen"</strong>.</li>
+                    <li>Customize the name if you wish, then tap <strong>"Add"</strong>.</li>
+                    <li>The website will now appear as an app icon on your home screen!</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
     <a href="#" class="home-button"><i class="fas fa-home"></i> Home</a>
     
     <header>
@@ -550,6 +727,47 @@
           behavior: 'smooth'
         });
       };
+      
+      // App Icon Links Modal Functionality
+      document.addEventListener('DOMContentLoaded', function() {
+        // iOS Modal
+        const iosLink = document.getElementById('ios-app-link');
+        const iosModal = document.getElementById('ios-modal');
+        const iosClose = document.getElementById('ios-modal-close');
+        
+        iosLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          iosModal.classList.add('show');
+        });
+        
+        iosClose.addEventListener('click', function() {
+          iosModal.classList.remove('show');
+        });
+        
+        // Android Modal
+        const androidLink = document.getElementById('android-app-link');
+        const androidModal = document.getElementById('android-modal');
+        const androidClose = document.getElementById('android-modal-close');
+        
+        androidLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          androidModal.classList.add('show');
+        });
+        
+        androidClose.addEventListener('click', function() {
+          androidModal.classList.remove('show');
+        });
+        
+        // Close modals when clicking outside
+        window.addEventListener('click', function(e) {
+          if (e.target === iosModal) {
+            iosModal.classList.remove('show');
+          }
+          if (e.target === androidModal) {
+            androidModal.classList.remove('show');
+          }
+        });
+      });
     })();
     </script>
 </body>
